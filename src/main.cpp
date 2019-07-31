@@ -119,11 +119,12 @@ void setup() {
 
     MyLED::Initialize(
                 matrixWidth, matrixHeight,
-                MyLED::MatrixTypeZigzag,
-                MyLED::MatrixConnectionPointRightDown,
-                MyLED::MatrixDirectionCounterClockwise);
+                NEO_MATRIX_TOP + NEO_MATRIX_RIGHT +
+                NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
     MyLED::setBrightness(maxBrightness);
     MyLED::setCurrentLimit(maxCurrent);
+
+    MyLED::matrixTest();
 
     EffectsManager::Initialize();
     Settings::Initialize(eepromInitialization);
