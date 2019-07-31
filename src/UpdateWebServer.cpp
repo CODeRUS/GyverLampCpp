@@ -6,7 +6,7 @@
 #endif
 #include <ArduinoOTA.h>
 
-#include "MyLED.h"
+#include "MyMatrix.h"
 
 namespace  {
 /* Style */
@@ -110,7 +110,7 @@ void drawProgress(size_t progress)
     } else {
         pcs = static_cast<double>(progress) / updateSize;
     }
-    MyLED::fillProgress(pcs, CRGB::Aqua);
+    myMatrix->fillProgress(pcs, CRGB::Aqua);
 }
 
 void updatePostData()
@@ -118,18 +118,18 @@ void updatePostData()
     HTTPUpload& upload = webServer->upload();
     if (upload.status == UPLOAD_FILE_START) {
         isUpdating = true;
-        MyLED::clear();
+        myMatrix->clear();
         Serial.printf("Update: %s\n", upload.filename.c_str());
         if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
             Update.printError(Serial);
-            MyLED::fill(CRGB::Red, true);
+            myMatrix->fill(CRGB::Red, true);
         }
         yield();
     } else if (upload.status == UPLOAD_FILE_WRITE) {
         /* flashing firmware to ESP*/
         if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
             Update.printError(Serial);
-            MyLED::fill(CRGB::Red, true);
+            myMatrix->fill(CRGB::Red, true);
         } else {
 //            Serial.printf("Uploaded: %zd\n", upload.totalSize);
             drawProgress(upload.totalSize);
@@ -138,10 +138,10 @@ void updatePostData()
     } else if (upload.status == UPLOAD_FILE_END) {
         if (Update.end(true)) { //true to set the size to the current progress
             Serial.printf("Update Success: %zd\nRebooting...\n", upload.totalSize);
-            MyLED::fill(CRGB::Green, true);
+            myMatrix->fill(CRGB::Green, true);
         } else {
             Update.printError(Serial);
-            MyLED::fill(CRGB::Red, true);
+            myMatrix->fill(CRGB::Red, true);
         }
         yield();
     }

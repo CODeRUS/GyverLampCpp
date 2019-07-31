@@ -11,6 +11,8 @@
 #include "effects/basic/ColorsEffect.h"
 #include "effects/basic/SnowEffect.h"
 #include "effects/basic/LightersEffect.h"
+#include "effects/basic/ClockEffect.h"
+
 #include "effects/noise/MadnessNoiseEffect.h"
 #include "effects/noise/CloudNoiseEffect.h"
 #include "effects/noise/LavaNoiseEffect.h"
@@ -49,6 +51,7 @@ void EffectsManager::Initialize()
         new SnowEffect(),
         new MatrixEffect(),
         new LightersEffect(),
+//        new ClockEffect(),
     };
 }
 
@@ -69,7 +72,7 @@ void EffectsManager::Process()
 void EffectsManager::Next()
 {
     effects[Settings::currentEffect]->deactivate();
-    MyLED::clear();
+    myMatrix->clear();
     if (Settings::currentEffect == effects.size() - 1) {
         Settings::currentEffect = 0;
     } else {
@@ -81,7 +84,7 @@ void EffectsManager::Next()
 void EffectsManager::Previous()
 {
     effects[Settings::currentEffect]->deactivate();
-    MyLED::clear();
+    myMatrix->clear();
     if (Settings::currentEffect == 0) {
         Settings::currentEffect = static_cast<uint8_t>(effects.size() - 1);
     } else {
@@ -101,21 +104,23 @@ void EffectsManager::ChangeEffect(uint8_t index)
     }
 
     effects[Settings::currentEffect]->deactivate();
-    MyLED::clear();
+    myMatrix->clear();
     Settings::currentEffect = index;
     ActivateEffect(index);
 }
 
 void EffectsManager::ActivateEffect(uint8_t index)
 {
-    if (!effects[index]->settings) {
-        effects[index]->settings = &Settings::effectsSettings[index];
-        if (effects[index]->settings->effectScale > 100) {
-            effects[index]->settings->effectScale = 50;
+    Effect *effect = effects[index];
+    if (!effect->settings) {
+        effect->settings = &Settings::effectsSettings[index];
+        if (effect->settings->effectScale > 100) {
+            effect->settings->effectScale = 50;
         }
     }
-    MyLED::setBrightness(Settings::effectsSettings[index].effectBrightness);
-    effects[index]->activate();
+    myMatrix->setBrightness(Settings::effectsSettings[index].effectBrightness);
+    Serial.printf("%s activated!\n", effect->effectName.c_str());
+    effect->activate();
 }
 
 uint8_t EffectsManager::Count()

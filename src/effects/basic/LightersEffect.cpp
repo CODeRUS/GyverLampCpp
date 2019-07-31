@@ -26,7 +26,7 @@ LightersEffect::LightersEffect()
 
 void LightersEffect::tick()
 {
-    MyLED::clear();
+    myMatrix->clear();
     if (++loopCounter > 20) {
         loopCounter = 0;
     }
@@ -52,6 +52,6 @@ void LightersEffect::tick()
             lightersPos[1][i] = (height - 1) * 10;
             lightersSpeed[1][i] = -lightersSpeed[1][i];
         }
-        MyLED::drawPixelXY(lightersPos[0][i] / 10, lightersPos[1][i] / 10, lightersColor[i]);
+        myMatrix->drawPixelXY(lightersPos[0][i] / 10, lightersPos[1][i] / 10, lightersColor[i]);
     }
 }

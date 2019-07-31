@@ -2,7 +2,7 @@
 #include "Settings.h"
 #include "GyverTimer.h"
 #include "EffectsManager.h"
-#include "MyLED.h"
+#include "MyMatrix.h"
 
 #include <WiFiUdp.h>
 
@@ -79,7 +79,7 @@ void parseUDP() {
     } else if (inputBuffer.startsWith("BRI")) {
         const uint8_t brightness = static_cast<uint8_t>(inputBuffer.substring(3).toInt());
         Settings::CurrentEffectSettings()->effectBrightness = brightness;
-        MyLED::setBrightness(brightness);
+        myMatrix->setBrightness(brightness);
         Settings::SaveLater();
     } else if (inputBuffer.startsWith("SPD")) {
         Settings::CurrentEffectSettings()->effectSpeed = static_cast<uint8_t>(inputBuffer.substring(3).toInt());
@@ -91,8 +91,8 @@ void parseUDP() {
         Settings::masterSwitch = true;
         sendCurrent();
     } else if (inputBuffer.startsWith("P_OFF")) {
-        MyLED::clear();
-        MyLED::show();
+        myMatrix->clear();
+        myMatrix->show();
         Settings::masterSwitch = false;
         sendCurrent();
     } else if (inputBuffer.startsWith("ALM_SET")) {

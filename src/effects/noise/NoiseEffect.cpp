@@ -83,7 +83,7 @@ void NoiseEffect::fillNoiseLED()
                 bri = dim8_raw(bri * 2);
             }
             CRGB color = ColorFromPalette(currentPalette, index, bri);
-            MyLED::drawPixelXY(i, j, color);
+            myMatrix->drawPixelXY(i, j, color);
         }
     }
     ihue += 1;

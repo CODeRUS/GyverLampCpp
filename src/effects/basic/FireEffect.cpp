@@ -97,19 +97,19 @@ void FireEffect::drawFrame(uint8_t pcnt)
                         255, // S
                         (uint8_t)max(0, nextv) // V
                         );
-                MyLED::setLed(x, y, color);
+                myMatrix->setLed(x, y, color);
             } else if (y == 8 && sparkles) {
-                if (random(0, 20) == 0 && MyLED::getPixColorXY(x, y - 1)) {
-                    MyLED::drawPixelXY(x, y, MyLED::getPixColorXY(x, y - 1));
+                if (random(0, 20) == 0 && myMatrix->getPixColorXY(x, y - 1)) {
+                    myMatrix->drawPixelXY(x, y, myMatrix->getPixColorXY(x, y - 1));
                 } else {
-                    MyLED::drawPixelXY(x, y, 0);
+                    myMatrix->drawPixelXY(x, y, 0);
                 }
             } else if (random(0, 2) == 0 && sparkles) {
                 // старая версия для яркости
-                if (MyLED::getPixColorXY(x, y - 1)) {
-                    MyLED::drawPixelXY(x, y, MyLED::getPixColorXY(x, y - 1));
+                if (myMatrix->getPixColorXY(x, y - 1)) {
+                    myMatrix->drawPixelXY(x, y, myMatrix->getPixColorXY(x, y - 1));
                 } else {
-                    MyLED::drawPixelXY(x, y, 0);
+                    myMatrix->drawPixelXY(x, y, 0);
                 }
 
             }
@@ -123,6 +123,6 @@ void FireEffect::drawFrame(uint8_t pcnt)
                 255,           // S
                 (uint8_t)(((100.0 - pcnt) * matrixValue[0][x] + pcnt * line[x]) / 100.0) // V
                 );
-        MyLED::setLed(x, 0, color);
+        myMatrix->setLed(x, 0, color);
     }
 }

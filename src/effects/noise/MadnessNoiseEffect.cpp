@@ -11,7 +11,7 @@ void MadnessNoiseEffect::tick()
     for (uint8_t i = 0; i < width; i++) {
         for (uint8_t j = 0; j < height; j++) {
             CRGB thisColor = CHSV(noise[j][i], 255, noise[i][j]);
-            MyLED::drawPixelXY(i, j, thisColor);
+            myMatrix->drawPixelXY(i, j, thisColor);
         }
     }
 }

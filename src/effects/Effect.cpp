@@ -2,8 +2,8 @@
 
 Effect::Effect()
 {
-    width = MyLED::getWidth();
-    height = MyLED::getHeight();
+    width = static_cast<uint8_t>(myMatrix->width());
+    height = static_cast<uint8_t>(myMatrix->height());
 }
 
 Effect::~Effect()
@@ -13,5 +13,5 @@ Effect::~Effect()
 
 void Effect::Process() {
     tick();
-    MyLED::show();
+    myMatrix->show();
 }

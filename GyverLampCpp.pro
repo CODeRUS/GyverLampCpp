@@ -131,7 +131,7 @@ SOURCES += \
     src/Settings.cpp \
     src/EffectsManager.cpp \
     src/LocalDNS.cpp \
-    src/MyLED.cpp \
+    src/MyMatrix.cpp \
     src/UpdateWebServer.cpp \
     src/WifiServer.cpp \
     src/effects/Effect.cpp \
@@ -144,6 +144,7 @@ SOURCES += \
     src/effects/basic/HorizontalRainbowEffect.cpp \
     src/effects/basic/LightersEffect.cpp \
     src/effects/basic/MatrixEffect.cpp \
+    src/effects/basic/ClockEffect.cpp \
     src/effects/noise/NoiseEffect.cpp \
     src/effects/noise/CloudNoiseEffect.cpp \
     src/effects/noise/ForestNoiseEffect.cpp \
@@ -163,7 +164,7 @@ HEADERS += \
     src/EffectsManager.h \
     src/FireEffect.h \
     src/LocalDNS.h \
-    src/MyLED.h \
+    src/MyMatrix.h \
     src/UpdateWebServer.h \
     src/WifiServer.h \
     src/effects/Effect.h \
@@ -176,6 +177,7 @@ HEADERS += \
     src/effects/basic/HorizontalRainbowEffect.h \
     src/effects/basic/LightersEffect.h \
     src/effects/basic/MatrixEffect.h \
+    src/effects/basic/ClockEffect.h \
     src/effects/noise/NoiseEffect.h \
     src/effects/noise/CloudNoiseEffect.h \
     src/effects/noise/ForestNoiseEffect.h \

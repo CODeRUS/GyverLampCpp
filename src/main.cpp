@@ -3,7 +3,7 @@
 #include "WifiServer.h"
 #include "UpdateWebServer.h"
 #include "LocalDNS.h"
-#include "MyLED.h"
+#include "MyMatrix.h"
 #include "EffectsManager.h"
 #include "Settings.h"
 #include "GyverUdp.h"
@@ -51,8 +51,8 @@ void processButton()
         Serial.println("Single button");
         Settings::masterSwitch = !Settings::masterSwitch;
         if (!Settings::masterSwitch) {
-            MyLED::clear();
-            MyLED::show();
+            myMatrix->clear();
+            myMatrix->show();
         }
     }
     if (!Settings::masterSwitch) {
@@ -89,7 +89,7 @@ void processButton()
         brightness += stepDirection;
         Serial.printf("Step button %d. brightness: %u\n", stepDirection, brightness);
         Settings::CurrentEffectSettings()->effectBrightness = brightness;
-        MyLED::setBrightness(brightness);
+        myMatrix->setBrightness(brightness);
     }
     if (button->isRelease() && isHolding) {
         Serial.println("Release button");
@@ -117,14 +117,14 @@ void setup() {
 
     randomSeed(micros());
 
-    MyLED::Initialize(
+    MyMatrix::Initialize(
                 matrixWidth, matrixHeight,
                 NEO_MATRIX_TOP + NEO_MATRIX_RIGHT +
                 NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
-    MyLED::setBrightness(maxBrightness);
-    MyLED::setCurrentLimit(maxCurrent);
+    myMatrix->setBrightness(maxBrightness);
+    myMatrix->setCurrentLimit(maxCurrent);
 
-    MyLED::matrixTest();
+    myMatrix->matrixTest();
 
     EffectsManager::Initialize();
     Settings::Initialize(eepromInitialization);

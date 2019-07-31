@@ -17,7 +17,7 @@ void VerticalRainbowEffect::tick()
     for (uint8_t j = 0; j < height; j++) {
         const CHSV thisColor = CHSV((hue + j * settings->effectScale), 255, 255);
         for (uint8_t i = 0; i < width; i++) {
-            MyLED::drawPixelXY(i, j, thisColor);
+            myMatrix->drawPixelXY(i, j, thisColor);
         }
     }
 }

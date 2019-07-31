@@ -1,5 +1,5 @@
 #pragma once
-#include "MyLED.h"
+#include "MyMatrix.h"
 #include "Settings.h"
 
 class Effect
