@@ -62,7 +62,7 @@ void MyLED::fill(CRGB color, bool show)
 {
     fill_solid(leds, numLeds, color);
     if (show) {
-        FastLED.show();
+        matrix->show();
     }
 }
 
@@ -70,19 +70,22 @@ void MyLED::fillProgress(double progress, CRGB color)
 {
     const uint16_t number = static_cast<uint16_t>(numLeds * progress);
     fill_solid(leds, number, color);
-    FastLED.show();
+    matrix->show();
 }
 
 void MyLED::setLed(uint8_t x, uint8_t y, CRGB color, bool show)
 {
-    setLed(getPixelNumber(x, y), color);
+    matrix->drawPixel(x, y, color);
+    if (show) {
+        matrix->show();
+    }
 }
 
 void MyLED::setLed(uint16_t index, CRGB color, bool show)
 {
     leds[index] = color;
     if (show) {
-        FastLED.show();
+        matrix->show();
     }
 }
 
@@ -125,7 +128,7 @@ void MyLED::matrixTest()
 
 void MyLED::show()
 {
-    FastLED.show();
+    matrix->show();
 }
 
 uint16_t MyLED::getPixelNumber(uint8_t x, uint8_t y)
