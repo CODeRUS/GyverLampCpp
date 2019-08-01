@@ -69,7 +69,7 @@ void parseUDP() {
     Serial.println(inputBuffer);
 
     if (inputBuffer.startsWith("DEB")) {
-        inputBuffer = "OK " + GyverTimer::ToString();
+        inputBuffer = "OK " + GyverTimer::FormattedTime();
         sendString(inputBuffer);
     } else if (inputBuffer.startsWith("GET")) {
         sendCurrent();

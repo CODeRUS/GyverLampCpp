@@ -37,10 +37,13 @@ void MyMatrix::Initialize(uint8_t sizeWidth, uint8_t sizeHeight, uint8_t matrixT
 
     numLeds = sizeWidth * sizeHeight;
     leds = new CRGB[numLeds]();
+    FastLED.addLeds<WS2812B, ledPin, GRB>(leds, numLeds);
 
     instance = new MyMatrix(leds, sizeWidth, sizeHeight, matrixType);
-    FastLED.addLeds<WS2812B, ledPin, GRB>(leds, numLeds);
-    FastLED.setMaxPowerInVoltsAndMilliamps(5, defaultMaxCurrent);
+
+    instance->begin();
+    instance->clear();
+    instance->show();
 }
 
 void MyMatrix::setCurrentLimit(uint32_t maxCurrent)
@@ -49,11 +52,8 @@ void MyMatrix::setCurrentLimit(uint32_t maxCurrent)
 }
 
 MyMatrix::MyMatrix(CRGB *leds, uint8_t w, uint8_t h, uint8_t matrixType)
-    : FastLED_NeoMatrix(leds, w, h, matrixType)
+    : FastLED_NeoMatrix(leds, w, h, 1, 1, matrixType)
 {
-    begin();
-    clear();
-    show();
 }
 
 void MyMatrix::fill(CRGB color, bool shouldShow)
@@ -99,7 +99,7 @@ void MyMatrix::matrixTest()
         drawPixel(xx, 0, CRGB(CRGB::Red));
         show();
 
-        delay(100);
+        delay(200);
     }
 
     for (int16_t yy = 0; yy < height(); yy++) {
@@ -107,7 +107,14 @@ void MyMatrix::matrixTest()
         drawPixel(0, yy, CRGB(CRGB::Green));
         show();
 
-        delay(100);
+        delay(200);
+    }
+
+    for (int16_t i = 0; i < 16; i++) {
+        clear();
+        drawPixel(i, i, Color(255, 255, 255));
+        show();
+        delay(200);
     }
 
     clear();

@@ -37,7 +37,7 @@ GButton *button = nullptr;
 const char* poolServerName = "europe.pool.ntp.org";
 int timeOffset = 3 * 3600; // GMT + 3
 int updateInterval = 60 * 1000; // 1 min
-uint32_t timerInterval = 5 * 1000; // 5 min
+uint32_t timerInterval = 5 * 60 * 1000; // 5 min
 
 int stepDirection = 1;
 bool isHolding = false;

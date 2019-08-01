@@ -5,6 +5,8 @@ class ClockEffect : public Effect
 {
 public:
     ClockEffect();
-    void tick();
+    void tick() override;
+    void activate() override;
+    void deactivate() override;
 };
 

@@ -51,7 +51,7 @@ void EffectsManager::Initialize()
         new SnowEffect(),
         new MatrixEffect(),
         new LightersEffect(),
-//        new ClockEffect(),
+        new ClockEffect(),
     };
 }
 

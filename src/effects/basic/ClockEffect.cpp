@@ -1,38 +1,56 @@
 #include "ClockEffect.h"
+#include "GyverTimer.h"
 
 namespace  {
 
 int16_t x = 0;
-uint8_t pass = 0;
-
-const uint16_t colors[] = {
-    myMatrix->Color(255, 0, 0),
-    myMatrix->Color(0, 255, 0),
-    myMatrix->Color(0, 0, 255)
-};
+uint8_t delayer = 0;
+int stepper = -1;
 
 } // namespace
 
 ClockEffect::ClockEffect()
 {
     effectName = "Clock";
-    x = width;
 
     settings = new Settings::EffectSettings();
     settings->effectScale = 1;
-    settings->effectSpeed = 100;
-    settings->effectBrightness = 80;
+    settings->effectSpeed = 250;
+    settings->effectBrightness = 10;
 }
 
 void ClockEffect::tick()
 {
-    myMatrix->fillScreen(0);
-    myMatrix->setCursor(x, 0);
-    myMatrix->print(F("22:22"));
-    if(--x < -36) {
-        x = myMatrix->width();
-        if(++pass >= 3) pass = 0;
-        myMatrix->setTextColor(colors[pass]);
+    if (delayer < 3) {
+        ++delayer;
+        return;
     }
+
+    myMatrix->clear();
+    myMatrix->setCursor(x, 0);
+    myMatrix->print(GyverTimer::ClockTime());
     myMatrix->show();
+    x += stepper;
+    if (x < -12) {
+        stepper = 1;
+    } else if (x == 0) {
+        stepper = -1;
+    }
+    delay(1);
+    delayer = 0;
+}
+
+void ClockEffect::activate()
+{
+    GyverTimer::SetInterval(1 * 60 * 1000); // 1 min
+
+    myMatrix->setTextWrap(false);
+    myMatrix->setTextColor(myMatrix->Color(60, 60, 60));
+    myMatrix->setRotation(1);
+}
+
+void ClockEffect::deactivate()
+{
+    GyverTimer::SetInterval(0);
+    myMatrix->setRotation(0);
 }
