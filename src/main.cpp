@@ -100,14 +100,13 @@ void processButton()
 
 void setup() {
     Serial.begin(115200);
-    Serial.println();
+    Serial.println("Happy debugging!");
 
     WifiServer::Initialize(
-                wifiSetupName,
-                wifiOndemandName,
-                wifiOndemandPassword);
+        wifiSetupName,
+        wifiOndemandName,
+        wifiOndemandPassword);
     UpdateWebServer::Initialize(updateServerPort);
-
 
     GyverUdp::Initiazlize(udpServerPort);
     if (LocalDNS::Begin(localHostname)) {
@@ -118,11 +117,26 @@ void setup() {
     randomSeed(micros());
 
     MyMatrix::Initialize(
-                matrixWidth, matrixHeight,
-                NEO_MATRIX_TOP + NEO_MATRIX_RIGHT +
+        matrixWidth, matrixHeight,
+//                NEO_MATRIX_TOP + NEO_MATRIX_RIGHT +
+//                NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
+//                NEO_MATRIX_TOP + NEO_MATRIX_LEFT +
+//                NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
+                NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
                 NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
+//                NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT +
+//                NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
+//                NEO_MATRIX_TOP + NEO_MATRIX_RIGHT +
+//                NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG);
+//                NEO_MATRIX_TOP + NEO_MATRIX_LEFT +
+//                NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG);
+//                NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
+//                NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG);
+//                NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT +
+//                NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG);
     myMatrix->setBrightness(maxBrightness);
     myMatrix->setCurrentLimit(maxCurrent);
+    myMatrix->setRotation(3);
 
     myMatrix->matrixTest();
 

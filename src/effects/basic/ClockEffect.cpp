@@ -45,12 +45,12 @@ void ClockEffect::activate()
     GyverTimer::SetInterval(1 * 60 * 1000); // 1 min
 
     myMatrix->setTextWrap(false);
-    myMatrix->setTextColor(myMatrix->Color(60, 60, 60));
-    myMatrix->setRotation(1);
+    myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+//    myMatrix->setRotation(3);
 }
 
 void ClockEffect::deactivate()
 {
     GyverTimer::SetInterval(0);
-    myMatrix->setRotation(0);
+//    myMatrix->setRotation(3);
 }

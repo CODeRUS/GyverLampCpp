@@ -58,7 +58,7 @@ MyMatrix::MyMatrix(CRGB *leds, uint8_t w, uint8_t h, uint8_t matrixType)
 
 void MyMatrix::fill(CRGB color, bool shouldShow)
 {
-    fillScreen(color);
+    fill_solid(leds, numLeds, color);
     if (shouldShow) {
         show();
     }
@@ -73,7 +73,7 @@ void MyMatrix::fillProgress(double progress, CRGB color)
 
 void MyMatrix::setLed(uint8_t x, uint8_t y, CRGB color, bool showuldShow)
 {
-    drawPixel(x, y, color);
+    drawPixelXY(x, y, color);
     if (showuldShow) {
         show();
     }
@@ -94,27 +94,13 @@ void MyMatrix::fadeToBlackBy(uint16_t index, uint8_t step)
 
 void MyMatrix::matrixTest()
 {
-    for (int16_t xx = 0; xx < width(); xx++) {
-        clear();
-        drawPixel(xx, 0, CRGB(CRGB::Red));
-        show();
-
-        delay(200);
-    }
-
-    for (int16_t yy = 0; yy < height(); yy++) {
-        clear();
-        drawPixel(0, yy, CRGB(CRGB::Green));
-        show();
-
-        delay(200);
-    }
-
     for (int16_t i = 0; i < 16; i++) {
         clear();
-        drawPixel(i, i, Color(255, 255, 255));
+        drawPixelXY(i, 0, CRGB(CRGB::Red));
+        drawPixelXY(0, i, CRGB(CRGB::Green));
+        drawPixelXY(i, i, CRGB(CRGB::White));
         show();
-        delay(200);
+        delay(100);
     }
 
     clear();
@@ -123,12 +109,12 @@ void MyMatrix::matrixTest()
 
 uint16_t MyMatrix::getPixelNumber(uint8_t x, uint8_t y)
 {
-    return static_cast<uint16_t>(XY(x, y));
+    return static_cast<uint16_t>(XY(y, x));
 }
 
 void MyMatrix::drawPixelXY(uint8_t x, uint8_t y, CRGB color)
 {
-    drawPixel(x, y, color);
+    drawPixel(y, x, color);
 }
 
 CRGB MyMatrix::getPixColor(uint16_t number)
