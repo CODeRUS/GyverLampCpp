@@ -24,9 +24,15 @@ public:
     void fadeToBlackBy(uint16_t index, uint8_t step);
 
     uint16_t getPixelNumber(uint8_t x, uint8_t y);
+
     void drawPixelXY(uint8_t x, uint8_t y, CRGB color);
+    void drawLineXY(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, CRGB color);
+    void drawLineXY(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint16_t color);
+
     CRGB getPixColor(uint16_t number);
     CRGB getPixColorXY(uint8_t x, uint8_t y);
+
+    void fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint16_t color);
 
 protected:
     MyMatrix(CRGB *leds, uint8_t w, uint8_t h, uint8_t matrixType);

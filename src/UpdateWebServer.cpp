@@ -124,6 +124,7 @@ void updatePostData()
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
         }
+        myMatrix->setTextColor(myMatrix->Color(0, 0, 40));
         yield();
     } else if (upload.status == UPLOAD_FILE_WRITE) {
         /* flashing firmware to ESP*/
