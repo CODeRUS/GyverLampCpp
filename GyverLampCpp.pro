@@ -125,6 +125,9 @@ OTHER_FILES += platformio.ini
 
 SOURCES += \
     lib/GyverButton/*.cpp \
+    src/effects/basic/ClockHorizontal1Effect.cpp \
+    src/effects/basic/ClockHorizontal2Effect.cpp \
+    src/effects/basic/ClockHorizontal3Effect.cpp \
     src/main.cpp \
     src/GyverTimer.cpp \
     src/GyverUdp.cpp \
@@ -168,6 +171,9 @@ HEADERS += \
     src/UpdateWebServer.h \
     src/WifiServer.h \
     src/effects/Effect.h \
+    src/effects/basic/ClockHorizontal1Effect.h \
+    src/effects/basic/ClockHorizontal2Effect.h \
+    src/effects/basic/ClockHorizontal3Effect.h \
     src/effects/basic/SnowEffect.h \
     src/effects/basic/SparklesEffect.h \
     src/effects/basic/VerticalRainbowEffect.h \

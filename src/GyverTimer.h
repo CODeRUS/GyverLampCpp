@@ -8,6 +8,7 @@ public:
     static void Process();
     static void SetInterval(uint32_t timerInterval);
     static void ForceUpdate();
+    static void ReadTime();
     static String FormattedTime();
     static String ClockTime();
 };

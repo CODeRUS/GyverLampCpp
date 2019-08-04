@@ -5,13 +5,13 @@ namespace  {
 
 int16_t x = 0;
 uint8_t delayer = 0;
-int stepper = -1;
+bool hours = true;
 
 } // namespace
 
 ClockEffect::ClockEffect()
 {
-    effectName = "Clock";
+    effectName = "Clock vertical";
 
     settings = new Settings::EffectSettings();
     settings->effectScale = 1;
@@ -21,22 +21,23 @@ ClockEffect::ClockEffect()
 
 void ClockEffect::tick()
 {
-    if (delayer < 3) {
+    if (delayer < 7) {
         ++delayer;
         return;
     }
 
     myMatrix->clear();
-    myMatrix->setCursor(x, 0);
+    if (hours) {
+        myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+        myMatrix->setCursor(0, 0);
+    } else {
+        myMatrix->setTextColor(myMatrix->Color(0, 40, 0));
+        myMatrix->setCursor(-13, 0);
+    }
     myMatrix->print(GyverTimer::ClockTime());
     myMatrix->show();
-    x += stepper;
-    if (x < -12) {
-        stepper = 1;
-    } else if (x == 0) {
-        stepper = -1;
-    }
-    delay(1);
+    delay(100);
+    hours = !hours;
     delayer = 0;
 }
 
@@ -46,11 +47,8 @@ void ClockEffect::activate()
 
     myMatrix->setTextWrap(false);
     myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
-//    myMatrix->setRotation(3);
 }
 
 void ClockEffect::deactivate()
 {
-    GyverTimer::SetInterval(0);
-//    myMatrix->setRotation(3);
 }

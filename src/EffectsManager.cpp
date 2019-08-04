@@ -12,6 +12,9 @@
 #include "effects/basic/SnowEffect.h"
 #include "effects/basic/LightersEffect.h"
 #include "effects/basic/ClockEffect.h"
+#include "effects/basic/ClockHorizontal1Effect.h"
+#include "effects/basic/ClockHorizontal2Effect.h"
+#include "effects/basic/ClockHorizontal3Effect.h"
 
 #include "effects/noise/MadnessNoiseEffect.h"
 #include "effects/noise/CloudNoiseEffect.h"
@@ -52,6 +55,9 @@ void EffectsManager::Initialize()
         new MatrixEffect(),
         new LightersEffect(),
         new ClockEffect(),
+        new ClockHorizontal1Effect(),
+        new ClockHorizontal2Effect(),
+        new ClockHorizontal3Effect(),
     };
 }
 
