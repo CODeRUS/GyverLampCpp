@@ -110,7 +110,7 @@ void drawProgress(size_t progress)
     } else {
         pcs = static_cast<double>(progress) / updateSize;
     }
-    myMatrix->fillProgress(pcs, CRGB::Aqua);
+    myMatrix->fillProgress(pcs);
 }
 
 void updatePostData()
@@ -124,7 +124,9 @@ void updatePostData()
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
         }
-        myMatrix->setTextColor(myMatrix->Color(0, 0, 40));
+        myMatrix->setRotation(3);
+        myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
+        myMatrix->setBrightness(80);
         yield();
     } else if (upload.status == UPLOAD_FILE_WRITE) {
         /* flashing firmware to ESP*/

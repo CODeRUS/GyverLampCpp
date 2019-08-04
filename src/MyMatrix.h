@@ -17,10 +17,11 @@ public:
 
     void matrixTest();
 
+    void clear(bool shouldShow = false);
     void fill(CRGB color, bool shouldShow = false);
-    void fillProgress(double progress, CRGB color);
-    void setLed(uint8_t x, uint8_t y, CRGB color, bool showuldShow = false);
-    void setLed(uint16_t index, CRGB color, bool showuldShow = false);
+    void fillProgress(double progress);
+    void setLed(uint8_t x, uint8_t y, CRGB color, bool shouldShow = false);
+    void setLed(uint16_t index, CRGB color, bool shouldShow = false);
     void fadeToBlackBy(uint16_t index, uint8_t step);
 
     uint16_t getPixelNumber(uint8_t x, uint8_t y);

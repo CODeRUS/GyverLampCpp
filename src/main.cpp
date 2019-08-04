@@ -78,7 +78,7 @@ void processButton()
             stepDirection = -1;
         }
     }
-    if (button->isStep()) {
+    if (isHolding && button->isStep()) {
         uint8_t brightness = Settings::CurrentEffectSettings()->effectBrightness;
         if (stepDirection < 0 && brightness == 1) {
             return;

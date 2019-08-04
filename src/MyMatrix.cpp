@@ -64,7 +64,7 @@ void MyMatrix::fill(CRGB color, bool shouldShow)
     }
 }
 
-void MyMatrix::fillProgress(double progress, CRGB color)
+void MyMatrix::fillProgress(double progress)
 {
     clear();
 
@@ -91,18 +91,18 @@ void MyMatrix::fillProgress(double progress, CRGB color)
     show();
 }
 
-void MyMatrix::setLed(uint8_t x, uint8_t y, CRGB color, bool showuldShow)
+void MyMatrix::setLed(uint8_t x, uint8_t y, CRGB color, bool shouldShow)
 {
     drawPixelXY(x, y, color);
-    if (showuldShow) {
+    if (shouldShow) {
         show();
     }
 }
 
-void MyMatrix::setLed(uint16_t index, CRGB color, bool showuldShow)
+void MyMatrix::setLed(uint16_t index, CRGB color, bool shouldShow)
 {
     leds[index] = color;
-    if (showuldShow) {
+    if (shouldShow) {
         show();
     }
 }
@@ -125,6 +125,15 @@ void MyMatrix::matrixTest()
 
     clear();
     show();
+}
+
+void MyMatrix::clear(bool shouldShow)
+{
+    FastLED.clear();
+    if (shouldShow) {
+        delay(1);
+        show();
+    }
 }
 
 uint16_t MyMatrix::getPixelNumber(uint8_t x, uint8_t y)
