@@ -1,22 +1,38 @@
+#include "EffectsManager.h"
 #include "LampWebServer.h"
+#include "MyMatrix.h"
+#include "Settings.h"
 
+#include <Update.h>
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
 
 namespace  {
+
+size_t updateSize = 0;
+bool isUpdatingFlag = false;
 
 LampWebServer *instance = nullptr;
 AsyncWebServer *webServer = nullptr;
 AsyncWebServer *socketServer = nullptr;
 AsyncWebSocket *socket = nullptr;
 
+void parseTextMessage(const String &message)
+{
+    Serial.print("<< ");
+    Serial.println(message);
+
+    Settings::ApplyConfig(message);
+}
+
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
     if(type == WS_EVT_CONNECT){
         Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
-        client->printf("Hello Client %u :)", client->id());
+//        client->printf("Hello Client %u :)", client->id());
+        client->text(Settings::GetCurrentConfig());
         client->ping();
     } else if(type == WS_EVT_DISCONNECT){
-        Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
+        Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id(), *((uint16_t*)arg));
     } else if(type == WS_EVT_ERROR){
         Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
     } else if(type == WS_EVT_PONG){
@@ -41,10 +57,13 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
             }
             Serial.printf("%s\n",msg.c_str());
 
-            if(info->opcode == WS_TEXT)
-                client->text("I got your text message");
-            else
-                client->binary("I got your binary message");
+            if(info->opcode == WS_TEXT) {
+//                client->text("I got your text message");
+                parseTextMessage(msg);
+            } else {
+//                client->binary("I got your binary message");
+                Serial.println("Received binary message");
+            }
         } else {
             //message is comprised of multiple frames or the frame is split into multiple packets
             if(info->index == 0){
@@ -72,10 +91,13 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
                 Serial.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
                 if(info->final){
                     Serial.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
-                    if(info->message_opcode == WS_TEXT)
-                        client->text("I got your text message");
-                    else
-                        client->binary("I got your binary message");
+                    if(info->message_opcode == WS_TEXT) {
+//                        client->text("I got your text message");
+                        parseTextMessage(msg);
+                    } else {
+//                        client->binary("I got your binary message");
+                        Serial.println("Received binary message");
+                    }
                 }
             }
         }
@@ -126,7 +148,13 @@ void notFoundHandler(AsyncWebServerRequest *request){
         }
     }
 
-    // request->send(404);
+    if (request->url().endsWith(".map")) {
+        request->send(404);
+    } else {
+        request->send(SPIFFS, "/index.html", "text/html");
+    }
+}
+
 void drawProgress(size_t progress)
 {
     double pcs;
@@ -218,35 +246,36 @@ LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
 {
     webServer = new AsyncWebServer(webPort);
 
+    File root = SPIFFS.open("/");
+    if (!root) {
+        Serial.println("Error opening SPIFFS root!");
+        return;
+    }
+    while (File file = root.openNextFile()) {
+        const char* fileName = file.name();
+        String resultName = String(fileName);
+        if (resultName.endsWith(".css")) {
+            resultName = String("/static/css") + fileName;
+        } else if (resultName.endsWith(".js")) {
+            resultName = String("/static/js") + fileName;
+        } else if (resultName.endsWith(".html")) {
+            resultName = resultName.substring(0, resultName.indexOf('.'));
+        }
+        Serial.printf("Adding web handler from %s to %s\n", resultName.c_str(), fileName);
+
+        webServer->serveStatic(resultName.c_str(), SPIFFS, fileName);
+
+//        webServer->on(resultName.c_str(), HTTP_GET, [fileName](AsyncWebServerRequest *request){
+//            request->send(SPIFFS, fileName, "text/javascript");
+//        });
+    }
+
     webServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(SPIFFS, "/index.html", "text/html");
     });
 
-    webServer->on("/static/css/2.266e55a5.chunk.css", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/2.266e55a5.chunk.css", "text/css");
-    });
-
-    webServer->on("/static/css/main.2cce8147.chunk.css", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/main.2cce8147.chunk.css", "text/css");
-    });
-
-    webServer->on("/static/js/2.22103a46.chunk.js", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/2.22103a46.chunk.js", "text/javascript");
-    });
-
-    webServer->on("/static/js/main.4beb7e06.chunk.js", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/main.4beb7e06.chunk.js", "text/javascript");
-    });
-
-    webServer->on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/favicon.ico", "image/x-icon");
-    });
-
     webServer->on("/update", HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);
     webServer->on("/updateSize", HTTP_POST, updateSizeHandler);
-    //file:///C:/Users/coderus/workplace/GyverLamp/firmware/GyverLampCpp/data/precache-manifest.js
-    //file:///C:/Users/coderus/workplace/GyverLamp/firmware/GyverLampCpp/data/runtime~main.a8a9905a.js
-
 
     webServer->onNotFound(notFoundHandler);
 
@@ -259,7 +288,6 @@ LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
 
     socketServer = new AsyncWebServer(wsPort);
     socketServer->addHandler(socket);
-    socketServer->onNotFound(notFoundHandler);
     socketServer->begin();
 }
 

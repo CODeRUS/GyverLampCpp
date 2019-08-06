@@ -22,6 +22,9 @@ public:
     static void SaveLater();
     static void Save();
 
+    static String GetCurrentConfig();
+    static void ApplyConfig(const String &message);
+
     static EffectSettings *CurrentEffectSettings();
 
     static uint8_t initializationFlag;

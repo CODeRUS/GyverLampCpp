@@ -1,5 +1,8 @@
 #include "Settings.h"
 #include "EffectsManager.h"
+#include "MyMatrix.h"
+
+#include <ArduinoJson.h>
 
 uint8_t Settings::initializationFlag = 0;
 Settings::AlarmSettings* Settings::alarmSettings;
@@ -108,6 +111,51 @@ void Settings::Save()
     address += sizeof(uint8_t);
 
     EEPROM.commit();
+}
+
+String Settings::GetCurrentConfig()
+{
+    DynamicJsonDocument doc(4096);
+
+    doc["working"] = masterSwitch;
+
+    JsonArray effects = doc.createNestedArray("effects");
+
+    for (uint8_t index = 0; index < EffectsManager::Count(); index++) {
+        const EffectSettings settings = effectsSettings[index];
+
+        JsonObject effect = effects.createNestedObject();
+        effect["name"] = EffectsManager::EffectName(index);
+        effect["speed"] = settings.effectSpeed;
+        effect["scale"] = settings.effectScale;
+        effect["brightness"] = settings.effectBrightness;
+
+    }
+
+    JsonArray alarms = doc.createNestedArray("alarms");
+    //    alarms.add(48.756080);
+    //    alarms.add(2.302038);
+
+    String output;
+    serializeJson(doc, output);
+
+    Serial.print(">> ");
+    Serial.println(output);
+    return output;
+}
+
+void Settings::ApplyConfig(const String &message)
+{
+    DynamicJsonDocument doc(4096);
+    deserializeJson(doc, message);
+
+    const bool working = doc["working"];
+    Serial.printf("working: %s\n", working ? "true" : "false");
+    masterSwitch = working;
+    if (!masterSwitch) {
+        myMatrix->clear();
+        myMatrix->show();
+    }
 }
 
 Settings::EffectSettings* Settings::CurrentEffectSettings()

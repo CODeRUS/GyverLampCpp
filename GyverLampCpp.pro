@@ -169,7 +169,6 @@ HEADERS += \
     src/FireEffect.h \
     src/LocalDNS.h \
     src/MyMatrix.h \
-    src/UpdateWebServer.h \
     src/WifiServer.h \
     src/effects/Effect.h \
     src/effects/basic/ClockHorizontal1Effect.h \

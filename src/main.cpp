@@ -20,9 +20,8 @@ const char* wifiSetupName = "Fire Lamp";
 const char* wifiOndemandName = "Fire Lamp AP";
 const char* wifiOndemandPassword = "ondemand";
 
-uint16_t webServerPort = 8888;
+uint16_t webServerPort = 80;
 uint16_t webSocketPort = 8000;
-uint16_t updateServerPort = 8080;
 uint16_t udpServerPort = 8888;
 
 const char* localHostname = "firelamp";
@@ -115,12 +114,13 @@ void setup() {
         wifiSetupName,
         wifiOndemandName,
         wifiOndemandPassword);
-    UpdateWebServer::Initialize(updateServerPort);
     LampWebServer::Initialize(webServerPort, webSocketPort);
 
     GyverUdp::Initiazlize(udpServerPort);
     if (LocalDNS::Begin(localHostname)) {
-        LocalDNS::AddService("update", "tcp", updateServerPort);
+        LocalDNS::AddService("http", "tcp", webServerPort);
+        LocalDNS::AddService("ws", "tcp", webSocketPort);
+        LocalDNS::AddService("app", "udp", udpServerPort);
     }
     GyverTimer::Initialize(poolServerName, timeOffset, updateInterval, timerInterval);
 
