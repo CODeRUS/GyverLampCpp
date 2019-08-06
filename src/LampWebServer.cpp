@@ -127,8 +127,75 @@ void notFoundHandler(AsyncWebServerRequest *request){
     }
 
     // request->send(404);
+void drawProgress(size_t progress)
+{
+    double pcs;
+    if (updateSize == 0) {
+        pcs = 0.5;
+    } else {
+        pcs = static_cast<double>(progress) / updateSize;
+    }
+    myMatrix->fillProgress(pcs);
+}
 
-    request->send(SPIFFS, "/index.html", "text/html");
+void updateSizeHandler(AsyncWebServerRequest *request)
+{
+    const String fileSize = request->arg("fileSize");
+    updateSize = static_cast<size_t>(fileSize.toInt());
+    Serial.printf("Update size: %zu\n", updateSize);
+    request->send(200);
+}
+
+void updateRequestHandler(AsyncWebServerRequest *request)
+{
+    Serial.println("updateRequestHandler");
+    request->send(200);
+    ESP.restart();
+}
+
+void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+{
+    Serial.printf("updateBodyHandler len: %zu index: %zu total: %zu\n", len, index, total);
+}
+
+void updateFileHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
+{
+    uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+    if (!index){
+        Serial.println("Update started!");
+        if (!Update.begin(free_space)) {
+            Update.printError(Serial);
+            myMatrix->fill(CRGB::Red, true);
+            isUpdatingFlag = false;
+        } else {
+            isUpdatingFlag = true;
+            myMatrix->setRotation(3);
+            myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
+            myMatrix->setBrightness(80);
+        }
+    } else {
+//        Serial.printf("Updating: %zu size: %zu\n", index, len);
+    }
+
+    if (Update.write(data, len) != len) {
+        Update.printError(Serial);
+        myMatrix->fill(CRGB::Red, true);
+        isUpdatingFlag = false;
+    } else {
+        drawProgress(index + len);
+    }
+
+    if (final) {
+        if (!Update.end(true)){
+            Update.printError(Serial);
+            myMatrix->fill(CRGB::Red, true);
+            isUpdatingFlag = false;
+        } else {
+            Serial.printf("Update Success: %zd\nRebooting...\n", index + len);
+            myMatrix->fill(CRGB::Green, true);
+        }
+    }
+    yield();
 }
 
 } // namespace
@@ -175,8 +242,8 @@ LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
         request->send(SPIFFS, "/favicon.ico", "image/x-icon");
     });
 
-    //file:///C:/Users/coderus/workplace/GyverLamp/firmware/GyverLampCpp/data/asset-manifest.json
-    //file:///C:/Users/coderus/workplace/GyverLamp/firmware/GyverLampCpp/data/manifest.json
+    webServer->on("/update", HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);
+    webServer->on("/updateSize", HTTP_POST, updateSizeHandler);
     //file:///C:/Users/coderus/workplace/GyverLamp/firmware/GyverLampCpp/data/precache-manifest.js
     //file:///C:/Users/coderus/workplace/GyverLamp/firmware/GyverLampCpp/data/runtime~main.a8a9905a.js
 
@@ -198,4 +265,9 @@ LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
 
 void LampWebServer::Process()
 {
+}
+
+bool LampWebServer::isUpdating()
+{
+    return isUpdatingFlag;
 }

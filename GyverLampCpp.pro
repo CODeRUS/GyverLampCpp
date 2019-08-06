@@ -136,7 +136,6 @@ SOURCES += \
     src/EffectsManager.cpp \
     src/LocalDNS.cpp \
     src/MyMatrix.cpp \
-    src/UpdateWebServer.cpp \
     src/WifiServer.cpp \
     src/effects/Effect.cpp \
     src/effects/basic/SnowEffect.cpp \

@@ -2,7 +2,6 @@
 #include <SPIFFS.h>
 
 #include "WifiServer.h"
-#include "UpdateWebServer.h"
 #include "LocalDNS.h"
 #include "MyMatrix.h"
 #include "EffectsManager.h"
@@ -162,10 +161,9 @@ void setup() {
 
 void loop() {
     WifiServer::Process();
-    UpdateWebServer::Process();
     lampWebServer->Process();
 
-    if (!UpdateWebServer::IsUpdating()) {
+    if (!lampWebServer->isUpdating()) {
         GyverUdp::Process();
         GyverTimer::Process();
         processButton();
