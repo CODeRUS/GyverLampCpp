@@ -25,26 +25,26 @@ void parseTextMessage(const String &message)
     Settings::ApplyConfig(message);
 }
 
-void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
-    if(type == WS_EVT_CONNECT){
+void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
+    if (type == WS_EVT_CONNECT) {
         Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
 //        client->printf("Hello Client %u :)", client->id());
         client->text(Settings::GetCurrentConfig());
         client->ping();
-    } else if(type == WS_EVT_DISCONNECT){
-        Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id(), *((uint16_t*)arg));
-    } else if(type == WS_EVT_ERROR){
+    } else if (type == WS_EVT_DISCONNECT) {
+        Serial.printf("ws[%s][%u] disconnect\n", server->url(), client->id());
+    } else if (type == WS_EVT_ERROR) {
         Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
-    } else if(type == WS_EVT_PONG){
-        Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
-    } else if(type == WS_EVT_DATA){
+    } else if (type == WS_EVT_PONG) {
+        Serial.printf("ws[%s][%u] pong[%zu]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+    } else if (type == WS_EVT_DATA) {
         AwsFrameInfo * info = (AwsFrameInfo*)arg;
         String msg = "";
-        if(info->final && info->index == 0 && info->len == len){
+        if (info->final && info->index == 0 && info->len == len) {
             //the whole message is in a single frame and we got all of it's data
-            Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT)?"text":"binary", info->len);
+            Serial.printf("ws[%s][%u] %s-message[%zu]: ", server->url(), client->id(), (info->opcode == WS_TEXT)?"text":"binary", info->len);
 
-            if(info->opcode == WS_TEXT){
+            if (info->opcode == WS_TEXT) {
                 for(size_t i=0; i < info->len; i++) {
                     msg += (char) data[i];
                 }
@@ -57,7 +57,7 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
             }
             Serial.printf("%s\n",msg.c_str());
 
-            if(info->opcode == WS_TEXT) {
+            if (info->opcode == WS_TEXT) {
 //                client->text("I got your text message");
                 parseTextMessage(msg);
             } else {
@@ -66,15 +66,15 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
             }
         } else {
             //message is comprised of multiple frames or the frame is split into multiple packets
-            if(info->index == 0){
-                if(info->num == 0)
+            if (info->index == 0) {
+                if (info->num == 0)
                     Serial.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
-                Serial.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
+                Serial.printf("ws[%s][%u] frame[%u] start[%zu]\n", server->url(), client->id(), info->num, info->len);
             }
 
-            Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT)?"text":"binary", info->index, info->index + len);
+            Serial.printf("ws[%s][%u] frame[%u] %s[%zu - %zu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT)?"text":"binary", info->index, info->index + len);
 
-            if(info->opcode == WS_TEXT){
+            if (info->opcode == WS_TEXT) {
                 for(size_t i=0; i < len; i++) {
                     msg += (char) data[i];
                 }
@@ -87,11 +87,11 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
             }
             Serial.printf("%s\n",msg.c_str());
 
-            if((info->index + len) == info->len){
-                Serial.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
-                if(info->final){
+            if ((info->index + len) == info->len) {
+                Serial.printf("ws[%s][%u] frame[%u] end[%zu]\n", server->url(), client->id(), info->num, info->len);
+                if (info->final) {
                     Serial.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
-                    if(info->message_opcode == WS_TEXT) {
+                    if (info->message_opcode == WS_TEXT) {
 //                        client->text("I got your text message");
                         parseTextMessage(msg);
                     } else {
@@ -104,44 +104,44 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
     }
 }
 
-void notFoundHandler(AsyncWebServerRequest *request){
+void notFoundHandler(AsyncWebServerRequest *request) {
     Serial.printf("NOT_FOUND: ");
-    if(request->method() == HTTP_GET)
+    if (request->method() == HTTP_GET)
         Serial.printf("GET");
-    else if(request->method() == HTTP_POST)
+    else if (request->method() == HTTP_POST)
         Serial.printf("POST");
-    else if(request->method() == HTTP_DELETE)
+    else if (request->method() == HTTP_DELETE)
         Serial.printf("DELETE");
-    else if(request->method() == HTTP_PUT)
+    else if (request->method() == HTTP_PUT)
         Serial.printf("PUT");
-    else if(request->method() == HTTP_PATCH)
+    else if (request->method() == HTTP_PATCH)
         Serial.printf("PATCH");
-    else if(request->method() == HTTP_HEAD)
+    else if (request->method() == HTTP_HEAD)
         Serial.printf("HEAD");
-    else if(request->method() == HTTP_OPTIONS)
+    else if (request->method() == HTTP_OPTIONS)
         Serial.printf("OPTIONS");
     else
         Serial.printf("UNKNOWN");
     Serial.printf(" http://%s%s\n", request->host().c_str(), request->url().c_str());
 
-    if(request->contentLength()){
+    if (request->contentLength()) {
         Serial.printf("_CONTENT_TYPE: %s\n", request->contentType().c_str());
-        Serial.printf("_CONTENT_LENGTH: %u\n", request->contentLength());
+        Serial.printf("_CONTENT_LENGTH: %zu\n", request->contentLength());
     }
 
-    int headers = request->headers();
-    int i;
-    for(i=0;i<headers;i++){
+    size_t headers = request->headers();
+    size_t i;
+    for(i=0; i<headers; i++) {
         AsyncWebHeader* h = request->getHeader(i);
         Serial.printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
     }
 
-    int params = request->params();
-    for(i=0;i<params;i++){
+    size_t params = request->params();
+    for(i=0; i<params; i++) {
         AsyncWebParameter* p = request->getParam(i);
-        if(p->isFile()){
+        if (p->isFile()) {
             Serial.printf("_FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
-        } else if(p->isPost()){
+        } else if (p->isPost()) {
             Serial.printf("_POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
         } else {
             Serial.printf("_GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
@@ -189,7 +189,7 @@ void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len
 void updateFileHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
 {
     uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-    if (!index){
+    if (!index) {
         Serial.println("Update started!");
         if (!Update.begin(free_space)) {
             Update.printError(Serial);
@@ -214,7 +214,7 @@ void updateFileHandler(AsyncWebServerRequest *request, const String& filename, s
     }
 
     if (final) {
-        if (!Update.end(true)){
+        if (!Update.end(true)) {
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
             isUpdatingFlag = false;
@@ -265,12 +265,12 @@ LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
 
         webServer->serveStatic(resultName.c_str(), SPIFFS, fileName);
 
-//        webServer->on(resultName.c_str(), HTTP_GET, [fileName](AsyncWebServerRequest *request){
+//        webServer->on(resultName.c_str(), HTTP_GET, [fileName](AsyncWebServerRequest *request) {
 //            request->send(SPIFFS, fileName, "text/javascript");
 //        });
     }
 
-    webServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    webServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(SPIFFS, "/index.html", "text/html");
     });
 
