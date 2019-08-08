@@ -200,9 +200,11 @@ void updateFileHandler(AsyncWebServerRequest *request, const String& filename, s
             myMatrix->setRotation(3);
             myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
             myMatrix->setBrightness(80);
+
+            if (updateSize == 0) {
+                updateSize = request->contentLength();
+            }
         }
-    } else {
-//        Serial.printf("Updating: %zu size: %zu\n", index, len);
     }
 
     if (Update.write(data, len) != len) {
