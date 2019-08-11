@@ -112,6 +112,7 @@ void EffectsManager::ChangeEffect(uint8_t index)
     myMatrix->clear();
     Settings::currentEffect = index;
     ActivateEffect(index);
+    Settings::SaveLater();
 }
 
 void EffectsManager::ActivateEffect(uint8_t index)

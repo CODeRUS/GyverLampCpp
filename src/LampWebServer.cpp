@@ -29,8 +29,8 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
     if (type == WS_EVT_CONNECT) {
         Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
 //        client->printf("Hello Client %u :)", client->id());
-        client->text(Settings::GetCurrentConfig());
         client->ping();
+        client->text(Settings::GetCurrentConfig());
     } else if (type == WS_EVT_DISCONNECT) {
         Serial.printf("ws[%s][%u] disconnect\n", server->url(), client->id());
     } else if (type == WS_EVT_ERROR) {
@@ -101,6 +101,9 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
                 }
             }
         }
+    } else {
+        Serial.print("Unknown event: ");
+        Serial.printf("%d, length: %zu\n", type, len);
     }
 }
 
@@ -140,7 +143,7 @@ void notFoundHandler(AsyncWebServerRequest *request) {
     for(i=0; i<params; i++) {
         AsyncWebParameter* p = request->getParam(i);
         if (p->isFile()) {
-            Serial.printf("_FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
+            Serial.printf("_FILE[%s]: %s, size: %zu\n", p->name().c_str(), p->value().c_str(), p->size());
         } else if (p->isPost()) {
             Serial.printf("_POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
         } else {
@@ -178,19 +181,56 @@ void updateRequestHandler(AsyncWebServerRequest *request)
 {
     Serial.println("updateRequestHandler");
     request->send(200);
+    yield();
+    delay(1000);
     ESP.restart();
 }
 
 void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
-    Serial.printf("updateBodyHandler len: %zu index: %zu total: %zu\n", len, index, total);
+    if (index == 0) {
+        uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+        Serial.println("Update started!");
+        if (!Update.begin(free_space)) {
+            Update.printError(Serial);
+            myMatrix->fill(CRGB::Red, true);
+            isUpdatingFlag = false;
+        } else {
+            isUpdatingFlag = true;
+            myMatrix->setRotation(3);
+            myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
+            myMatrix->setBrightness(80);
+
+            if (updateSize == 0) {
+                updateSize = total;
+            }
+        }
+    }
+    if (Update.write(data, len) != len) {
+        Update.printError(Serial);
+        myMatrix->fill(CRGB::Red, true);
+        isUpdatingFlag = false;
+    } else {
+        drawProgress(index + len);
+    }
+    if (index + len == total) {
+        if (!Update.end(true)) {
+            Update.printError(Serial);
+            myMatrix->fill(CRGB::Red, true);
+            isUpdatingFlag = false;
+        } else {
+            Serial.printf("Update Success: %zd\nRebooting...\n", index + len);
+            myMatrix->fill(CRGB::Green, true);
+        }
+    }
+    yield();
 }
 
 void updateFileHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
 {
-    uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
     if (!index) {
         Serial.println("Update started!");
+        uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
         if (!Update.begin(free_space)) {
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
@@ -266,10 +306,6 @@ LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
         Serial.printf("Adding web handler from %s to %s\n", resultName.c_str(), fileName);
 
         webServer->serveStatic(resultName.c_str(), SPIFFS, fileName);
-
-//        webServer->on(resultName.c_str(), HTTP_GET, [fileName](AsyncWebServerRequest *request) {
-//            request->send(SPIFFS, fileName, "text/javascript");
-//        });
     }
 
     webServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {

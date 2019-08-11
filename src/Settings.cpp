@@ -118,6 +118,7 @@ String Settings::GetCurrentConfig()
     DynamicJsonDocument doc(4096);
 
     doc["working"] = masterSwitch;
+    doc["activeEffect"] = currentEffect;
 
     JsonArray effects = doc.createNestedArray("effects");
 
@@ -133,8 +134,8 @@ String Settings::GetCurrentConfig()
     }
 
     JsonArray alarms = doc.createNestedArray("alarms");
-    //    alarms.add(48.756080);
-    //    alarms.add(2.302038);
+//    alarms.add(48.756080);
+//    alarms.add(2.302038);
 
     String output;
     serializeJson(doc, output);
@@ -149,12 +150,31 @@ void Settings::ApplyConfig(const String &message)
     DynamicJsonDocument doc(4096);
     deserializeJson(doc, message);
 
-    const bool working = doc["working"];
-    Serial.printf("working: %s\n", working ? "true" : "false");
-    masterSwitch = working;
-    if (!masterSwitch) {
-        myMatrix->clear();
-        myMatrix->show();
+    const String event = doc["event"];
+    if (event == "WORKING") {
+        const bool working = doc["data"];
+
+        Serial.printf("working: %s\n", working ? "true" : "false");
+        masterSwitch = working;
+        if (!masterSwitch) {
+            myMatrix->clear();
+            myMatrix->show();
+        }
+    } else if (event == "ACTIVE_EFFECT") {
+        const int index = doc["data"];
+        EffectsManager::ChangeEffect(static_cast<uint8_t>(index));
+    } else if (event == "EFFECTS_CHANGED") {
+        const JsonObject effect = doc["data"];
+        const int speed = effect["speed"];
+        const int scale = effect["scale"];
+        const int brightness = effect["brightness"];
+        CurrentEffectSettings()->effectSpeed = static_cast<uint8_t>(speed);
+        CurrentEffectSettings()->effectScale = static_cast<uint8_t>(scale);
+        CurrentEffectSettings()->effectBrightness = static_cast<uint8_t>(brightness);
+        myMatrix->setBrightness(brightness);
+        SaveLater();
+    } else if (event == "ALARMS_CHANGED") {
+
     }
 }
 
