@@ -6,6 +6,11 @@ namespace  {
 int8_t posx = 0;
 uint8_t indexx = 0;
 
+String getClockTime()
+{
+    return GyverTimer::Hours() + ":" + GyverTimer::Minutes() + " ";
+}
+
 } // namespace
 
 ClockHorizontal1Effect::ClockHorizontal1Effect()
@@ -22,14 +27,14 @@ void ClockHorizontal1Effect::tick()
 {
     myMatrix->clear();
 
+    const String clockTime = getClockTime();
     if (--posx == -6) {
         posx = 0;
-        if (++indexx == 6) {
+        if (++indexx == clockTime.length()) {
             indexx = 0;
         }
     }
 
-    const String clockTime = GyverTimer::ClockTime();
     String time = clockTime.substring(indexx);
     if (indexx > 0) {
         time += clockTime.substring(0, indexx);
@@ -41,16 +46,16 @@ void ClockHorizontal1Effect::tick()
     if (dotIndex1 < spaceIndex1) {
         myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
         myMatrix->print(time.substring(0, dotIndex1));
-        myMatrix->setTextColor(myMatrix->Color(0, 40, 0));
+        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
         myMatrix->print(time.substring(dotIndex1, spaceIndex1));
         myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
         myMatrix->print(time.substring(spaceIndex1));
     } else {
-        myMatrix->setTextColor(myMatrix->Color(0, 40, 0));
+        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
         myMatrix->print(time.substring(0, spaceIndex1));
         myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
         myMatrix->print(time.substring(spaceIndex1, dotIndex1));
-        myMatrix->setTextColor(myMatrix->Color(0, 40, 0));
+        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
         myMatrix->print(time.substring(dotIndex1));
     }
 
@@ -67,16 +72,16 @@ void ClockHorizontal1Effect::tick()
     if (dotIndex2 < spaceIndex2) {
         myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
         myMatrix->print(time2.substring(0, dotIndex2));
-        myMatrix->setTextColor(myMatrix->Color(0, 40, 0));
+        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
         myMatrix->print(time2.substring(dotIndex2, spaceIndex2));
         myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
         myMatrix->print(time2.substring(spaceIndex2));
     } else {
-        myMatrix->setTextColor(myMatrix->Color(0, 40, 0));
+        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
         myMatrix->print(time2.substring(0, spaceIndex2));
         myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
         myMatrix->print(time2.substring(spaceIndex2, dotIndex2));
-        myMatrix->setTextColor(myMatrix->Color(0, 40, 0));
+        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
         myMatrix->print(time2.substring(dotIndex2));
     }
 
