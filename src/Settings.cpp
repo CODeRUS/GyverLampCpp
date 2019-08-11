@@ -1,5 +1,8 @@
 #include "Settings.h"
 #include "EffectsManager.h"
+#include "MyMatrix.h"
+
+#include <ArduinoJson.h>
 
 uint8_t Settings::initializationFlag = 0;
 Settings::AlarmSettings* Settings::alarmSettings;
@@ -108,6 +111,71 @@ void Settings::Save()
     address += sizeof(uint8_t);
 
     EEPROM.commit();
+}
+
+String Settings::GetCurrentConfig()
+{
+    DynamicJsonDocument doc(4096);
+
+    doc["working"] = masterSwitch;
+    doc["activeEffect"] = currentEffect;
+
+    JsonArray effects = doc.createNestedArray("effects");
+
+    for (uint8_t index = 0; index < EffectsManager::Count(); index++) {
+        const EffectSettings settings = effectsSettings[index];
+
+        JsonObject effect = effects.createNestedObject();
+        effect["name"] = EffectsManager::EffectName(index);
+        effect["speed"] = settings.effectSpeed;
+        effect["scale"] = settings.effectScale;
+        effect["brightness"] = settings.effectBrightness;
+
+    }
+
+    JsonArray alarms = doc.createNestedArray("alarms");
+//    alarms.add(48.756080);
+//    alarms.add(2.302038);
+
+    String output;
+    serializeJson(doc, output);
+
+    Serial.print(">> ");
+    Serial.println(output);
+    return output;
+}
+
+void Settings::ApplyConfig(const String &message)
+{
+    DynamicJsonDocument doc(4096);
+    deserializeJson(doc, message);
+
+    const String event = doc["event"];
+    if (event == "WORKING") {
+        const bool working = doc["data"];
+
+        Serial.printf("working: %s\n", working ? "true" : "false");
+        masterSwitch = working;
+        if (!masterSwitch) {
+            myMatrix->clear();
+            myMatrix->show();
+        }
+    } else if (event == "ACTIVE_EFFECT") {
+        const int index = doc["data"];
+        EffectsManager::ChangeEffect(static_cast<uint8_t>(index));
+    } else if (event == "EFFECTS_CHANGED") {
+        const JsonObject effect = doc["data"];
+        const int speed = effect["speed"];
+        const int scale = effect["scale"];
+        const int brightness = effect["brightness"];
+        CurrentEffectSettings()->effectSpeed = static_cast<uint8_t>(speed);
+        CurrentEffectSettings()->effectScale = static_cast<uint8_t>(scale);
+        CurrentEffectSettings()->effectBrightness = static_cast<uint8_t>(brightness);
+        myMatrix->setBrightness(brightness);
+        SaveLater();
+    } else if (event == "ALARMS_CHANGED") {
+
+    }
 }
 
 Settings::EffectSettings* Settings::CurrentEffectSettings()

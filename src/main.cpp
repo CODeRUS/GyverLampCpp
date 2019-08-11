@@ -1,7 +1,7 @@
 #include <Arduino.h>
+#include <SPIFFS.h>
 
 #include "WifiServer.h"
-#include "UpdateWebServer.h"
 #include "LocalDNS.h"
 #include "MyMatrix.h"
 #include "EffectsManager.h"
@@ -10,6 +10,7 @@
 #include "GyverTimer.h"
 
 #include "GyverButton.h"
+#include "LampWebServer.h"
 
 namespace  {
 
@@ -19,7 +20,8 @@ const char* wifiSetupName = "Fire Lamp";
 const char* wifiOndemandName = "Fire Lamp AP";
 const char* wifiOndemandPassword = "ondemand";
 
-uint16_t updateServerPort = 8080;
+uint16_t webServerPort = 80;
+uint16_t webSocketPort = 8000;
 uint16_t udpServerPort = 8888;
 
 const char* localHostname = "firelamp";
@@ -68,6 +70,7 @@ void processButton()
         EffectsManager::Previous();
         Settings::SaveLater();
     }
+    return;
     if (button->isHolded()) {
         Serial.println("Holded button");
         isHolding = true;
@@ -102,15 +105,22 @@ void setup() {
     Serial.begin(115200);
     Serial.println("Happy debugging!");
 
+    if(!SPIFFS.begin()){
+         Serial.println("An Error has occurred while mounting SPIFFS");
+         return;
+    }
+
     WifiServer::Initialize(
         wifiSetupName,
         wifiOndemandName,
         wifiOndemandPassword);
-    UpdateWebServer::Initialize(updateServerPort);
+    LampWebServer::Initialize(webServerPort, webSocketPort);
 
     GyverUdp::Initiazlize(udpServerPort);
     if (LocalDNS::Begin(localHostname)) {
-        LocalDNS::AddService("update", "tcp", updateServerPort);
+        LocalDNS::AddService("http", "tcp", webServerPort);
+        LocalDNS::AddService("ws", "tcp", webSocketPort);
+        LocalDNS::AddService("app", "udp", udpServerPort);
     }
     GyverTimer::Initialize(poolServerName, timeOffset, updateInterval, timerInterval);
 
@@ -151,9 +161,9 @@ void setup() {
 
 void loop() {
     WifiServer::Process();
-    UpdateWebServer::Process();
+    lampWebServer->Process();
 
-    if (!UpdateWebServer::IsUpdating()) {
+    if (!lampWebServer->isUpdating()) {
         GyverUdp::Process();
         GyverTimer::Process();
         processButton();

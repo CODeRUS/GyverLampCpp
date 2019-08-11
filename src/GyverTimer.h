@@ -9,7 +9,8 @@ public:
     static void SetInterval(uint32_t timerInterval);
     static void ForceUpdate();
     static void ReadTime();
-    static String FormattedTime();
-    static String ClockTime();
+    static String Hours();
+    static String Minutes();
+    static String Seconds();
 };
 

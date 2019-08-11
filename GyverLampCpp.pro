@@ -12,7 +12,6 @@ INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\src\effect
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\src\effects\noise"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif32\libraries\EEPROM\src"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\lib\GyverButton"
-INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif32\libraries\ArduinoOTA\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif32\libraries\Update\src"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\esp32dev\NTPClient_ID551"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\esp32dev\FastLED_ID126"
@@ -20,6 +19,7 @@ INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libde
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\esp32dev\Adafruit GFX Library"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\esp32dev\FastLED NeoMatrix"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\esp32dev\Framebuffer GFX"
+INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\esp32dev\ESP Async WebServer_ID306\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif32\libraries\ESPmDNS\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif32\libraries\WebServer\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif32\libraries\FS\src"
@@ -125,6 +125,7 @@ OTHER_FILES += platformio.ini
 
 SOURCES += \
     lib/GyverButton/*.cpp \
+    src/LampWebServer.cpp \
     src/effects/basic/ClockHorizontal1Effect.cpp \
     src/effects/basic/ClockHorizontal2Effect.cpp \
     src/effects/basic/ClockHorizontal3Effect.cpp \
@@ -135,7 +136,6 @@ SOURCES += \
     src/EffectsManager.cpp \
     src/LocalDNS.cpp \
     src/MyMatrix.cpp \
-    src/UpdateWebServer.cpp \
     src/WifiServer.cpp \
     src/effects/Effect.cpp \
     src/effects/basic/SnowEffect.cpp \
@@ -161,6 +161,7 @@ SOURCES += \
 
 HEADERS += \
     lib/GyverButton/*.h \
+    src/LampWebServer.h \
     src/Settings.h \
     src/GyverTimer.h \
     src/GyverUdp.h \
@@ -168,7 +169,6 @@ HEADERS += \
     src/FireEffect.h \
     src/LocalDNS.h \
     src/MyMatrix.h \
-    src/UpdateWebServer.h \
     src/WifiServer.h \
     src/effects/Effect.h \
     src/effects/basic/ClockHorizontal1Effect.h \

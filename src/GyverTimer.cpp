@@ -11,8 +11,12 @@ uint32_t defaultInterval = 0;
 uint32_t interval = 0;
 uint32_t timer = 0;
 
-String formattedTime = "88:88:88";
-String clockTime = "88:88";
+unsigned long hours = 0;
+String hoursString = "88";
+unsigned long minutes = 0;
+String minutesString = "88";
+unsigned long seconds = 0;
+String secondsString = "88";
 
 } // namespace
 
@@ -59,28 +63,27 @@ void GyverTimer::ForceUpdate()
 void GyverTimer::ReadTime()
 {
     const unsigned long rawTime = timeClient->getEpochTime();
-    const unsigned long hours = (rawTime % 86400L) / 3600;
-    const String hoursStr = hours < 10 ? "0" + String(hours) : String(hours);
+    hours = (rawTime % 86400L) / 3600;
+    hoursString = hours < 10 ? "0" + String(hours) : String(hours);
 
-    const unsigned long minutes = (rawTime % 3600) / 60;
-    const String minuteStr = minutes < 10 ? "0" + String(minutes) : String(minutes);
-    clockTime = hoursStr + ":" + minuteStr + " ";
+    minutes = (rawTime % 3600) / 60;
+    minutesString = minutes < 10 ? "0" + String(minutes) : String(minutes);
 
-    const unsigned long seconds = rawTime % 60;
-    const String secondStr = seconds < 10 ? "0" + String(seconds) : String(seconds);
-
-    formattedTime = hoursStr + ":" + minuteStr + ":" + secondStr;
+    seconds = rawTime % 60;
+    secondsString = seconds < 10 ? "0" + String(seconds) : String(seconds);
 }
 
-String GyverTimer::FormattedTime()
+String GyverTimer::Hours()
 {
-    return formattedTime;
+    return hoursString;
 }
 
-String GyverTimer::ClockTime()
+String GyverTimer::Minutes()
 {
-    if (clockTime == "88:88") {
-        ForceUpdate();
-    }
-    return clockTime;
+    return minutesString;
+}
+
+String GyverTimer::Seconds()
+{
+    return secondsString;
 }

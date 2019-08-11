@@ -3,9 +3,13 @@
 
 namespace  {
 
-int16_t x = 0;
 uint8_t delayer = 0;
 bool hours = true;
+
+String getClockTime()
+{
+    return GyverTimer::Hours() + ":" + GyverTimer::Minutes();
+}
 
 } // namespace
 
@@ -31,10 +35,10 @@ void ClockEffect::tick()
         myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
         myMatrix->setCursor(0, 0);
     } else {
-        myMatrix->setTextColor(myMatrix->Color(0, 40, 0));
+        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
         myMatrix->setCursor(-13, 0);
     }
-    myMatrix->print(GyverTimer::ClockTime());
+    myMatrix->print(getClockTime());
     myMatrix->show();
     delay(100);
     hours = !hours;
