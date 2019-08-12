@@ -11,10 +11,16 @@ Settings::EffectSettings* Settings::effectsSettings;
 uint8_t Settings::dawnMode = 0;
 bool Settings::masterSwitch = true;
 
-static const uint8_t alarmsCount = 7;
-static bool settingsChanged = false;
-static uint32_t eepromTimer = 0;
-static uint32_t eepromSaveInterval = 3000;
+namespace {
+
+size_t eepromSize = 0;
+
+const uint8_t alarmsCount = 7;
+bool settingsChanged = false;
+uint32_t eepromTimer = 0;
+uint32_t eepromSaveInterval = 3000;
+
+} // namespace
 
 void Settings::Initialize(const uint8_t eepromInitialization, uint32_t saveInterval)
 {
@@ -23,22 +29,31 @@ void Settings::Initialize(const uint8_t eepromInitialization, uint32_t saveInter
     alarmSettings = new AlarmSettings[alarmsCount]();
     effectsSettings = new EffectSettings[EffectsManager::Count()]();
 
-    const bool eepromReady =
-            EEPROM.begin(sizeof(uint8_t) // initializationFlag
-                         + sizeof(AlarmSettings) * alarmsCount // alarmSettings
-                         + sizeof(uint8_t) // currentEffect
-                         + sizeof(EffectSettings) * EffectsManager::Count() // effectsSettings
-                         + sizeof(uint8_t)); // dawnMode
-    Serial.printf("EEPROM ready: %s\n", eepromReady ? "true" : "false");
+    eepromSize = sizeof(uint8_t) // initializationFlag
+               + sizeof(AlarmSettings) * alarmsCount // alarmSettings
+               + sizeof(uint8_t) // currentEffect
+               + sizeof(EffectSettings) * EffectsManager::Count() // effectsSettings
+               + sizeof(uint8_t); // dawnMode
+    Serial.printf("EEPROM size used: %zu\n", eepromSize);
 
     int address = 0;
 
-    initializationFlag = EEPROM.readByte(address);
+#if defined(ESP32)
+    const bool eepromReady =
+#endif
+     EEPROM.begin(eepromSize);
+
+#if defined(ESP32)
+    Serial.printf("EEPROM ready: %s\n", eepromReady ? "true" : "false");
+#endif
+
+    initializationFlag = EEPROM.read(address);
     Serial.printf("initialization read: %u, expected: %u\n", initializationFlag, eepromInitialization);
     if (eepromInitialization != initializationFlag) {
         initializationFlag = eepromInitialization;
         Serial.println("Erasing EEPROM");
         Save();
+        return;
     }
 
     address += sizeof(uint8_t);
@@ -48,7 +63,7 @@ void Settings::Initialize(const uint8_t eepromInitialization, uint32_t saveInter
         address += sizeof(AlarmSettings);
     }
 
-    currentEffect = EEPROM.readByte(address);
+    currentEffect = EEPROM.read(address);
     address += sizeof(uint8_t);
 
     for (uint8_t i = 0; i < EffectsManager::Count(); i++) {
@@ -59,9 +74,10 @@ void Settings::Initialize(const uint8_t eepromInitialization, uint32_t saveInter
                       effectsSettings[i].effectScale,
                       effectsSettings[i].effectBrightness);
         address += sizeof(EffectSettings);
+        delay(10);
     }
 
-    dawnMode = EEPROM.readByte(address);
+    dawnMode = EEPROM.read(address);
     address += sizeof(uint8_t);
 }
 
@@ -86,7 +102,7 @@ void Settings::Save()
 
     int address = 0;
 
-    EEPROM.writeByte(address, initializationFlag);
+    EEPROM.write(address, initializationFlag);
     address += sizeof(uint8_t);
 
     for (int i = 0; i < alarmsCount; i++) {
@@ -94,7 +110,7 @@ void Settings::Save()
         address += sizeof(AlarmSettings);
     }
 
-    EEPROM.writeByte(address, currentEffect);
+    EEPROM.write(address, currentEffect);
     address += sizeof(uint8_t);
 
     for (uint8_t i = 0; i < EffectsManager::Count(); i++) {
@@ -107,7 +123,7 @@ void Settings::Save()
         address += sizeof(EffectSettings);
     }
 
-    EEPROM.writeByte(address, dawnMode);
+    EEPROM.write(address, dawnMode);
     address += sizeof(uint8_t);
 
     EEPROM.commit();

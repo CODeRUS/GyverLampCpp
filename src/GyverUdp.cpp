@@ -19,13 +19,13 @@ void sendString(const String &inputBuffer) {
     Serial.println(inputBuffer);
 
     udp->beginPacket(udp->remoteIP(), udp->remotePort());
-  #if defined(ESP8266)
-    udp->write(reply);
-    char* reply = new char[inputBuffer.length() + 1]();
-    inputBuffer.toCharArray(reply, inputBuffer.length() + 1);
-  #else
+//   #if defined(ESP8266)
+//     char* reply = new char[inputBuffer.length() + 1]();
+//     inputBuffer.toCharArray(reply, inputBuffer.length() + 1);
+//     udp->write(reply);
+//   #else
     udp->print(inputBuffer);
-  #endif
+//   #endif
     udp->endPacket();
 }
 

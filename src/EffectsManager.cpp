@@ -126,6 +126,7 @@ void EffectsManager::ActivateEffect(uint8_t index)
     }
     myMatrix->setBrightness(Settings::effectsSettings[index].effectBrightness);
     Serial.printf("%s activated!\n", effect->effectName.c_str());
+    Serial.flush();
     effect->activate();
 }
 

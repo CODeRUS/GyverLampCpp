@@ -55,7 +55,6 @@ void ClockHorizontal3Effect::tick()
         time += clockTime.substring(0, indexx);
     }
 
-//    swapMatrixColor();
     myMatrix->setCursor(posx, 4);
     for (uint8_t index = 0; index < time.length(); index++) {
         if (index % 2 == halfIndex) {

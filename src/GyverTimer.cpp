@@ -33,6 +33,10 @@ void GyverTimer::Initialize(const char* poolServerName, int timeOffset, int upda
 
 void GyverTimer::Process()
 {
+    if (!timeClient) {
+        return;
+    }
+
     if ((millis() - timer) < interval) {
         return;
     }
