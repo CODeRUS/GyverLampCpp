@@ -220,7 +220,7 @@ void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len
         Update.runAsync(true);
         if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
 #elif defined(ESP32)
-        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH) {
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
 #endif
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
@@ -274,7 +274,7 @@ void updateFileHandler(AsyncWebServerRequest *request, const String& filename, s
         Update.runAsync(true);
         if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
 #elif defined(ESP32)
-        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH) {
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
 #endif
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
