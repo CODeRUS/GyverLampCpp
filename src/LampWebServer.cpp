@@ -3,8 +3,14 @@
 #include "MyMatrix.h"
 #include "Settings.h"
 
+#if defined(ESP32)
 #include <Update.h>
 #include <SPIFFS.h>
+#else
+#include <Updater.h>
+#include <FS.h>
+#endif
+
 #include <ESPAsyncWebServer.h>
 
 namespace  {
@@ -17,6 +23,9 @@ AsyncWebServer *webServer = nullptr;
 AsyncWebServer *socketServer = nullptr;
 AsyncWebSocket *socket = nullptr;
 
+uint16_t httpPort = 80;
+uint16_t websocketPort = 8000;
+
 void parseTextMessage(const String &message)
 {
     Serial.print("<< ");
@@ -25,10 +34,22 @@ void parseTextMessage(const String &message)
     Settings::ApplyConfig(message);
 }
 
+String templateProcessor(const String &var)
+{
+    Serial.printf("[TEMPLATE] %s\n", var.c_str());
+    if (var == "ARG_HTTP_PORT") {
+        return String(httpPort);
+    }
+    if (var == "ARG_WS_PORT") {
+        return String(websocketPort);
+    }
+    return String();
+}
+
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
     if (type == WS_EVT_CONNECT) {
         Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
-//        client->printf("Hello Client %u :)", client->id());
+        //        client->printf("Hello Client %u :)", client->id());
         client->ping();
         client->text(Settings::GetCurrentConfig());
     } else if (type == WS_EVT_DISCONNECT) {
@@ -58,10 +79,10 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
             Serial.printf("%s\n",msg.c_str());
 
             if (info->opcode == WS_TEXT) {
-//                client->text("I got your text message");
+                //                client->text("I got your text message");
                 parseTextMessage(msg);
             } else {
-//                client->binary("I got your binary message");
+                //                client->binary("I got your binary message");
                 Serial.println("Received binary message");
             }
         } else {
@@ -92,10 +113,10 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
                 if (info->final) {
                     Serial.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
                     if (info->message_opcode == WS_TEXT) {
-//                        client->text("I got your text message");
+                        //                        client->text("I got your text message");
                         parseTextMessage(msg);
                     } else {
-//                        client->binary("I got your binary message");
+                        //                        client->binary("I got your binary message");
                         Serial.println("Received binary message");
                     }
                 }
@@ -105,6 +126,7 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
         Serial.print("Unknown event: ");
         Serial.printf("%d, length: %zu\n", type, len);
     }
+    Serial.flush();
 }
 
 void notFoundHandler(AsyncWebServerRequest *request) {
@@ -154,7 +176,7 @@ void notFoundHandler(AsyncWebServerRequest *request) {
     if (request->url().endsWith(".map")) {
         request->send(404);
     } else {
-        request->send(SPIFFS, "/index.html", "text/html");
+        request->send(SPIFFS, "/index.html", "text/html", false, templateProcessor);
     }
 }
 
@@ -181,25 +203,36 @@ void updateRequestHandler(AsyncWebServerRequest *request)
 {
     Serial.println("updateRequestHandler");
     request->send(200);
+#if defined(ESP8266)
+    ESP.wdtFeed();
+#else
     yield();
-    delay(1000);
+#endif
     ESP.restart();
 }
 
 void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
     if (index == 0) {
-        uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
         Serial.println("Update started!");
-        if (!Update.begin(free_space)) {
+#if defined(ESP8266)
+        myMatrix->fill(CRGB(40, 40, 60), true);
+        Update.runAsync(true);
+        if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
+#elif defined(ESP32)
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
+#endif
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
             isUpdatingFlag = false;
+            return;
         } else {
             isUpdatingFlag = true;
+#if defined(ESP32)
             myMatrix->setRotation(3);
             myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
             myMatrix->setBrightness(80);
+#endif
 
             if (updateSize == 0) {
                 updateSize = total;
@@ -211,7 +244,9 @@ void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len
         myMatrix->fill(CRGB::Red, true);
         isUpdatingFlag = false;
     } else {
+#if defined(ESP32)
         drawProgress(index + len);
+#endif
     }
     if (index + len == total) {
         if (!Update.end(true)) {
@@ -223,23 +258,35 @@ void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len
             myMatrix->fill(CRGB::Green, true);
         }
     }
+#if defined(ESP8266)
+    ESP.wdtFeed();
+#else
     yield();
+#endif
 }
 
 void updateFileHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
 {
     if (!index) {
         Serial.println("Update started!");
-        uint32_t free_space = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-        if (!Update.begin(free_space)) {
+#if defined(ESP8266)
+        myMatrix->fill(CRGB(40, 40, 60), true);
+        Update.runAsync(true);
+        if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
+#elif defined(ESP32)
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
+#endif
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
             isUpdatingFlag = false;
+            return;
         } else {
             isUpdatingFlag = true;
+#if defined(ESP32)
             myMatrix->setRotation(3);
             myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
             myMatrix->setBrightness(80);
+#endif
 
             if (updateSize == 0) {
                 updateSize = request->contentLength();
@@ -251,8 +298,11 @@ void updateFileHandler(AsyncWebServerRequest *request, const String& filename, s
         Update.printError(Serial);
         myMatrix->fill(CRGB::Red, true);
         isUpdatingFlag = false;
+        return;
     } else {
+#if defined(ESP32)
         drawProgress(index + len);
+#endif
     }
 
     if (final) {
@@ -260,12 +310,18 @@ void updateFileHandler(AsyncWebServerRequest *request, const String& filename, s
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
             isUpdatingFlag = false;
+            return;
         } else {
             Serial.printf("Update Success: %zd\nRebooting...\n", index + len);
             myMatrix->fill(CRGB::Green, true);
         }
     }
+
+#if defined(ESP8266)
+    ESP.wdtFeed();
+#else
     yield();
+#endif
 }
 
 } // namespace
@@ -281,6 +337,8 @@ void LampWebServer::Initialize(uint16_t webPort, uint16_t wsPort)
         return;
     }
 
+    httpPort = webPort;
+    websocketPort = wsPort;
     instance = new LampWebServer(webPort, wsPort);
 }
 
@@ -288,13 +346,19 @@ LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
 {
     webServer = new AsyncWebServer(webPort);
 
+#if defined(ESP32)
     File root = SPIFFS.open("/");
     if (!root) {
         Serial.println("Error opening SPIFFS root!");
         return;
     }
     while (File file = root.openNextFile()) {
-        const char* fileName = file.name();
+        String fileName = String(file.name());
+#else
+    Dir root = SPIFFS.openDir("/");
+    while (root.next()) {
+        String fileName = root.fileName();
+#endif
         String resultName = String(fileName);
         if (resultName.endsWith(".css")) {
             resultName = String("/static/css") + fileName;
@@ -303,13 +367,13 @@ LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
         } else if (resultName.endsWith(".html")) {
             resultName = resultName.substring(0, resultName.indexOf('.'));
         }
-        Serial.printf("Adding web handler from %s to %s\n", resultName.c_str(), fileName);
+        Serial.printf("Adding web handler from %s to %s\n", resultName.c_str(), fileName.c_str());
 
-        webServer->serveStatic(resultName.c_str(), SPIFFS, fileName);
+        webServer->serveStatic(resultName.c_str(), SPIFFS, fileName.c_str());
     }
 
     webServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/index.html", "text/html");
+        request->send(SPIFFS, "/index.html", "text/html", false, templateProcessor);
     });
 
     webServer->on("/update", HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);

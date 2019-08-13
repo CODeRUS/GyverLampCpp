@@ -1,5 +1,10 @@
 #include <Arduino.h>
+
+#if defined(ESP32)
 #include <SPIFFS.h>
+#else
+#include <FS.h>
+#endif
 
 #include "WifiServer.h"
 #include "LocalDNS.h"
@@ -21,6 +26,7 @@ const char* wifiOndemandName = "Fire Lamp AP";
 const char* wifiOndemandPassword = "ondemand";
 
 uint16_t webServerPort = 80;
+uint16_t webServerFallbackPort = 8080;
 uint16_t webSocketPort = 8000;
 uint16_t udpServerPort = 8888;
 
@@ -32,7 +38,11 @@ uint8_t matrixHeight = 16;
 uint8_t maxBrightness = 80;
 uint32_t maxCurrent = 1000;
 
+#if defined(ESP32)
 const uint8_t btnPin = 15;
+#else
+const uint8_t btnPin = 1;
+#endif
 
 GButton *button = nullptr;
 
@@ -43,8 +53,6 @@ uint32_t timerInterval = 5 * 60 * 1000; // 5 min
 
 int stepDirection = 1;
 bool isHolding = false;
-
-} // namespace
 
 void processButton()
 {
@@ -101,28 +109,44 @@ void processButton()
     }
 }
 
+}
+
 void setup() {
-    Serial.begin(115200);
-    Serial.println("Happy debugging!");
 
-    if(!SPIFFS.begin()){
-         Serial.println("An Error has occurred while mounting SPIFFS");
-         return;
+    if(!SPIFFS.begin()) {
+        Serial.println("An Error has occurred while mounting SPIFFS");
+        return;
     }
 
-    WifiServer::Initialize(
-        wifiSetupName,
-        wifiOndemandName,
-        wifiOndemandPassword);
-    LampWebServer::Initialize(webServerPort, webSocketPort);
+#if defined(ESP8266)
+    ESP.wdtDisable();
+    ESP.wdtEnable(0);
+#endif
 
-    GyverUdp::Initiazlize(udpServerPort);
-    if (LocalDNS::Begin(localHostname)) {
-        LocalDNS::AddService("http", "tcp", webServerPort);
-        LocalDNS::AddService("ws", "tcp", webSocketPort);
-        LocalDNS::AddService("app", "udp", udpServerPort);
+    WifiServer::Initialize(wifiSetupName);
+    Serial.printf("WiFi connected: %s\n", WifiServer::isConnected() ? "true" : "false");
+
+    if (!LocalDNS::Begin(localHostname)) {
+        Serial.println("An Error has occurred while initializing mDNS");
+        return;
     }
+
+    if (!WifiServer::isConnected()) {
+        LocalDNS::AddService("setup", "tcp", webServerPort);
+        LocalDNS::AddService("http", "tcp", webServerFallbackPort);
+        LampWebServer::Initialize(webServerFallbackPort, webSocketPort);
+        return;
+    }
+
+    Serial.flush();
+
     GyverTimer::Initialize(poolServerName, timeOffset, updateInterval, timerInterval);
+
+    LampWebServer::Initialize(webServerPort, webSocketPort);
+    GyverUdp::Initiazlize(udpServerPort);
+    LocalDNS::AddService("http", "tcp", webServerPort);
+    LocalDNS::AddService("ws", "tcp", webSocketPort);
+    LocalDNS::AddService("app", "udp", udpServerPort);
 
     randomSeed(micros());
 
@@ -151,6 +175,11 @@ void setup() {
     myMatrix->matrixTest();
 
     EffectsManager::Initialize();
+
+    Serial.begin(115200);
+    Serial.println("Happy debugging!");
+    Serial.flush();
+
     Settings::Initialize(eepromInitialization);
     EffectsManager::ActivateEffect(Settings::currentEffect);
 
@@ -160,8 +189,13 @@ void setup() {
 }
 
 void loop() {
+#if defined(ESP8266)
+    ESP.wdtFeed();
+#endif
+
     WifiServer::Process();
     lampWebServer->Process();
+
 
     if (!lampWebServer->isUpdating()) {
         GyverUdp::Process();
