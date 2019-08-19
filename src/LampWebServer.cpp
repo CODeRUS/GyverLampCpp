@@ -397,6 +397,19 @@ void LampWebServer::Process()
 {
 }
 
+void LampWebServer::SendConfig()
+{
+    if (!socket) {
+        return;
+    }
+
+    if (socket->count() == 0) {
+        return;
+    }
+
+    socket->textAll(Settings::GetCurrentConfig());
+}
+
 bool LampWebServer::isUpdating()
 {
     return isUpdatingFlag;
