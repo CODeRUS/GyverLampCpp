@@ -49,6 +49,10 @@ void GyverTimer::Process()
 
 void GyverTimer::SetInterval(uint32_t timerInterval)
 {
+    if (!timeClient) {
+        return;
+    }
+
     if (timerInterval == 0) {
         interval = defaultInterval;
     } else {
@@ -59,6 +63,10 @@ void GyverTimer::SetInterval(uint32_t timerInterval)
 
 void GyverTimer::ForceUpdate()
 {
+    if (!timeClient) {
+        return;
+    }
+
     timeClient->forceUpdate();
 
     ReadTime();
@@ -66,6 +74,10 @@ void GyverTimer::ForceUpdate()
 
 void GyverTimer::ReadTime()
 {
+    if (!timeClient) {
+        return;
+    }
+
     const unsigned long rawTime = timeClient->getEpochTime();
     hours = (rawTime % 86400L) / 3600;
     hoursString = hours < 10 ? "0" + String(hours) : String(hours);
