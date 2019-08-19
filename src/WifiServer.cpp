@@ -15,7 +15,7 @@ void WifiServer::Initialize(const char *firstSetupName)
     }
 
     wifiManager = new WiFiManager;
-    wifiManager->setConfigPortalBlocking(false);
+//    wifiManager->setConfigPortalBlocking(false);
     wifiConnected = wifiManager->autoConnect(firstSetupName);
     if (wifiConnected) {
         Serial.println("Wifi connected to saved AP!");

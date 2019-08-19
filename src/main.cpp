@@ -109,9 +109,19 @@ void processButton()
     }
 }
 
+void setupSerial()
+{
+    Serial.begin(115200);
+    Serial.println("Happy debugging!");
+    Serial.flush();
+}
+
 }
 
 void setup() {
+#if defined(ESP32)
+    setupSerial();
+#endif
 
     if(!SPIFFS.begin()) {
         Serial.println("An Error has occurred while mounting SPIFFS");
@@ -124,21 +134,16 @@ void setup() {
 #endif
 
     WifiServer::Initialize(wifiSetupName);
-    Serial.printf("WiFi connected: %s\n", WifiServer::isConnected() ? "true" : "false");
+//    Serial.printf("WiFi connected: %s\n", WifiServer::isConnected() ? "true" : "false");
+
+//    if (!WifiServer::isConnected()) {
+//        return;
+//    }
 
     if (!LocalDNS::Begin(localHostname)) {
         Serial.println("An Error has occurred while initializing mDNS");
         return;
     }
-
-    if (!WifiServer::isConnected()) {
-        LocalDNS::AddService("setup", "tcp", webServerPort);
-        LocalDNS::AddService("http", "tcp", webServerFallbackPort);
-        LampWebServer::Initialize(webServerFallbackPort, webSocketPort);
-        return;
-    }
-
-    Serial.flush();
 
     GyverTimer::Initialize(poolServerName, timeOffset, updateInterval, timerInterval);
 
@@ -176,9 +181,9 @@ void setup() {
 
     EffectsManager::Initialize();
 
-    Serial.begin(115200);
-    Serial.println("Happy debugging!");
-    Serial.flush();
+#if defined(ESP8266)
+    setupSerial();
+#endif
 
     Settings::Initialize(eepromInitialization);
     EffectsManager::ActivateEffect(Settings::currentEffect);
@@ -193,19 +198,21 @@ void loop() {
     ESP.wdtFeed();
 #endif
 
-    WifiServer::Process();
+//    WifiServer::Process();
+
     lampWebServer->Process();
 
-
-    if (!lampWebServer->isUpdating()) {
-        GyverUdp::Process();
-        GyverTimer::Process();
-        processButton();
-
-        if (Settings::masterSwitch) {
-            EffectsManager::Process();
-        }
-
-        Settings::Process();
+    if (lampWebServer->isUpdating()) {
+        return;
     }
+
+    GyverUdp::Process();
+    GyverTimer::Process();
+    processButton();
+
+    if (Settings::masterSwitch) {
+        EffectsManager::Process();
+    }
+
+    Settings::Process();
 }
