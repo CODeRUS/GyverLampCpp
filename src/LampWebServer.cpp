@@ -12,6 +12,8 @@
 #endif
 
 #include <ESPAsyncWebServer.h>
+#include <ESPAsyncWiFiManager.h>
+#include <DNSServer.h>
 
 namespace  {
 
@@ -22,6 +24,9 @@ LampWebServer *instance = nullptr;
 AsyncWebServer *webServer = nullptr;
 AsyncWebServer *socketServer = nullptr;
 AsyncWebSocket *socket = nullptr;
+AsyncWiFiManager  *wifiManager = nullptr;
+DNSServer *dnsServer = nullptr;
+bool wifiConnected = false;
 
 uint16_t httpPort = 80;
 uint16_t websocketPort = 8000;
@@ -324,6 +329,16 @@ void updateFileHandler(AsyncWebServerRequest *request, const String& filename, s
 #endif
 }
 
+void wifiConnectedCallback()
+{
+    Serial.println("Wifi connected!");
+    wifiConnected = true;
+    Serial.print("Local ip: ");
+    Serial.println(WiFi.localIP());
+
+    ESP.restart();
+}
+
 } // namespace
 
 LampWebServer *LampWebServer::Instance()
@@ -339,13 +354,91 @@ void LampWebServer::Initialize(uint16_t webPort, uint16_t wsPort)
 
     httpPort = webPort;
     websocketPort = wsPort;
+    Serial.printf("Initializing web server at: %u\n", webPort);
+    Serial.printf("Initializing web socket at: %u\n", wsPort);
     instance = new LampWebServer(webPort, wsPort);
+}
+
+bool LampWebServer::IsConnected()
+{
+    return wifiConnected;
+}
+
+void LampWebServer::AutoConnect(const char *apName)
+{
+    if (!webServer) {
+        return;
+    }
+
+    if (!dnsServer) {
+        dnsServer = new DNSServer();
+    }
+
+    wifiManager = new AsyncWiFiManager(webServer, dnsServer);
+    wifiManager->setSaveConfigCallback(wifiConnectedCallback);
+    wifiConnected = wifiManager->tryToConnect();
+    if (wifiConnected) {
+        Serial.println("Wifi connected to saved AP!");
+        Serial.print("Local ip: ");
+        Serial.println(WiFi.localIP());
+    } else {
+        Serial.println("Wifi not connected!");
+        wifiManager->startConfigPortalModeless(apName, nullptr);
+        Serial.print("AP ip: ");
+        Serial.println(WiFi.softAPIP());
+        wifiManager->loop();
+    }
+}
+
+void LampWebServer::StartServer()
+{
+    configureHandlers();
+
+    webServer->begin();
+
+    Serial.println("Start WebSocket server");
+
+    socket = new AsyncWebSocket("/");
+    socket->onEvent(onWsEvent);
+
+    socketServer->addHandler(socket);
+    socketServer->begin();
 }
 
 LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
 {
     webServer = new AsyncWebServer(webPort);
+    socketServer = new AsyncWebServer(wsPort);
+}
 
+void LampWebServer::Process()
+{
+    if (!wifiConnected) {
+        wifiManager->safeLoop();
+        wifiManager->criticalLoop();
+    }
+}
+
+void LampWebServer::SendConfig()
+{
+    if (!socket) {
+        return;
+    }
+
+    if (socket->count() == 0) {
+        return;
+    }
+
+    socket->textAll(Settings::GetCurrentConfig());
+}
+
+bool LampWebServer::isUpdating()
+{
+    return isUpdatingFlag;
+}
+
+void LampWebServer::configureHandlers()
+{
 #if defined(ESP32)
     File root = SPIFFS.open("/");
     if (!root) {
@@ -380,37 +473,4 @@ LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
     webServer->on("/updateSize", HTTP_POST, updateSizeHandler);
 
     webServer->onNotFound(notFoundHandler);
-
-    webServer->begin();
-
-    Serial.println("Start WebSocket server");
-
-    socket = new AsyncWebSocket("/");
-    socket->onEvent(onWsEvent);
-
-    socketServer = new AsyncWebServer(wsPort);
-    socketServer->addHandler(socket);
-    socketServer->begin();
-}
-
-void LampWebServer::Process()
-{
-}
-
-void LampWebServer::SendConfig()
-{
-    if (!socket) {
-        return;
-    }
-
-    if (socket->count() == 0) {
-        return;
-    }
-
-    socket->textAll(Settings::GetCurrentConfig());
-}
-
-bool LampWebServer::isUpdating()
-{
-    return isUpdatingFlag;
 }

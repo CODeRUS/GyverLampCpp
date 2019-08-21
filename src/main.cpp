@@ -6,7 +6,6 @@
 #include <FS.h>
 #endif
 
-#include "WifiServer.h"
 #include "LocalDNS.h"
 #include "MyMatrix.h"
 #include "EffectsManager.h"
@@ -26,7 +25,6 @@ const char* wifiOndemandName = "Fire Lamp AP";
 const char* wifiOndemandPassword = "ondemand";
 
 uint16_t webServerPort = 80;
-uint16_t webServerFallbackPort = 8080;
 uint16_t webSocketPort = 8000;
 uint16_t udpServerPort = 8888;
 
@@ -61,8 +59,7 @@ void processButton()
         Serial.println("Single button");
         Settings::masterSwitch = !Settings::masterSwitch;
         if (!Settings::masterSwitch) {
-            myMatrix->clear();
-            myMatrix->show();
+            myMatrix->clear(true);
         }
     }
     if (!Settings::masterSwitch) {
@@ -78,7 +75,6 @@ void processButton()
         EffectsManager::Previous();
         Settings::SaveLater();
     }
-    return;
     if (button->isHolded()) {
         Serial.println("Holded button");
         isHolding = true;
@@ -133,21 +129,19 @@ void setup() {
     ESP.wdtEnable(0);
 #endif
 
-    WifiServer::Initialize(wifiSetupName);
-//    Serial.printf("WiFi connected: %s\n", WifiServer::isConnected() ? "true" : "false");
-
-//    if (!WifiServer::isConnected()) {
-//        return;
-//    }
-
     if (!LocalDNS::Begin(localHostname)) {
         Serial.println("An Error has occurred while initializing mDNS");
         return;
     }
 
-    GyverTimer::Initialize(poolServerName, timeOffset, updateInterval, timerInterval);
-
     LampWebServer::Initialize(webServerPort, webSocketPort);
+    Serial.println("AutoConnect started");
+    lampWebServer->AutoConnect(wifiSetupName);
+    Serial.println("AutoConnect finished");
+    lampWebServer->StartServer();
+    if (lampWebServer->IsConnected()) {
+        GyverTimer::Initialize(poolServerName, timeOffset, updateInterval, timerInterval);
+    }
     GyverUdp::Initiazlize(udpServerPort);
     LocalDNS::AddService("http", "tcp", webServerPort);
     LocalDNS::AddService("ws", "tcp", webSocketPort);
@@ -197,8 +191,6 @@ void loop() {
 #if defined(ESP8266)
     ESP.wdtFeed();
 #endif
-
-//    WifiServer::Process();
 
     lampWebServer->Process();
 

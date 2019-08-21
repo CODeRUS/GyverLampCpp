@@ -7,22 +7,21 @@ else {
 
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\include"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\src"
-INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\lib\GyverButton"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\EEPROM"
-INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\ESP Async WebServer_ID306\src"
-INCLUDEPATH += "$${HOMEDIR}\.platformio\lib\ArduinoJson_ID64\src"
-INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\Hash\src"
-INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\ESPAsyncTCP_ID305\src"
+INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\lib\GyverButton"
+INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266mDNS\src"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\NTPClient_ID551"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\FastLED NeoMatrix"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\Framebuffer GFX"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\Adafruit GFX Library_ID13"
-INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\SPI"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\FastLED_ID126"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\SoftwareSerial\src"
-INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\WifiManager"
-INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WebServer\src"
-INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266mDNS\src"
+INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\SPI"
+INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\ESPAsyncWiFiManager"
+INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\ESP Async WebServer_ID306\src"
+INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\Hash\src"
+INCLUDEPATH += "$${HOMEDIR}\.platformio\lib\ArduinoJson_ID64\src"
+INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\ESPAsyncTCP_ID305\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\DNSServer\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\tools\sdk\include"
@@ -38,6 +37,7 @@ INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266NetBIOS"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266SSDP"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266SdFat\src"
+INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WebServer\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFiMesh\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266httpUpdate\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\Ethernet\src"
@@ -61,6 +61,9 @@ DEFINES += "PLATFORMIO=40000"
 DEFINES += "ESP8266"
 DEFINES += "ARDUINO_ARCH_ESP8266"
 DEFINES += "ARDUINO_ESP8266_NODEMCU"
+DEFINES += "PIO_FRAMEWORK_ARDUINO_ESPRESSIF_SDK22x"
+DEFINES += "PIO_FRAMEWORK_ARDUINO_LWIP2_HIGHER_BANDWIDTH_LOW_FLASH"
+DEFINES += "VTABLES_IN_FLASH"
 DEFINES += "F_CPU=80000000L"
 DEFINES += "__ets__"
 DEFINES += "ICACHE_FLASH"
@@ -68,11 +71,10 @@ DEFINES += "ARDUINO=10805"
 DEFINES += "ARDUINO_BOARD=&quot;PLATFORMIO_NODEMCUV2&quot;"
 DEFINES += "FLASHMODE_DIO"
 DEFINES += "LWIP_OPEN_SRC"
-DEFINES += "NONOSDK221=1"
-DEFINES += "TCP_MSS=536"
-DEFINES += "LWIP_FEATURES=1"
+DEFINES += "NONOSDK22x=1"
+DEFINES += "TCP_MSS=1460"
+DEFINES += "LWIP_FEATURES=0"
 DEFINES += "LWIP_IPV6=0"
-DEFINES += "VTABLES_IN_FLASH"
 
 OTHER_FILES += platformio.ini
 
@@ -91,8 +93,6 @@ SOURCES += src\MyMatrix.cpp
 HEADERS += src\MyMatrix.h
 SOURCES += src\Settings.cpp
 HEADERS += src\Settings.h
-SOURCES += src\WifiServer.cpp
-HEADERS += src\WifiServer.h
 SOURCES += src\effects\Effect.cpp
 HEADERS += src\effects\Effect.h
 SOURCES += src\effects\basic\ClockEffect.cpp
