@@ -216,16 +216,16 @@ void updateRequestHandler(AsyncWebServerRequest *request)
     ESP.restart();
 }
 
-void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool final, int command = U_FLASH)
 {
     if (index == 0) {
         Serial.println("Update started!");
 #if defined(ESP8266)
         myMatrix->fill(CRGB(40, 40, 60), true);
         Update.runAsync(true);
-        if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
+        if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000), command) {
 #elif defined(ESP32)
-        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN, command)) {
 #endif
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
@@ -248,16 +248,18 @@ void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len
         Update.printError(Serial);
         myMatrix->fill(CRGB::Red, true);
         isUpdatingFlag = false;
+        return;
     } else {
 #if defined(ESP32)
         drawProgress(index + len);
 #endif
     }
-    if (index + len == total) {
+    if (final) {
         if (!Update.end(true)) {
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
             isUpdatingFlag = false;
+            return;
         } else {
             Serial.printf("Update Success: %zd\nRebooting...\n", index + len);
             myMatrix->fill(CRGB::Green, true);
@@ -270,63 +272,14 @@ void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len
 #endif
 }
 
+void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+{
+    updateHandler(data, len, index, total, index + len == total, U_FLASH);
+}
+
 void updateFileHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
 {
-    if (!index) {
-        Serial.println("Update started!");
-#if defined(ESP8266)
-        myMatrix->fill(CRGB(40, 40, 60), true);
-        Update.runAsync(true);
-        if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
-#elif defined(ESP32)
-        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
-#endif
-            Update.printError(Serial);
-            myMatrix->fill(CRGB::Red, true);
-            isUpdatingFlag = false;
-            return;
-        } else {
-            isUpdatingFlag = true;
-#if defined(ESP32)
-            myMatrix->setRotation(3);
-            myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
-            myMatrix->setBrightness(80);
-#endif
-
-            if (updateSize == 0) {
-                updateSize = request->contentLength();
-            }
-        }
-    }
-
-    if (Update.write(data, len) != len) {
-        Update.printError(Serial);
-        myMatrix->fill(CRGB::Red, true);
-        isUpdatingFlag = false;
-        return;
-    } else {
-#if defined(ESP32)
-        drawProgress(index + len);
-#endif
-    }
-
-    if (final) {
-        if (!Update.end(true)) {
-            Update.printError(Serial);
-            myMatrix->fill(CRGB::Red, true);
-            isUpdatingFlag = false;
-            return;
-        } else {
-            Serial.printf("Update Success: %zd\nRebooting...\n", index + len);
-            myMatrix->fill(CRGB::Green, true);
-        }
-    }
-
-#if defined(ESP8266)
-    ESP.wdtFeed();
-#else
-    yield();
-#endif
+    updateHandler(data, len, index, request->contentLength(), final, U_FLASH);
 }
 
 void wifiConnectedCallback()
