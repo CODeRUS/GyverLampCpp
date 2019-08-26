@@ -236,6 +236,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
 #if defined(ESP32)
             myMatrix->setRotation(3);
             myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
+            myMatrix->setTextWrap(false);
             myMatrix->setBrightness(80);
 #endif
 

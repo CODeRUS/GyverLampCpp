@@ -25,6 +25,8 @@
 #include "effects/noise/ForestNoiseEffect.h"
 #include "effects/noise/OceanNoiseEffect.h"
 
+#include "effects/sound/SoundEffect.h"
+
 namespace  {
 
 std::vector<Effect*> effects;
@@ -57,6 +59,7 @@ void EffectsManager::Initialize()
         new ClockHorizontal1Effect(),
         new ClockHorizontal2Effect(),
         new ClockHorizontal3Effect(),
+        new SoundEffect(),
     };
 }
 
