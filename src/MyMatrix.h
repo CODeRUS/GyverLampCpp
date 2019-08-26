@@ -35,6 +35,8 @@ public:
 
     void fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint16_t color);
 
+    void fadePixelXY(uint8_t x, uint8_t y, uint8_t step);
+
 protected:
     MyMatrix(CRGB *leds, uint8_t w, uint8_t h, uint8_t matrixType);
 };

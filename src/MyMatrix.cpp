@@ -175,3 +175,19 @@ void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint16_t c
 {
     fillRect(y, x, h, w, color);
 }
+
+void MyMatrix::fadePixelXY(uint8_t x, uint8_t y, uint8_t step)
+{
+    const uint16_t pixelNum = myMatrix->getPixelNumber(x, y);
+    const CRGB color = myMatrix->getPixColor(pixelNum);
+
+    if (!color) {
+        return;
+    }
+
+    if (color.r >= 30 || color.g >= 30 || color.b >= 30) {
+        myMatrix->fadeToBlackBy(pixelNum, step);
+    } else {
+        myMatrix->setLed(pixelNum, CRGB::Black);
+    }
+}
