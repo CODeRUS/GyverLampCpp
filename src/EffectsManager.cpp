@@ -15,6 +15,7 @@
 #include "effects/basic/ClockHorizontal2Effect.h"
 #include "effects/basic/ClockHorizontal3Effect.h"
 #include "effects/basic/StarfallEffect.h"
+#include "effects/basic/DiagonalRainbowEffect.h"
 
 #include "effects/noise/MadnessNoiseEffect.h"
 #include "effects/noise/CloudNoiseEffect.h"
@@ -62,6 +63,7 @@ void EffectsManager::Initialize()
         new ClockHorizontal3Effect(),
         new SoundEffect(),
         new StarfallEffect(),
+        new DiagonalRainbowEffect(),
     };
 }
 
