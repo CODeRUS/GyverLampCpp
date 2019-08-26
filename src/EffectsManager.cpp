@@ -14,6 +14,8 @@
 #include "effects/basic/ClockHorizontal1Effect.h"
 #include "effects/basic/ClockHorizontal2Effect.h"
 #include "effects/basic/ClockHorizontal3Effect.h"
+#include "effects/basic/StarfallEffect.h"
+#include "effects/basic/DiagonalRainbowEffect.h"
 
 #include "effects/noise/MadnessNoiseEffect.h"
 #include "effects/noise/CloudNoiseEffect.h"
@@ -24,6 +26,8 @@
 #include "effects/noise/ZebraNoiseEffect.h"
 #include "effects/noise/ForestNoiseEffect.h"
 #include "effects/noise/OceanNoiseEffect.h"
+
+#include "effects/sound/SoundEffect.h"
 
 namespace  {
 
@@ -57,6 +61,9 @@ void EffectsManager::Initialize()
         new ClockHorizontal1Effect(),
         new ClockHorizontal2Effect(),
         new ClockHorizontal3Effect(),
+        new SoundEffect(),
+        new StarfallEffect(),
+        new DiagonalRainbowEffect(),
     };
 }
 

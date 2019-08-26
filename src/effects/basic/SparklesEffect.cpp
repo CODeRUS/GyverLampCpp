@@ -2,21 +2,6 @@
 
 namespace {
 
-void fadePixel(uint8_t i, uint8_t j, uint8_t step) {     // новый фейдер
-    const uint16_t pixelNum = myMatrix->getPixelNumber(i, j);
-    const CRGB color = myMatrix->getPixColor(pixelNum);
-
-    if (!color) {
-        return;
-    }
-
-    if (color.r >= 30 || color.g >= 30 || color.b >= 30) {
-        myMatrix->fadeToBlackBy(pixelNum, step);
-    } else {
-        myMatrix->setLed(pixelNum, CRGB::Black);
-    }
-}
-
 } // namespace
 
 SparklesEffect::SparklesEffect()
@@ -37,9 +22,9 @@ void SparklesEffect::tick()
 }
 
 void SparklesEffect::fader(uint8_t step) {
-    for (uint8_t i = 0; i < width; i++) {
-        for (uint8_t j = 0; j < height; j++) {
-            fadePixel(i, j, step);
+    for (uint8_t x = 0; x < width; x++) {
+        for (uint8_t y = 0; y < height; y++) {
+            myMatrix->fadePixelXY(x, y, step);
         }
     }
 }
