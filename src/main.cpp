@@ -57,28 +57,28 @@ void processButton()
     button->tick();
     if (button->isSingle()) {
         Serial.println("Single button");
-        Settings::masterSwitch = !Settings::masterSwitch;
-        if (!Settings::masterSwitch) {
+        mySettings->masterSwitch = !mySettings->masterSwitch;
+        if (!mySettings->masterSwitch) {
             myMatrix->clear(true);
         }
     }
-    if (!Settings::masterSwitch) {
+    if (!mySettings->masterSwitch) {
         return;
     }
     if (button->isDouble()) {
         Serial.println("Double button");
         EffectsManager::Next();
-        Settings::SaveLater();
+        mySettings->SaveLater();
     }
     if (button->isTriple()) {
         Serial.println("Triple button");
         EffectsManager::Previous();
-        Settings::SaveLater();
+        mySettings->SaveLater();
     }
     if (button->isHolded()) {
         Serial.println("Holded button");
         isHolding = true;
-        const uint8_t brightness = Settings::CurrentEffectSettings()->effectBrightness;
+        const uint8_t brightness = mySettings->CurrentEffectSettings()->effectBrightness;
         if (brightness <= 1) {
             stepDirection = 1;
         } else if (brightness == 255) {
@@ -86,7 +86,7 @@ void processButton()
         }
     }
     if (isHolding && button->isStep()) {
-        uint8_t brightness = Settings::CurrentEffectSettings()->effectBrightness;
+        uint8_t brightness = mySettings->CurrentEffectSettings()->effectBrightness;
         if (stepDirection < 0 && brightness == 1) {
             return;
         }
@@ -95,12 +95,12 @@ void processButton()
         }
         brightness += stepDirection;
         Serial.printf("Step button %d. brightness: %u\n", stepDirection, brightness);
-        Settings::CurrentEffectSettings()->effectBrightness = brightness;
+        mySettings->CurrentEffectSettings()->effectBrightness = brightness;
         myMatrix->setBrightness(brightness);
     }
     if (button->isRelease() && isHolding) {
         Serial.println("Release button");
-        Settings::SaveLater();
+        mySettings->SaveLater();
         isHolding = false;
     }
 }
@@ -123,6 +123,7 @@ void setup() {
         Serial.println("An Error has occurred while mounting SPIFFS");
         return;
     }
+    Serial.printf("SPIFFS Settings file exists: %s\n", SPIFFS.exists("/settings.json") ? "true" : "false");
 
 #if defined(ESP8266)
     ESP.wdtDisable();
@@ -180,7 +181,7 @@ void setup() {
 #endif
 
     Settings::Initialize(eepromInitialization);
-    EffectsManager::ActivateEffect(Settings::currentEffect);
+    EffectsManager::ActivateEffect(mySettings->currentEffect);
 
     button = new GButton(btnPin, GButton::PullTypeLow, GButton::DefaultStateOpen);
     button->setTickMode(false);
@@ -202,9 +203,9 @@ void loop() {
     GyverTimer::Process();
     processButton();
 
-    if (Settings::masterSwitch) {
+    if (mySettings->masterSwitch) {
         EffectsManager::Process();
     }
 
-    Settings::Process();
+    mySettings->Process();
 }

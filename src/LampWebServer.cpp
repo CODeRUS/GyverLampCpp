@@ -36,7 +36,7 @@ void parseTextMessage(const String &message)
     Serial.print("<< ");
     Serial.println(message);
 
-    Settings::ApplyConfig(message);
+    mySettings->ApplyConfig(message);
 }
 
 String templateProcessor(const String &var)
@@ -56,7 +56,7 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
         Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
         //        client->printf("Hello Client %u :)", client->id());
         client->ping();
-        client->text(Settings::GetCurrentConfig());
+        client->text(mySettings->GetCurrentConfig());
     } else if (type == WS_EVT_DISCONNECT) {
         Serial.printf("ws[%s][%u] disconnect\n", server->url(), client->id());
     } else if (type == WS_EVT_ERROR) {
@@ -383,7 +383,7 @@ void LampWebServer::SendConfig()
         return;
     }
 
-    socket->textAll(Settings::GetCurrentConfig());
+    socket->textAll(mySettings->GetCurrentConfig());
 }
 
 bool LampWebServer::isUpdating()
@@ -417,7 +417,9 @@ void LampWebServer::configureHandlers()
         Serial.printf("Adding web handler from %s to %s\n", resultName.c_str(), fileName.c_str());
 
         webServer->serveStatic(resultName.c_str(), SPIFFS, fileName.c_str());
+        file.close();
     }
+    root.close();
 
     webServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(SPIFFS, "/index.html", "text/html", false, templateProcessor);

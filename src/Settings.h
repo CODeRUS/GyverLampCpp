@@ -1,10 +1,14 @@
 #pragma once
 #include <Arduino.h>
-#include <EEPROM.h>
+
+#define mySettings Settings::Instance()
 
 class Settings
 {
 public:
+    static Settings *Instance();
+    static void Initialize(const uint8_t eepromInitialization, uint32_t saveInterval = 3000);
+
     struct AlarmSettings {
         bool enabled = false;
         uint64_t time = 0;
@@ -16,22 +20,24 @@ public:
         uint8_t effectScale = 1;
     };
 
-    static void Initialize(const uint8_t eepromInitialization, uint32_t saveInterval = 3000);
-    static void Process();
-    static void Reset();
-    static void SaveLater();
-    static void Save();
+    void Process();
+    void Reset();
+    void SaveLater();
+    void Save();
 
-    static String GetCurrentConfig();
-    static void ApplyConfig(const String &message);
+    String GetCurrentConfig();
+    void ApplyConfig(const String &message);
 
-    static EffectSettings *CurrentEffectSettings();
+    EffectSettings *CurrentEffectSettings();
 
-    static uint8_t initializationFlag;
-    static AlarmSettings* alarmSettings;
-    static uint8_t currentEffect;
-    static EffectSettings* effectsSettings;
-    static uint8_t dawnMode;
-    static bool masterSwitch;
+    uint8_t initializationFlag = 0;
+    AlarmSettings* alarmSettings = nullptr;
+    uint8_t currentEffect = 0;
+    EffectSettings* effectsSettings = nullptr;
+    uint8_t dawnMode = 0;
+    bool masterSwitch = true;
+
+protected:
+    Settings(const uint8_t eepromInitialization, uint32_t saveInterval = 3000);
 };
 

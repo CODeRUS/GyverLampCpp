@@ -30,8 +30,8 @@ void sendString(const String &inputBuffer) {
 }
 
 void sendCurrent() {
-    const uint8_t currentMode = Settings::currentEffect;
-    const Settings::EffectSettings modeSettings = *Settings::CurrentEffectSettings();
+    const uint8_t currentMode = mySettings->currentEffect;
+    const Settings::EffectSettings modeSettings = *mySettings->CurrentEffectSettings();
 
     String inputBuffer = "CURR";
     inputBuffer += " ";
@@ -43,7 +43,7 @@ void sendCurrent() {
     inputBuffer += " ";
     inputBuffer += String(modeSettings.effectScale);
     inputBuffer += " ";
-    inputBuffer += String(Settings::masterSwitch);
+    inputBuffer += String(mySettings->masterSwitch);
 
     sendString(inputBuffer);
 }
@@ -78,22 +78,22 @@ void parseUDP() {
         sendCurrent();
     } else if (inputBuffer.startsWith("BRI")) {
         const uint8_t brightness = static_cast<uint8_t>(inputBuffer.substring(3).toInt());
-        Settings::CurrentEffectSettings()->effectBrightness = brightness;
+        mySettings->CurrentEffectSettings()->effectBrightness = brightness;
         myMatrix->setBrightness(brightness);
-        Settings::SaveLater();
+        mySettings->SaveLater();
     } else if (inputBuffer.startsWith("SPD")) {
-        Settings::CurrentEffectSettings()->effectSpeed = static_cast<uint8_t>(inputBuffer.substring(3).toInt());
-        Settings::SaveLater();
+        mySettings->CurrentEffectSettings()->effectSpeed = static_cast<uint8_t>(inputBuffer.substring(3).toInt());
+        mySettings->SaveLater();
     } else if (inputBuffer.startsWith("SCA")) {
-        Settings::CurrentEffectSettings()->effectScale = static_cast<uint8_t>(inputBuffer.substring(3).toInt());
-        Settings::SaveLater();
+        mySettings->CurrentEffectSettings()->effectScale = static_cast<uint8_t>(inputBuffer.substring(3).toInt());
+        mySettings->SaveLater();
     } else if (inputBuffer.startsWith("P_ON")) {
-        Settings::masterSwitch = true;
+        mySettings->masterSwitch = true;
         sendCurrent();
     } else if (inputBuffer.startsWith("P_OFF")) {
         myMatrix->clear();
         myMatrix->show();
-        Settings::masterSwitch = false;
+        mySettings->masterSwitch = false;
         sendCurrent();
     } else if (inputBuffer.startsWith("ALM_SET")) {
 //        byte alarmNum = (char)inputBuffer[7] - '0';

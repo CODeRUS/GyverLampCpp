@@ -69,40 +69,40 @@ void EffectsManager::Initialize()
 
 void EffectsManager::Process()
 {
-    if (Settings::currentEffect >= effects.size()) {
+    if (mySettings->currentEffect >= effects.size()) {
         return;
     }
 
-    if (effectTimer != 0 && (millis() - effectTimer) < Settings::CurrentEffectSettings()->effectSpeed) {
+    if (effectTimer != 0 && (millis() - effectTimer) < mySettings->CurrentEffectSettings()->effectSpeed) {
         return;
     }
     effectTimer = millis();
 
-    effects[Settings::currentEffect]->Process();
+    effects[mySettings->currentEffect]->Process();
 }
 
 void EffectsManager::Next()
 {
-    effects[Settings::currentEffect]->deactivate();
+    effects[mySettings->currentEffect]->deactivate();
     myMatrix->clear();
-    if (Settings::currentEffect == effects.size() - 1) {
-        Settings::currentEffect = 0;
+    if (mySettings->currentEffect == effects.size() - 1) {
+        mySettings->currentEffect = 0;
     } else {
-        ++Settings::currentEffect;
+        ++mySettings->currentEffect;
     }
-    ActivateEffect(Settings::currentEffect);
+    ActivateEffect(mySettings->currentEffect);
 }
 
 void EffectsManager::Previous()
 {
-    effects[Settings::currentEffect]->deactivate();
+    effects[mySettings->currentEffect]->deactivate();
     myMatrix->clear();
-    if (Settings::currentEffect == 0) {
-        Settings::currentEffect = static_cast<uint8_t>(effects.size() - 1);
+    if (mySettings->currentEffect == 0) {
+        mySettings->currentEffect = static_cast<uint8_t>(effects.size() - 1);
     } else {
-        --Settings::currentEffect;
+        --mySettings->currentEffect;
     }
-    ActivateEffect(Settings::currentEffect);
+    ActivateEffect(mySettings->currentEffect);
 }
 
 void EffectsManager::ChangeEffect(uint8_t index)
@@ -111,27 +111,27 @@ void EffectsManager::ChangeEffect(uint8_t index)
         return;
     }
 
-    if (index == Settings::currentEffect) {
+    if (index == mySettings->currentEffect) {
         return;
     }
 
-    effects[Settings::currentEffect]->deactivate();
+    effects[mySettings->currentEffect]->deactivate();
     myMatrix->clear();
-    Settings::currentEffect = index;
+    mySettings->currentEffect = index;
     ActivateEffect(index);
-    Settings::SaveLater();
+    mySettings->SaveLater();
 }
 
 void EffectsManager::ActivateEffect(uint8_t index)
 {
     Effect *effect = effects[index];
     if (!effect->settings) {
-        effect->settings = &Settings::effectsSettings[index];
+        effect->settings = &mySettings->effectsSettings[index];
         if (effect->settings->effectScale > 100) {
             effect->settings->effectScale = 50;
         }
     }
-    myMatrix->setBrightness(Settings::effectsSettings[index].effectBrightness);
+    myMatrix->setBrightness(mySettings->effectsSettings[index].effectBrightness);
     Serial.printf("%s activated!\n", effect->effectName.c_str());
     Serial.flush();
     effect->activate();
