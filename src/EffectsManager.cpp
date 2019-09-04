@@ -28,6 +28,7 @@
 #include "effects/noise/OceanNoiseEffect.h"
 
 #include "effects/sound/SoundEffect.h"
+#include "effects/sound/SoundStereoEffect.h"
 
 namespace  {
 
@@ -64,6 +65,7 @@ void EffectsManager::Initialize()
         new SoundEffect(),
         new StarfallEffect(),
         new DiagonalRainbowEffect(),
+        new SoundStereoEffect(),
     };
 }
 
