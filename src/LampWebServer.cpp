@@ -417,9 +417,13 @@ void LampWebServer::configureHandlers()
         Serial.printf("Adding web handler from %s to %s\n", resultName.c_str(), fileName.c_str());
 
         webServer->serveStatic(resultName.c_str(), SPIFFS, fileName.c_str());
+#if defined(ESP32)
         file.close();
     }
     root.close();
+#else
+    }
+#endif
 
     webServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(SPIFFS, "/index.html", "text/html", false, templateProcessor);

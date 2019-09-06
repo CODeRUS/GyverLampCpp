@@ -1,7 +1,9 @@
 #include "SoundStereoEffect.h"
 
 #include <math.h>
+#if defined(ESP32)
 #include <driver/adc.h>
+#endif
 #include <arduinoFFT.h>
 
 namespace  {
@@ -20,8 +22,6 @@ double lvImag[SAMPLES];
 double rvReal[SAMPLES];
 double rvImag[SAMPLES];
 unsigned long newTime;
-
-bool adcread = true;
 
 struct eqBand {
     const char *freqname;
@@ -78,9 +78,11 @@ SoundStereoEffect::SoundStereoEffect()
 {
     effectName = "Sound Stereo spectrometer";
 
+#if defined(ESP32)
     adc1_config_width(ADC_WIDTH_12Bit);   //Range 0-1023
     adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_11db); //ADC_ATTEN_DB_11 = 0-3,6V
     adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_11db); //ADC_ATTEN_DB_11 = 0-3,6V
+#endif
     sampling_period_us = round(1000000 * (1.0 / samplingFrequency));
     delay(1000);
     setBandwidth();
@@ -173,14 +175,13 @@ void SoundStereoEffect::captureSoundSample()
 {
     for (int i = 0; i < SAMPLES; i++) {
         newTime = micros();
-        if (adcread) {
-            lvReal[i] = adc1_get_raw( ADC1_CHANNEL_0 ); // A raw conversion takes about 20uS on an ESP32
-            rvReal[i] = adc1_get_raw( ADC1_CHANNEL_3 ); // A raw conversion takes about 20uS on an ESP32
-            delayMicroseconds(20);
-        } else {
-            lvReal[i] = analogRead(A0); // A conversion takes about 1uS on an ESP32
-            rvReal[i] = analogRead(A3); // A conversion takes about 1uS on an ESP32
-        }
+#if defined(ESP32)
+        lvReal[i] = adc1_get_raw( ADC1_CHANNEL_0 ); // A raw conversion takes about 20uS on an ESP32
+        rvReal[i] = adc1_get_raw( ADC1_CHANNEL_3 ); // A raw conversion takes about 20uS on an ESP32
+        delayMicroseconds(20);
+#else
+        lvReal[i] = rvReal[i] = analogRead(A0); // A conversion takes about 1uS on an ESP32
+#endif
 
         lvImag[i] = 0;
         rvImag[i] = 0;

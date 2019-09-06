@@ -170,7 +170,7 @@ void setup() {
 //                NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG);
     myMatrix->setBrightness(maxBrightness);
     myMatrix->setCurrentLimit(maxCurrent);
-    myMatrix->setRotation(3);
+    myMatrix->setRotation(2);
 
     myMatrix->matrixTest();
 

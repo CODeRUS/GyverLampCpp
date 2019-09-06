@@ -9,7 +9,7 @@ GButton::GButton(uint8_t pin, boolean type, boolean dir) {
     _PIN = pin;
     GButton::init();
     GButton::setType(type);
-    flags.inv_state = dir;
+    GButton::setDirection(dir);
 }
 
 void GButton::init() {
@@ -17,11 +17,22 @@ void GButton::init() {
     _timeout = 500;
     _step_timeout = 400;
     _click_timeout = 300;
-    flags.inv_state = DefaultStateOpen;
+    flags.inv_state = false;
+    flags.btn_state = false;
+    flags.btn_deb = false;
+    flags.btn_flag = false;
+    flags.hold_flag = false;
+    flags.counter_flag = false;
+    flags.isHolded_f = false;
+    flags.isRelease_f = false;
+    flags.isPress_f = false;
+    flags.step_flag = false;
+    flags.oneClick_f = false;
+    flags.isOne_f = false;
+    flags.inv_state = false;
     flags.mode = false;
-    flags.type = false;
+    flags.type = true;
     flags.tickMode = false;
-    GButton::setType(PullTypeHigh);
 }
 
 void GButton::setDebounce(uint16_t debounce) {
@@ -133,7 +144,9 @@ void GButton::tick(boolean state) {
 void GButton::tick() {
 
     // читаем пин
-    if (!flags.mode) flags.btn_state = !digitalRead(_PIN) ^ (flags.inv_state ^ flags.type);
+    if (!flags.mode) {
+        flags.btn_state = !digitalRead(_PIN) ^ (flags.inv_state ^ flags.type);
+    }
 
     // нажатие
     if (flags.btn_state && !flags.btn_flag) {

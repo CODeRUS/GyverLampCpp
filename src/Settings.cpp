@@ -75,7 +75,7 @@ void Settings::Save()
 
     Serial.printf("Effects settings count: %zu\n", effects.size());
 
-    File file = SPIFFS.open(settingsFileName, FILE_WRITE);
+    File file = SPIFFS.open(settingsFileName, "w");
     if (!file) {
         Serial.println("Error opening settings file from SPIFFS!");
         return;
@@ -223,7 +223,7 @@ Settings::Settings(const uint8_t eepromInitialization, uint32_t saveInterval)
 
         Save();
     } else {
-        File settings = SPIFFS.open(settingsFileName);
+        File settings = SPIFFS.open(settingsFileName, "r");
         if (!settings) {
             Serial.println("SPIFFS Error reading settings file");
             return;

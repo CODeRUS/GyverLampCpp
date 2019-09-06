@@ -1,7 +1,9 @@
 #include "SoundEffect.h"
 
 #include <math.h>
+#if defined(ESP32)
 #include <driver/adc.h>
+#endif
 #include <arduinoFFT.h>
 
 namespace  {
@@ -18,8 +20,6 @@ unsigned int sampling_period_us;
 double vReal[SAMPLES];
 double vImag[SAMPLES];
 unsigned long newTime;
-
-bool adcread = true;
 
 struct eqBand {
     const char *freqname;
@@ -58,8 +58,10 @@ SoundEffect::SoundEffect()
 {
     effectName = "Sound spectrometer";
 
+#if defined(ESP32)
     adc1_config_width(ADC_WIDTH_12Bit);   //Range 0-1023
     adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_11db); //ADC_ATTEN_DB_11 = 0-3,6V
+#endif
     sampling_period_us = round(1000000 * (1.0 / samplingFrequency));
     delay(1000);
     setBandwidth();
@@ -117,12 +119,12 @@ void SoundEffect::captureSoundSample()
 {
     for (int i = 0; i < SAMPLES; i++) {
         newTime = micros();
-        if (adcread) {
-            vReal[i] = adc1_get_raw( ADC1_CHANNEL_0 ); // A raw conversion takes about 20uS on an ESP32
-            delayMicroseconds(20);
-        } else {
-            vReal[i] = analogRead(A0); // A conversion takes about 1uS on an ESP32
-        }
+#if defined(ESP32)
+        vReal[i] = adc1_get_raw( ADC1_CHANNEL_0 ); // A raw conversion takes about 20uS on an ESP32
+        delayMicroseconds(20);
+#else
+        vReal[i] = analogRead(A0); // A conversion takes about 1uS on an ESP32
+#endif
 
         vImag[i] = 0;
 

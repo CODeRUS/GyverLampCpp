@@ -7,8 +7,8 @@ else {
 
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\include"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\src"
-INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\lib\GyverButton"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\EEPROM"
+INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\lib\GyverButton"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266mDNS\src"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\arduinoFFT_ID1651\src"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\NTPClient_ID551"
@@ -21,7 +21,7 @@ INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\ESPAsyncWiFiManager"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\ESP Async WebServer_ID306\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\Hash\src"
-INCLUDEPATH += "$${HOMEDIR}\.platformio\lib\ArduinoJson_ID64\src"
+INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\ArduinoJson_ID64\src"
 INCLUDEPATH += "$${HOMEDIR}\workplace\GyverLamp\firmware\GyverLampCpp\.pio\libdeps\nodemcu\ESPAsyncTCP_ID305\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\DNSServer\src"
 INCLUDEPATH += "$${HOMEDIR}\.platformio\packages\framework-arduinoespressif8266\libraries\ESP8266WiFi\src"
@@ -148,3 +148,5 @@ SOURCES += src\effects\noise\ZebraNoiseEffect.cpp
 HEADERS += src\effects\noise\ZebraNoiseEffect.h
 SOURCES += src\effects\sound\SoundEffect.cpp
 HEADERS += src\effects\sound\SoundEffect.h
+SOURCES += src\effects\sound\SoundStereoEffect.cpp
+HEADERS += src\effects\sound\SoundStereoEffect.h
