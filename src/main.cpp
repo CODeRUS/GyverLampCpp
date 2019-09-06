@@ -39,7 +39,7 @@ uint32_t maxCurrent = 1000;
 #if defined(ESP32)
 const uint8_t btnPin = 15;
 #else
-const uint8_t btnPin = 1;
+const uint8_t btnPin = 5;
 #endif
 
 GButton *button = nullptr;

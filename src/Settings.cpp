@@ -229,8 +229,9 @@ Settings::Settings(const uint8_t eepromInitialization, uint32_t saveInterval)
             return;
         }
 
-        StaticJsonDocument<4096> doc;
+        DynamicJsonDocument doc(4096);
         DeserializationError err = deserializeJson(doc, settings);
+        settings.close();
         if (err) {
             Serial.print("SPIFFS Error parsing json file: ");
             Serial.println(err.c_str());
