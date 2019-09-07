@@ -39,9 +39,17 @@ bool sparkles = true;
 FireEffect::FireEffect()
 {
     effectName = "Fire";
+}
 
+void FireEffect::activate()
+{
     line = new uint8_t[width]();
     generateLine();
+}
+
+void FireEffect::deactivate()
+{
+    delete line;
 }
 
 void FireEffect::tick()

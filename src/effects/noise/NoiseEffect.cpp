@@ -3,7 +3,10 @@
 NoiseEffect::NoiseEffect()
 {
     maxDimension = max(width, height);
+}
 
+void NoiseEffect::activate()
+{
     if (width > height) {
         noise = new uint8_t*[width]();
         for (uint8_t i = 0; i < width; ++i) {
@@ -17,6 +20,14 @@ NoiseEffect::NoiseEffect()
     }
 
     colorLoop = 0;
+}
+
+void NoiseEffect::deactivate()
+{
+    for (uint8_t i = 0; i < maxDimension; i++) {
+        delete noise[i];
+    }
+    delete noise;
 }
 
 void NoiseEffect::tick()

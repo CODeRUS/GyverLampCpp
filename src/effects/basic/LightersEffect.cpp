@@ -4,9 +4,13 @@
 
 namespace  {
 
-int lightersPos[2][LIGHTERS_AM];
-int8_t lightersSpeed[2][LIGHTERS_AM];
-CHSV lightersColor[LIGHTERS_AM];
+int** lightersPos = nullptr;
+int8_t** lightersSpeed = nullptr;
+CHSV* lightersColor = nullptr;
+
+//int lightersPos[2][LIGHTERS_AM];
+//int8_t lightersSpeed[2][LIGHTERS_AM];
+//CHSV lightersColor[LIGHTERS_AM];
 uint8_t loopCounter;
 
 } // namespace
@@ -14,6 +18,19 @@ uint8_t loopCounter;
 LightersEffect::LightersEffect()
 {
     effectName = "Lighters";
+}
+
+void LightersEffect::activate()
+{
+    lightersPos = new int*[2]();
+    lightersPos[0] = new int[LIGHTERS_AM]();
+    lightersPos[1] = new int[LIGHTERS_AM]();
+
+    lightersSpeed = new int8_t*[2]();
+    lightersSpeed[0] = new int8_t[LIGHTERS_AM]();
+    lightersSpeed[1] = new int8_t[LIGHTERS_AM]();
+
+    lightersColor = new CHSV[LIGHTERS_AM]();
 
     for (uint8_t i = 0; i < LIGHTERS_AM; i++) {
         lightersPos[0][i] = random(0, width * 10);
@@ -22,6 +39,19 @@ LightersEffect::LightersEffect()
         lightersSpeed[1][i] = random(-10, 10);
         lightersColor[i] = CHSV(random(0, 255), 255, 255);
     }
+}
+
+void LightersEffect::deactivate()
+{
+    delete lightersPos[0];
+    delete lightersPos[1];
+    delete lightersPos;
+
+    delete lightersSpeed[0];
+    delete lightersSpeed[1];
+    delete lightersSpeed;
+
+    delete lightersColor;
 }
 
 void LightersEffect::tick()
@@ -41,8 +71,12 @@ void LightersEffect::tick()
         lightersPos[0][i] += lightersSpeed[0][i];
         lightersPos[1][i] += lightersSpeed[1][i];
 
-        if (lightersPos[0][i] < 0) lightersPos[0][i] = (width - 1) * 10;
-        if (lightersPos[0][i] >= width * 10) lightersPos[0][i] = 0;
+        if (lightersPos[0][i] < 0) {
+            lightersPos[0][i] = (width - 1) * 10;
+        }
+        if (lightersPos[0][i] >= width * 10) {
+            lightersPos[0][i] = 0;
+        }
 
         if (lightersPos[1][i] < 0) {
             lightersPos[1][i] = 0;

@@ -5,6 +5,8 @@ class NoiseEffect : public Effect
 {
 public:
     NoiseEffect();
+    void activate() override;
+    void deactivate() override;
     virtual void tick() override;
 
 protected:
@@ -22,5 +24,6 @@ protected:
     CRGBPalette16 currentPalette;
     uint8_t colorLoop = 1;
     uint8_t ihue = 0;
+
 };
 
