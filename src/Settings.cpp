@@ -72,6 +72,7 @@ void Settings::Save()
     }
     doc["currentEffect"] = currentEffect;
     doc["currentEffectName"] = EffectsManager::EffectName(currentEffect);
+    doc["matrixRotation"] = matrixRotation;
 
     Serial.printf("Effects settings count: %zu\n", effects.size());
 
@@ -290,6 +291,10 @@ Settings::Settings(const uint8_t eepromInitialization, uint32_t saveInterval)
 
         if (root.containsKey("currentEffect")) {
             currentEffect = root["currentEffect"];
+        }
+
+        if (root.containsKey("matrixRotation")) {
+            matrixRotation = root["matrixRotation"];
         }
     }
 }

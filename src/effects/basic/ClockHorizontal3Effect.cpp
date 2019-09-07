@@ -74,15 +74,20 @@ void ClockHorizontal3Effect::activate()
     myMatrix->setTextWrap(false);
     myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
 
-    if (myMatrix->getRotation() != 0) { // for horizontal only
-        myMatrix->setRotation(0);
+    int horizontalRotation = mySettings->matrixRotation - 3;
+    if (horizontalRotation < 0) {
+        horizontalRotation = horizontalRotation + 4;
+    }
+
+    if (myMatrix->getRotation() != horizontalRotation) { // for horizontal only
+        myMatrix->setRotation(horizontalRotation);
     }
 }
 
 void ClockHorizontal3Effect::deactivate()
 {
     GyverTimer::SetInterval(0);
-    if (myMatrix->getRotation() != 3) {
-        myMatrix->setRotation(3);
+    if (myMatrix->getRotation() != mySettings->matrixRotation) {
+        myMatrix->setRotation(mySettings->matrixRotation);
     }
 }

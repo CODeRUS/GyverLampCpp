@@ -35,6 +35,7 @@ public:
     uint8_t currentEffect = 0;
     EffectSettings* effectsSettings = nullptr;
     uint8_t dawnMode = 0;
+    uint8_t matrixRotation = 0;
     bool masterSwitch = true;
 
 protected:

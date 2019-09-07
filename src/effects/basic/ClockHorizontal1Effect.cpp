@@ -42,7 +42,7 @@ void ClockHorizontal1Effect::tick()
 
     myMatrix->setCursor(posx, 0);
     const uint8_t dotIndex1 = time.indexOf(':');
-    const uint8_t spaceIndex1 =  time.indexOf(' ');
+    const uint8_t spaceIndex1 = time.indexOf(' ');
     if (dotIndex1 < spaceIndex1) {
         myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
         myMatrix->print(time.substring(0, dotIndex1));
@@ -97,15 +97,20 @@ void ClockHorizontal1Effect::activate()
     myMatrix->setTextWrap(false);
     myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
 
-    if (myMatrix->getRotation() != 0) { // for horizontal only
-        myMatrix->setRotation(0);
+    int horizontalRotation = mySettings->matrixRotation - 3;
+    if (horizontalRotation < 0) {
+        horizontalRotation = horizontalRotation + 4;
+    }
+
+    if (myMatrix->getRotation() != horizontalRotation) { // for horizontal only
+        myMatrix->setRotation(horizontalRotation);
     }
 }
 
 void ClockHorizontal1Effect::deactivate()
 {
     GyverTimer::SetInterval(0);
-    if (myMatrix->getRotation() != 3) {
-        myMatrix->setRotation(3);
+    if (myMatrix->getRotation() != mySettings->matrixRotation) {
+        myMatrix->setRotation(mySettings->matrixRotation);
     }
 }
