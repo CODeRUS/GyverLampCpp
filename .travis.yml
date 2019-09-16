@@ -1,0 +1,47 @@
+language: python
+python:
+- '2.7'
+sudo: false
+cache:
+  directories:
+  - "~/.platformio"
+  - ".pio/libdeps/esp32dev"
+  - ".pio/libdeps/nodemcu"
+  - ".pio/build/esp32dev"
+  - ".pio/build/nodemcu"
+install:
+- pip install -U platformio
+- platformio update
+script:
+- platformio run -e esp32dev
+- platformio run -e esp32dev --target buildfs
+- platformio run -e nodemcu
+- platformio run -e nodemcu --target buildfs
+- platformio run -e sonoff
+- platformio run -e sonoff --target buildfs
+before_deploy:
+- git config --local user.name "Travis CI"
+- git config --local user.email "coderusinbox@gmail.com"
+- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+- git tag $TRAVIS_TAG
+- cp .pio/build/esp32dev/firmware.bin esp32dev.bin
+- cp .pio/build/esp32dev/spiffs.bin esp32dev-spiffs.bin
+- cp .pio/build/nodemcu/firmware.bin nodemcu.bin
+- cp .pio/build/nodemcu/spiffs.bin nodemcu-spiffs.bin
+- cp .pio/build/sonoff/firmware.bin sonoff.bin
+- cp .pio/build/sonoff/spiffs.bin sonoff-spiffs.bin
+deploy:
+  provider: releases
+  api_key:
+    secure: Y5jM/09tZgDeBgsKbbYmCCSFv/Hkz4ylPg7OQJVSLYqArPn70+jPIclQkH+mkYKzT0JYBTFgUbnzxvRlPBuJKLZ62xhaWhMRdKRZaLsQRA6DHYoeEH+f7DWq03Xjiq6ojZT5hvPPdnPVSb93IM0nhCy1Aqqwbse0pq3z+FmWDrGSgqh/4iqJ35Yac9PCvNbV7VM2MxzbNYHnxnkAY6aklocl8le4qum34HgqN9Ze7TaZ42//LOQxF7w/6beIFslfdbmX6nE9GI6YsizwvzPE7uF6Zo5DQm495QCjr6NbfvLHhFMv0Xl78veyhX7gdimgPou9z0cq+LHOjiFfGaTo2yM33el9pmSmprewSzvVtcCEK5K3S5lpUDRGPt66UsLJdFZIxQ8jrNQp5P25b2UY5f2qf7KEvH4d5JU5bzXtOzXdgmDwySJBjZbuLOz+bejPYsvWn5wOsmahUGmS8xKf7jogmD1q1cFPR0m4ldYDUsLD/QQBm9GbkxTddBTFyXxFMLIxACwlAk8327KUSvmGqWqgjznW5BqWcpDjxQRa5clXDZdlYDjtKb3PyodAYiQk8Q61fcZUYU8X7gUgWmyAadJ6gv46kCWlnFcwfQmUTePtXlZ2ACpZ7CHm5o7acDv4qhrVAYT7DcwhO/i6sFAFuBSfNKgzUjPWyATUi0ZcBWA=
+  file:
+    - "esp32dev.bin"
+    - "esp32dev-spiffs.bin"
+    - "nodemcu.bin"
+    - "nodemcu-spiffs.bin"
+    - "sonoff.bin"
+    - "sonoff-spiffs.bin"
+  skip_cleanup: true
+  overwrite: true
+  on:
+    repo: CODeRUS/GyverLampCpp
