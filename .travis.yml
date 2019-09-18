@@ -1,35 +1,52 @@
 language: python
 python:
 - '2.7'
+node_js: 11
 sudo: false
 cache:
   directories:
+  - "~/virtualenv"
+  - "~/.cache/pip"
   - "~/.platformio"
   - ".pio/libdeps/esp32dev"
   - ".pio/libdeps/nodemcu"
+  - ".pio/libdeps/sonoff"
   - ".pio/build/esp32dev"
   - ".pio/build/nodemcu"
+  - ".pio/build/sonoff"
+before_install:
+  - pip install -U pip
 install:
-- pip install -U platformio
-- platformio update
+  - pip install -U platformio
+  - platformio update
 script:
-- platformio run -e esp32dev
-- platformio run -e esp32dev --target buildfs
-- platformio run -e nodemcu
-- platformio run -e nodemcu --target buildfs
-- platformio run -e sonoff
-- platformio run -e sonoff --target buildfs
+  - git clone https://github.com/zeburek/led-lamp-webui.git || true
+  - pushd led-lamp-webui
+  - git pull
+  - npm install
+  - npm run build
+  - popd
+  - for f in $(find led-lamp-webui/build/static -name "*.js" -o -name "*.css"); do cp -f $f data; done
+  - cp -f led-lamp-webui/build/index.html data
+  - cp -f led-lamp-webui/build/favicon.ico data
+  - sed -i -e "s#<body>#<body><script>window.ENV_HTTP_HOST=\"http://\"+window.location.hostname+\":%ARG_HTTP_PORT%\";</script><script>window.ENV_WEBSOCKET_HOST=window.location.hostname+\":%ARG_WS_PORT%\";</script>#" data/index.html
+  - platformio run -e esp32dev
+  - platformio run -e esp32dev --target buildfs
+  - platformio run -e nodemcu
+  - platformio run -e nodemcu --target buildfs
+  - platformio run -e sonoff
+  - platformio run -e sonoff --target buildfs
 before_deploy:
-- git config --local user.name "Travis CI"
-- git config --local user.email "coderusinbox@gmail.com"
-- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-- git tag $TRAVIS_TAG
-- cp .pio/build/esp32dev/firmware.bin esp32dev.bin
-- cp .pio/build/esp32dev/spiffs.bin esp32dev-spiffs.bin
-- cp .pio/build/nodemcu/firmware.bin nodemcu.bin
-- cp .pio/build/nodemcu/spiffs.bin nodemcu-spiffs.bin
-- cp .pio/build/sonoff/firmware.bin sonoff.bin
-- cp .pio/build/sonoff/spiffs.bin sonoff-spiffs.bin
+  - git config --local user.name "Travis CI"
+  - git config --local user.email "coderusinbox@gmail.com"
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - git tag $TRAVIS_TAG
+  - cp .pio/build/esp32dev/firmware.bin esp32dev.bin
+  - cp .pio/build/esp32dev/spiffs.bin esp32dev-spiffs.bin
+  - cp .pio/build/nodemcu/firmware.bin nodemcu.bin
+  - cp .pio/build/nodemcu/spiffs.bin nodemcu-spiffs.bin
+  - cp .pio/build/sonoff/firmware.bin sonoff.bin
+  - cp .pio/build/sonoff/spiffs.bin sonoff-spiffs.bin
 deploy:
   provider: releases
   api_key:
