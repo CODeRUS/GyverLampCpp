@@ -8,7 +8,7 @@
 
 namespace  {
 
-arduinoFFT FFT = arduinoFFT();
+adc1_channel_t channel = ADC1_CHANNEL_0;
 
 #define SAMPLES 256
 int samplingFrequency = 40000;
@@ -59,8 +59,8 @@ SoundEffect::SoundEffect()
     effectName = "Sound spectrometer";
 
 #if defined(ESP32)
-    adc1_config_width(ADC_WIDTH_12Bit);   //Range 0-1023
-    adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_11db); //ADC_ATTEN_DB_11 = 0-3,6V
+    adc1_config_width(ADC_WIDTH_BIT_12);   //Range 0-1023
+    adc1_config_channel_atten(channel, ADC_ATTEN_DB_11); //ADC_ATTEN_DB_11 = 0-3,6V
 #endif
     sampling_period_us = round(1000000 * (1.0 / samplingFrequency));
     delay(1000);
@@ -120,7 +120,7 @@ void SoundEffect::captureSoundSample()
     for (int i = 0; i < SAMPLES; i++) {
         newTime = micros();
 #if defined(ESP32)
-        vReal[i] = adc1_get_raw( ADC1_CHANNEL_0 ); // A raw conversion takes about 20uS on an ESP32
+        vReal[i] = adc1_get_raw(channel); // A raw conversion takes about 20uS on an ESP32
         delayMicroseconds(20);
 #else
         vReal[i] = analogRead(A0); // A conversion takes about 1uS on an ESP32
@@ -134,9 +134,10 @@ void SoundEffect::captureSoundSample()
         }
     }
 
-    FFT.Windowing(vReal, SAMPLES, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-    FFT.Compute(vReal, vImag, SAMPLES, FFT_FORWARD);
-    FFT.ComplexToMagnitude(vReal, vImag, SAMPLES);
+    arduinoFFT FFT(vReal, vImag, SAMPLES, samplingFrequency);
+    FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+    FFT.Compute(FFT_FORWARD);
+    FFT.ComplexToMagnitude();
 }
 
 void SoundEffect::renderSpectrometer()
