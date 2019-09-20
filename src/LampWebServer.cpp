@@ -256,6 +256,7 @@ void updateRequestHandler(AsyncWebServerRequest *request)
 {
     Serial.println("updateRequestHandler");
     request->send(200);
+    delay(1000);
 #if defined(ESP8266)
     ESP.wdtFeed();
 #else
@@ -264,36 +265,57 @@ void updateRequestHandler(AsyncWebServerRequest *request)
     ESP.restart();
 }
 
-void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool final, int command = U_FLASH)
+void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool final)
 {
+    static File settings;
     if (index == 0) {
         Serial.println("Update started!");
-#if defined(ESP8266)
-        myMatrix->fill(CRGB(40, 40, 60), true);
-        Update.runAsync(true);
-        if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000), command) {
-#elif defined(ESP32)
-        if (!Update.begin(UPDATE_SIZE_UNKNOWN, command)) {
-#endif
-            Update.printError(Serial);
-            myMatrix->fill(CRGB::Red, true);
-            isUpdatingFlag = false;
-            return;
+        if (data[0] == '{') {
+            if (settings) {
+                settings.close();
+            }
+            settings = SPIFFS.open("/settings.json", "w");
+            if (!settings) {
+                Serial.println("SPIFFS Error opening settings file for write");
+                return;
+            }
+            Serial.println("Uploading settings started!");
         } else {
-            isUpdatingFlag = true;
-#if defined(ESP32)
-            myMatrix->setRotation(mySettings->matrixRotation);
-            myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
-            myMatrix->setTextWrap(false);
-            myMatrix->setBrightness(80);
+            int command = U_FLASH;
+            if (data[0] == 0) {
+                command = U_SPIFFS;
+                Serial.println("Uploading SPIFFS started!");
+            } else {
+                Serial.println("Uploading FLASH started!");
+            }
+#if defined(ESP8266)
+            myMatrix->fill(CRGB(40, 40, 60), true);
+            Update.runAsync(true);
+            if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000), command) {
+#elif defined(ESP32)
+            if (!Update.begin(UPDATE_SIZE_UNKNOWN, command)) {
 #endif
-
-            if (updateSize == 0) {
-                updateSize = total;
+                Update.printError(Serial);
+                myMatrix->fill(CRGB::Red, true);
+                isUpdatingFlag = false;
+                return;
+            } else {
+                isUpdatingFlag = true;
+#if defined(ESP32)
+                myMatrix->setRotation(mySettings->matrixRotation);
+                myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
+                myMatrix->setTextWrap(false);
+                myMatrix->setBrightness(80);
+#endif
+                if (updateSize == 0) {
+                    updateSize = total;
+                }
             }
         }
     }
-    if (Update.write(data, len) != len) {
+    if (settings) {
+        settings.write(data, len);
+    } else if (Update.write(data, len) != len) {
         Update.printError(Serial);
         myMatrix->fill(CRGB::Red, true);
         isUpdatingFlag = false;
@@ -304,7 +326,9 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
 #endif
     }
     if (final) {
-        if (!Update.end(true)) {
+        if (settings) {
+            settings.close();
+        } else if (!Update.end(true)) {
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
             isUpdatingFlag = false;
@@ -323,22 +347,12 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
 
 void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
-    updateHandler(data, len, index, total, index + len == total, U_FLASH);
+    updateHandler(data, len, index, total, index + len == total);
 }
 
 void updateFileHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
 {
-    updateHandler(data, len, index, request->contentLength(), final, U_FLASH);
-}
-
-void updatefsBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
-{
-    updateHandler(data, len, index, total, index + len == total, U_SPIFFS);
-}
-
-void updatefsFileHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
-{
-    updateHandler(data, len, index, request->contentLength(), final, U_SPIFFS);
+    updateHandler(data, len, index, request->contentLength(), final);
 }
 
 void wifiConnectedCallback()
@@ -487,13 +501,8 @@ void LampWebServer::configureHandlers()
         request->send(SPIFFS, "/index.html", "text/html", false, templateProcessor);
     });
 
-    webServer->on("/settings.json", HTTP_POST, settingsRequestHandler, settingsFileHandler, settingsBodyHandler);
-
     webServer->on("/update", HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);
     webServer->on("/updateSize", HTTP_POST, updateSizeHandler);
-
-    webServer->on("/updatefs", HTTP_POST, updateRequestHandler, updatefsFileHandler, updatefsBodyHandler);
-    webServer->on("/updatefsSize", HTTP_POST, updateSizeHandler);
 
     webServer->onNotFound(notFoundHandler);
 }
