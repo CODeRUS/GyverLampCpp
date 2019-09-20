@@ -8,7 +8,8 @@
 
 namespace  {
 
-arduinoFFT FFT = arduinoFFT();
+adc1_channel_t leftChannel = ADC1_CHANNEL_6;
+adc1_channel_t rightChannel = ADC1_CHANNEL_7;
 
 #define SAMPLES 256
 int samplingFrequency = 40000;
@@ -79,9 +80,9 @@ SoundStereoEffect::SoundStereoEffect()
     effectName = "Sound Stereo spectrometer";
 
 #if defined(ESP32)
-    adc1_config_width(ADC_WIDTH_12Bit);   //Range 0-1023
-    adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_11db); //ADC_ATTEN_DB_11 = 0-3,6V
-    adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_11db); //ADC_ATTEN_DB_11 = 0-3,6V
+    adc1_config_width(ADC_WIDTH_BIT_12);   //Range 0-1023
+    adc1_config_channel_atten(leftChannel, ADC_ATTEN_DB_11); //ADC_ATTEN_DB_11 = 0-3,6V
+    adc1_config_channel_atten(rightChannel, ADC_ATTEN_DB_11); //ADC_ATTEN_DB_11 = 0-3,6V
 #endif
     sampling_period_us = round(1000000 * (1.0 / samplingFrequency));
     delay(1000);
@@ -176,8 +177,8 @@ void SoundStereoEffect::captureSoundSample()
     for (int i = 0; i < SAMPLES; i++) {
         newTime = micros();
 #if defined(ESP32)
-        lvReal[i] = adc1_get_raw( ADC1_CHANNEL_0 ); // A raw conversion takes about 20uS on an ESP32
-        rvReal[i] = adc1_get_raw( ADC1_CHANNEL_3 ); // A raw conversion takes about 20uS on an ESP32
+        lvReal[i] = adc1_get_raw(leftChannel); // A raw conversion takes about 20uS on an ESP32
+        rvReal[i] = adc1_get_raw(rightChannel); // A raw conversion takes about 20uS on an ESP32
         delayMicroseconds(20);
 #else
         lvReal[i] = rvReal[i] = analogRead(A0); // A conversion takes about 1uS on an ESP32
@@ -192,13 +193,15 @@ void SoundStereoEffect::captureSoundSample()
         }
     }
 
-    FFT.Windowing(lvReal, SAMPLES, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-    FFT.Compute(lvReal, lvImag, SAMPLES, FFT_FORWARD);
-    FFT.ComplexToMagnitude(lvReal, lvImag, SAMPLES);
+    arduinoFFT FFT1(lvReal, lvImag, SAMPLES, samplingFrequency);
+    FFT1.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+    FFT1.Compute(FFT_FORWARD);
+    FFT1.ComplexToMagnitude();
 
-    FFT.Windowing(rvReal, SAMPLES, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-    FFT.Compute(rvReal, rvImag, SAMPLES, FFT_FORWARD);
-    FFT.ComplexToMagnitude(lvReal, rvImag, SAMPLES);
+    arduinoFFT FFT2(rvReal, rvImag, SAMPLES, samplingFrequency);
+    FFT2.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+    FFT2.Compute(FFT_FORWARD);
+    FFT2.ComplexToMagnitude();
 }
 
 void SoundStereoEffect::renderSpectrometer()
