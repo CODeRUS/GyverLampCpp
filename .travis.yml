@@ -30,6 +30,7 @@ script:
   - cp -f led-lamp-webui/build/index.html data
   - cp -f led-lamp-webui/build/favicon.ico data
   - sed -i -e "s#<body>#<body><script>window.ENV_HTTP_HOST=\"http://\"+window.location.hostname+\":%ARG_HTTP_PORT%\";</script><script>window.ENV_WEBSOCKET_HOST=window.location.hostname+\":%ARG_WS_PORT%\";</script>#" data/index.html
+  - zip -r data.zip data
   - platformio run -e esp32dev
   - platformio run -e esp32dev --target buildfs
   - platformio run -e nodemcu
@@ -58,6 +59,7 @@ deploy:
     - "nodemcu-spiffs.bin"
     - "sonoff.bin"
     - "sonoff-spiffs.bin"
+    - "data.zip"
   skip_cleanup: true
   overwrite: true
   on:
