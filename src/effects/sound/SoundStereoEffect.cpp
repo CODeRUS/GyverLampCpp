@@ -8,8 +8,10 @@
 
 namespace  {
 
+#if defined(ESP32)
 adc1_channel_t leftChannel = ADC1_CHANNEL_6;
 adc1_channel_t rightChannel = ADC1_CHANNEL_7;
+#endif
 
 #define SAMPLES 256
 int samplingFrequency = 40000;
