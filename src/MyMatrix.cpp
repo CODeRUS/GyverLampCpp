@@ -77,12 +77,12 @@ void MyMatrix::fillProgress(double progress)
     const uint8_t remainingProgress = static_cast<uint8_t>(number % width());
 
     if (fullRows > 0) {
-        fillRectXY(0, 0, width() - 1, fullRows, Color(10, 10, 10));
+        fillRectXY(0, 0, width(), fullRows, CRGB(10, 10, 10));
         delay(1);
     }
 
     if (remainingProgress > 0) {
-        drawLineXY(0, fullRows, remainingProgress, fullRows, Color(10, 10, 10));
+        drawLineXY(0, fullRows, remainingProgress, fullRows, CRGB(10, 10, 10));
         delay(1);
     }
 
@@ -145,17 +145,16 @@ uint16_t MyMatrix::getPixelNumber(uint8_t x, uint8_t y)
 
 void MyMatrix::drawPixelXY(uint8_t x, uint8_t y, CRGB color)
 {
+    setPassThruColor(color);
     drawPixel(y, x, color);
+    setPassThruColor();
 }
 
 void MyMatrix::drawLineXY(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, CRGB color)
 {
-    drawLine(y0, x0, y1, x1, color);
-}
-
-void MyMatrix::drawLineXY(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint16_t color)
-{
-    drawLine(y0, x0, y1, x1, color);
+    setPassThruColor(color);
+    drawLine(y0, x0, y1, x1, 0);
+    setPassThruColor();
 }
 
 CRGB MyMatrix::getPixColor(uint16_t number)
@@ -171,9 +170,11 @@ CRGB MyMatrix::getPixColorXY(uint8_t x, uint8_t y)
     return getPixColor(getPixelNumber(x, y));
 }
 
-void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint16_t color)
+void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color)
 {
-    fillRect(y, x, h, w, color);
+    setPassThruColor(color);
+    fillRect(y, x, h, w, 0);
+    setPassThruColor();
 }
 
 void MyMatrix::fadePixelXY(uint8_t x, uint8_t y, uint8_t step)
