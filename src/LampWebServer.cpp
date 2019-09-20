@@ -196,6 +196,54 @@ void drawProgress(size_t progress)
     myMatrix->fillProgress(pcs);
 }
 
+void settingsRequestHandler(AsyncWebServerRequest *request)
+{
+    Serial.println("settingsRequestHandler");
+    request->send(200);
+#if defined(ESP8266)
+    ESP.wdtFeed();
+#else
+    yield();
+#endif
+    ESP.restart();
+}
+
+void settingsHandler(uint8_t *data, size_t len, size_t index, size_t total, bool final)
+{
+    static File settings;
+    if (index == 0) {
+        if (settings) {
+            settings.close();
+        }
+        settings = SPIFFS.open("/settings.json", "w");
+        if (!settings) {
+            Serial.println("SPIFFS Error opening settings file for write");
+            return;
+        }
+    }
+    if (settings.write(data, len) != len) {
+        return;
+    }
+    if (final) {
+        settings.close();
+    }
+#if defined(ESP8266)
+    ESP.wdtFeed();
+#else
+    yield();
+#endif
+}
+
+void settingsBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+{
+    settingsHandler(data, len, index, total, index + len == total);
+}
+
+void settingsFileHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
+{
+    settingsHandler(data, len, index, request->contentLength(), final);
+}
+
 void updateSizeHandler(AsyncWebServerRequest *request)
 {
     const String fileSize = request->arg("fileSize");
@@ -281,6 +329,16 @@ void updateBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len
 void updateFileHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
 {
     updateHandler(data, len, index, request->contentLength(), final, U_FLASH);
+}
+
+void updatefsBodyHandler(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+{
+    updateHandler(data, len, index, total, index + len == total, U_SPIFFS);
+}
+
+void updatefsFileHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
+{
+    updateHandler(data, len, index, request->contentLength(), final, U_SPIFFS);
 }
 
 void wifiConnectedCallback()
@@ -429,8 +487,13 @@ void LampWebServer::configureHandlers()
         request->send(SPIFFS, "/index.html", "text/html", false, templateProcessor);
     });
 
+    webServer->on("/settings.json", HTTP_POST, settingsRequestHandler, settingsFileHandler, settingsBodyHandler);
+
     webServer->on("/update", HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);
     webServer->on("/updateSize", HTTP_POST, updateSizeHandler);
+
+    webServer->on("/updatefs", HTTP_POST, updateRequestHandler, updatefsFileHandler, updatefsBodyHandler);
+    webServer->on("/updatefsSize", HTTP_POST, updateSizeHandler);
 
     webServer->onNotFound(notFoundHandler);
 }
