@@ -7,7 +7,7 @@ class Settings
 {
 public:
     static Settings *Instance();
-    static void Initialize(const uint8_t eepromInitialization, uint32_t saveInterval = 3000);
+    static void Initialize(uint32_t saveInterval = 3000);
 
     struct AlarmSettings {
         bool enabled = false;
@@ -39,6 +39,6 @@ public:
     bool masterSwitch = true;
 
 protected:
-    Settings(const uint8_t eepromInitialization, uint32_t saveInterval = 3000);
+    Settings(uint32_t saveInterval = 3000);
 };
 

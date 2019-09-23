@@ -18,8 +18,6 @@
 
 namespace  {
 
-uint8_t eepromInitialization = 0xaa; // change this value to reset EEPROM settings to defaults
-
 const char* wifiSetupName = "Fire Lamp";
 const char* wifiOndemandName = "Fire Lamp AP";
 const char* wifiOndemandPassword = "ondemand";
@@ -179,7 +177,7 @@ void setup() {
     setupSerial();
 #endif
 
-    Settings::Initialize(eepromInitialization);
+    Settings::Initialize();
     myMatrix->setRotation(mySettings->matrixRotation);
     EffectsManager::ActivateEffect(mySettings->currentEffect);
 
