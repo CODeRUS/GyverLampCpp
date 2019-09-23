@@ -1,4 +1,11 @@
 #pragma once
+
+#if defined(ESP8266)
+#define FASTLED_ESP8266_RAW_PIN_ORDER
+//#define FASTLED_INTERRUPT_RETRY_COUNT 0
+//#define FASTLED_ALLOW_INTERRUPTS 0
+#endif
+
 #include <Arduino.h>
 #include <FastLED.h>
 #include <Adafruit_GFX.h>

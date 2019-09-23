@@ -36,8 +36,10 @@ uint32_t maxCurrent = 1000;
 
 #if defined(ESP32)
 const uint8_t btnPin = 15;
-#else
+#elif defined(SONOFF)
 const uint8_t btnPin = 5;
+#else
+const uint8_t btnPin = D5;
 #endif
 
 GButton *button = nullptr;

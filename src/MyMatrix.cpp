@@ -1,11 +1,5 @@
 #include "MyMatrix.h"
 
-#if defined(ESP8266)
-#define FASTLED_ESP8266_RAW_PIN_ORDER
-//#define FASTLED_INTERRUPT_RETRY_COUNT 0
-//#define FASTLED_ALLOW_INTERRUPTS 0
-#endif
-
 namespace  {
 
 #if defined(SONOFF)
@@ -13,7 +7,7 @@ const uint8_t ledPin = 14;
 #elif defined(ESP32)
 const uint8_t ledPin = 13;
 #else
-const uint8_t ledPin = 6;
+const uint8_t ledPin = D6;
 #endif
 
 uint16_t numLeds = 0;
