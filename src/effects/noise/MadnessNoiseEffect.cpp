@@ -2,7 +2,6 @@
 
 MadnessNoiseEffect::MadnessNoiseEffect()
 {
-    effectName = "Madness 3D";
 }
 
 void MadnessNoiseEffect::tick()

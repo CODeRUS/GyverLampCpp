@@ -1,6 +1,17 @@
 #include "MyMatrix.h"
+#include "Settings.h"
 
 namespace  {
+
+uint8_t defaultWidth = 16;
+uint8_t defaultHeight = 16;
+uint8_t defaultType = NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
+                      NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG;
+
+uint8_t defaultMaxBrightness = 80;
+uint32_t defaultCurrentLimit = 1000;
+
+uint8_t defaultRoatation = 3;
 
 #if defined(SONOFF)
 const uint8_t ledPin = 14;
@@ -14,8 +25,6 @@ uint16_t numLeds = 0;
 
 CRGB* leds = nullptr;
 
-const uint32_t defaultMaxCurrent = 1000;
-
 MyMatrix *instance = nullptr;
 
 } // namespace
@@ -25,21 +34,42 @@ MyMatrix *MyMatrix::Instance()
     return instance;
 }
 
-void MyMatrix::Initialize(uint8_t sizeWidth, uint8_t sizeHeight, uint8_t matrixType)
+void MyMatrix::Initialize()
 {
     if (instance) {
         return;
     }
 
+    uint8_t sizeWidth = mySettings->GetByteField(F("matrix"), F("width"), defaultWidth);
+    uint8_t sizeHeight = mySettings->GetByteField(F("matrix"), F("height"), defaultHeight);
+    uint8_t matrixType = mySettings->GetByteField(F("matrix"), F("type"), defaultType);
+
     numLeds = sizeWidth * sizeHeight;
     leds = new CRGB[numLeds]();
     FastLED.addLeds<WS2812B, ledPin, GRB>(leds, numLeds);
 
+    uint8_t maxBrightness = mySettings->GetByteField(F("matrix"), F("maxBrightness"), defaultMaxBrightness);
+    Serial.printf_P(PSTR("Set max brightness to: %u\n"), maxBrightness);
+    FastLED.setBrightness(maxBrightness);
+
+    uint32_t currentLimit = mySettings->GetULongLongField(F("matrix"), F("currentLimit"), defaultCurrentLimit);
+    Serial.printf_P(PSTR("Set current limit to: %u\n"), currentLimit);
+    FastLED.setMaxPowerInVoltsAndMilliamps(5, currentLimit);
+
     instance = new MyMatrix(leds, sizeWidth, sizeHeight, matrixType);
+    uint8_t rotation = GetRotation();
+    Serial.printf_P(PSTR("Set rotation to: %u\n"), rotation);
+    instance->setRotation(rotation);
 
     instance->begin();
     instance->clear();
     instance->show();
+}
+
+uint8_t MyMatrix::GetRotation()
+{
+    uint8_t rotation = mySettings->GetByteField(F("matrix"), F("rotation"), defaultRoatation);
+    return rotation;
 }
 
 void MyMatrix::setCurrentLimit(uint32_t maxCurrent)

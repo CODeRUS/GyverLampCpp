@@ -6,12 +6,11 @@ namespace {
 
 SparklesEffect::SparklesEffect()
 {
-    effectName = "Sparkles";
 }
 
 void SparklesEffect::tick()
 {
-    for (uint8_t i = 0; i < settings->effectScale; i++) {
+    for (uint8_t i = 0; i < scale(); i++) {
         uint8_t x = random(0, width);
         uint8_t y = random(0, height);
         if (!myMatrix->getPixColorXY(x, y)) {

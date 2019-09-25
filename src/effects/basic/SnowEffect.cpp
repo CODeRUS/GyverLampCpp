@@ -2,7 +2,6 @@
 
 SnowEffect::SnowEffect()
 {
-    effectName = "Snow";
 }
 
 void SnowEffect::tick()
@@ -17,7 +16,7 @@ void SnowEffect::tick()
     for (uint8_t x = 0; x < width; x++) {
         // заполняем случайно верхнюю строку
         // а также не даём двум блокам по вертикали вместе быть
-        if (!myMatrix->getPixColorXY(x, height - 2) && (random(0, settings->effectScale) == 0)) {
+        if (!myMatrix->getPixColorXY(x, height - 2) && (random(0, scale()) == 0)) {
             myMatrix->drawPixelXY(x, height - 1, 0xE0FFFF - 0x101010 * random(0, 4));
         } else {
             myMatrix->drawPixelXY(x, height - 1, 0x000000);

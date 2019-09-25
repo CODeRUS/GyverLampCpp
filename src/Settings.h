@@ -1,5 +1,7 @@
 #pragma once
 #include <Arduino.h>
+#define ARDUINOJSON_ENABLE_PROGMEM 1
+#include <ArduinoJson.h>
 
 #define mySettings Settings::Instance()
 
@@ -9,16 +11,7 @@ public:
     static Settings *Instance();
     static void Initialize(uint32_t saveInterval = 3000);
 
-    struct AlarmSettings {
-        bool enabled = false;
-        uint64_t time = 0;
-    };
-
-    struct EffectSettings {
-        uint8_t effectBrightness = 80;
-        uint8_t effectSpeed = 10;
-        uint8_t effectScale = 1;
-    };
+    DynamicJsonDocument &Json();
 
     void Process();
     void Reset();
@@ -26,17 +19,17 @@ public:
     void Save();
 
     String GetCurrentConfig();
-    void ApplyConfig(const String &message);
+    size_t GetCurrentConfigSize();
+    void WriteConfigTo(char *buffer, size_t length);
 
-    EffectSettings *CurrentEffectSettings();
+    void ProcessConfig(const String &message);
 
-    uint8_t initializationFlag = 0;
-    AlarmSettings* alarmSettings = nullptr;
-    uint8_t currentEffect = 0;
-    EffectSettings* effectsSettings = nullptr;
-    uint8_t dawnMode = 0;
-    uint8_t matrixRotation = 0;
-    bool masterSwitch = true;
+    const char* GetCharField(const __FlashStringHelper *group, const __FlashStringHelper *field, const char *defaultValue);
+    uint8_t GetByteField(const __FlashStringHelper *group, const __FlashStringHelper *field, uint8_t defaultValue);
+    uint32_t GetULongLongField(const __FlashStringHelper *group, const __FlashStringHelper *field, uint32_t defaultValue);
+    int GetIntField(const __FlashStringHelper *group, const __FlashStringHelper *field, int defaultValue);
+
+    JsonArray GetEffects();
 
 protected:
     Settings(uint32_t saveInterval = 3000);

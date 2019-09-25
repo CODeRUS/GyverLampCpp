@@ -20,12 +20,6 @@ String getClockTime2()
 
 ClockHorizontal2Effect::ClockHorizontal2Effect()
 {
-    effectName = "Clock horizontal";
-
-    settings = new Settings::EffectSettings();
-    settings->effectScale = 1;
-    settings->effectSpeed = 250;
-    settings->effectBrightness = 10;
 }
 
 void ClockHorizontal2Effect::tick()
@@ -69,7 +63,8 @@ void ClockHorizontal2Effect::activate()
 
     myMatrix->setTextWrap(false);
 
-    int horizontalRotation = mySettings->matrixRotation - 3;
+    uint8_t matrixRotation = myMatrix->GetRotation();
+    int horizontalRotation = matrixRotation - 3;
     if (horizontalRotation < 0) {
         horizontalRotation = horizontalRotation + 4;
     }
@@ -82,7 +77,8 @@ void ClockHorizontal2Effect::activate()
 void ClockHorizontal2Effect::deactivate()
 {
     GyverTimer::SetInterval(0);
-    if (myMatrix->getRotation() != mySettings->matrixRotation) {
-        myMatrix->setRotation(mySettings->matrixRotation);
+    uint8_t matrixRotation = myMatrix->GetRotation();
+    if (myMatrix->getRotation() != matrixRotation) {
+        myMatrix->setRotation(matrixRotation);
     }
 }

@@ -9,14 +9,13 @@ const uint8_t saturation = 150;
 
 StarfallEffect::StarfallEffect()
 {
-    effectName = "Starfall";
 }
 
 void StarfallEffect::tick()
 {
     for (uint8_t i = height / 2; i < height; i++) {
         if (!myMatrix->getPixColorXY(0, i)
-                && (random(0, settings->effectScale) == 0)
+                && (random(0, scale()) == 0)
                 && !myMatrix->getPixColorXY(0, i + 1)
                 && !myMatrix->getPixColorXY(0, i - 1))
             myMatrix->setLed(0, i, CHSV(random(0, 200), saturation, 255));
@@ -24,7 +23,7 @@ void StarfallEffect::tick()
 
     for (uint8_t i = 0; i < width / 2; i++) {
         if (!myMatrix->getPixColorXY(i, height - 1)
-                && (random(0, settings->effectScale) == 0)
+                && (random(0, scale()) == 0)
                 && !myMatrix->getPixColorXY(i + 1, height - 1)
                 && !myMatrix->getPixColorXY(i - 1, height - 1))
             myMatrix->setLed(i, height - 1, CHSV(random(0, 200), saturation, 255));

@@ -17,7 +17,6 @@ uint8_t loopCounter;
 
 LightersEffect::LightersEffect()
 {
-    effectName = "Lighters";
 }
 
 void LightersEffect::activate()
@@ -60,7 +59,7 @@ void LightersEffect::tick()
     if (++loopCounter > 20) {
         loopCounter = 0;
     }
-    for (uint8_t i = 0; i < settings->effectScale; i++) {
+    for (uint8_t i = 0; i < scale(); i++) {
         if (loopCounter == 0) {     // меняем скорость каждые 255 отрисовок
             lightersSpeed[0][i] += random(-3, 4);
             lightersSpeed[1][i] += random(-3, 4);

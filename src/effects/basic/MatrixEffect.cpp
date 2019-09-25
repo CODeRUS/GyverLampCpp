@@ -9,7 +9,6 @@ CRGB fadeColor = 0x002000;
 
 MatrixEffect::MatrixEffect()
 {
-    effectName = "Matrix";
 }
 
 void MatrixEffect::tick()
@@ -22,7 +21,7 @@ void MatrixEffect::tick()
         // заполняем случайно верхнюю строку
         CRGB thisColor = myMatrix->getPixColorXY(x, height - 1);
         if (!thisColor) {
-            if (random(0, settings->effectScale) == 0) {
+            if (random(0, scale()) == 0) {
                 myMatrix->drawPixelXY(x, height - 1, mainColor);
             }
         } else if (thisColor < fadeColor) {

@@ -8,11 +8,10 @@ uint8_t hue = 0;
 
 ColorsEffect::ColorsEffect()
 {
-    effectName = "Color change";
 }
 
 void ColorsEffect::tick()
 {
-    hue += settings->effectScale;
+    hue += scale();
     myMatrix->fill(CHSV(hue, 255, 255));
 }

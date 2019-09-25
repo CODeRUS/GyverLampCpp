@@ -38,25 +38,25 @@ void NoiseEffect::tick()
 void NoiseEffect::fillNoise8()
 {
     for (uint8_t i = 0; i < maxDimension; i++) {
-        const uint16_t ioffset = settings->effectScale * i;
+        const uint16_t ioffset = scale() * i;
         for (uint8_t j = 0; j < maxDimension; j++) {
-            const uint16_t joffset = settings->effectScale * j;
+            const uint16_t joffset = scale() * j;
             noise[i][j] = inoise8(x + ioffset, y + joffset, z);
         }
     }
-    z += settings->effectSpeed;
+    z += speed();
 }
 
 void NoiseEffect::fillNoiseLED()
 {
     uint8_t dataSmoothing = 0;
-    if ( settings->effectSpeed < 50) {
-        dataSmoothing = 200 - (settings->effectSpeed * 4);
+    if (speed() < 50) {
+        dataSmoothing = 200 - (speed() * 4);
     }
     for (uint8_t i = 0; i < maxDimension; i++) {
-        uint16_t ioffset = settings->effectScale * i;
+        uint16_t ioffset = scale() * i;
         for (uint8_t j = 0; j < maxDimension; j++) {
-            uint16_t joffset = settings->effectScale * j;
+            uint16_t joffset = scale() * j;
 
             uint8_t data = inoise8(x + ioffset, y + joffset, z);
 
@@ -72,11 +72,11 @@ void NoiseEffect::fillNoiseLED()
             noise[i][j] = data;
         }
     }
-    z += settings->effectSpeed;
+    z += speed();
 
     // apply slow drift to X and Y, just for visual variation.
-    x += settings->effectSpeed / 8;
-    y -= settings->effectSpeed / 16;
+    x += speed() / 8;
+    y -= speed() / 16;
 
     for (uint8_t i = 0; i < width; i++) {
         for (uint8_t j = 0; j < height; j++) {

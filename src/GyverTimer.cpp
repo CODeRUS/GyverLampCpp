@@ -2,12 +2,18 @@
 #include <WiFiUdp.h>
 #include <NTPClient.h>
 
+#include "Settings.h"
+
 namespace  {
+
+const char* defaultPoolServerName PROGMEM = "europe.pool.ntp.org";
+int timeOffset = 3 * 3600; // GMT + 3
+int updateInterval = 60 * 1000; // 1 min
 
 WiFiUDP *ntpUDP = nullptr;
 NTPClient *timeClient = nullptr;
 
-uint32_t defaultInterval = 0;
+uint32_t defaultInterval = 5 * 60 * 1000; // 5 min
 uint32_t interval = 0;
 uint32_t timer = 0;
 
@@ -20,15 +26,20 @@ String secondsString = "88";
 
 } // namespace
 
-void GyverTimer::Initialize(const char* poolServerName, int timeOffset, int updateInterval, uint32_t timerInterval)
+void GyverTimer::Initialize()
 {
     ntpUDP = new WiFiUDP;
+
+    const char *poolServerName = mySettings->GetCharField(F("connection"), F("ntpServer"), defaultPoolServerName);
+    timeOffset = mySettings->GetIntField(F("connection"), F("ntpOffset"), timeOffset);
+
     timeClient = new NTPClient(*ntpUDP, poolServerName, timeOffset, updateInterval);
     timeClient->begin();
 
-    defaultInterval = timerInterval;
-    interval = timerInterval;
+    interval = defaultInterval;
     timer = millis();
+
+    Serial.printf_P(PSTR("Initializing GyverTimer: %s, offset: %d\n"), poolServerName, timeOffset);
 }
 
 void GyverTimer::Process()
@@ -80,13 +91,13 @@ void GyverTimer::ReadTime()
 
     const unsigned long rawTime = timeClient->getEpochTime();
     hours = (rawTime % 86400L) / 3600;
-    hoursString = hours < 10 ? "0" + String(hours) : String(hours);
+    hoursString = hours < 10 ? PSTR("0") + String(hours) : String(hours);
 
     minutes = (rawTime % 3600) / 60;
-    minutesString = minutes < 10 ? "0" + String(minutes) : String(minutes);
+    minutesString = minutes < 10 ? PSTR("0") + String(minutes) : String(minutes);
 
     seconds = rawTime % 60;
-    secondsString = seconds < 10 ? "0" + String(seconds) : String(seconds);
+    secondsString = seconds < 10 ? PSTR("0") + String(seconds) : String(seconds);
 }
 
 String GyverTimer::Hours()

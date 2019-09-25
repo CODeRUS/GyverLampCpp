@@ -17,8 +17,9 @@ class MyMatrix : public FastLED_NeoMatrix
 {
 public:
     static MyMatrix *Instance();
-    static void Initialize(uint8_t sizeWidth, uint8_t sizeHeight, uint8_t matrixType =
-            NEO_MATRIX_TOP + NEO_MATRIX_RIGHT + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
+    static void Initialize();
+
+    static uint8_t GetRotation();
 
     void setCurrentLimit(uint32_t maxCurrent);
 

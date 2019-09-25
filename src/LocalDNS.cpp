@@ -6,17 +6,22 @@
 #include <ESPmDNS.h>
 #endif
 
+#include "Settings.h"
+
 namespace  {
+
+const char *localHostname PROGMEM = "firelamp";
 
 bool started = false;
 
 } // namespace
 
-bool LocalDNS::Begin(const char *hostname)
+bool LocalDNS::Begin()
 {
+    const char* hostname = mySettings->GetCharField(F("connection"), F("mdns"), localHostname);
     started = MDNS.begin(hostname);
     if (started) {
-        Serial.println("mDNS responder started!");
+        Serial.println(F("mDNS responder started!"));
     }
     return started;
 }
@@ -24,8 +29,9 @@ bool LocalDNS::Begin(const char *hostname)
 void LocalDNS::AddService(const char *serviceName, const char *serviceProtocol, uint16_t servicePort)
 {
     if (!started) {
-        Serial.println("Trying to call LocalDNS::AddService, but MDNS is not started!");
+        Serial.println(F("Trying to call LocalDNS::AddService, but MDNS is not started!"));
         return;
     }
+    Serial.printf_P(PSTR("Announcing %s (%s) service on port %u\n"), serviceName, serviceProtocol, servicePort);
     MDNS.addService(serviceName, serviceProtocol, servicePort);
 }

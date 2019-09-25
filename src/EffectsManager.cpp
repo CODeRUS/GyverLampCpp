@@ -30,81 +30,88 @@
 #include "effects/sound/SoundEffect.h"
 #include "effects/sound/SoundStereoEffect.h"
 
+#include <map>
+
 namespace  {
+
+EffectsManager *instance = nullptr;
+
+std::map<String, Effect*> effectsMap;
 
 std::vector<Effect*> effects;
 uint32_t effectTimer = 0;
 
+uint8_t activeIndex = 0;
+bool working = true;
+
 } // namespace
+
+EffectsManager *EffectsManager::Instance()
+{
+    return instance;
+}
 
 void EffectsManager::Initialize()
 {
-    effects = {
-        new SparklesEffect(),
-        new FireEffect(),
-        new VerticalRainbowEffect(),
-        new HorizontalRainbowEffect(),
-        new ColorsEffect(),
-        new MadnessNoiseEffect(),
-        new CloudNoiseEffect(),
-        new LavaNoiseEffect(),
-        new PlasmaNoiseEffect(),
-        new RainbowNoiseEffect(),
-        new RainbowStripeNoiseEffect(),
-        new ZebraNoiseEffect(),
-        new ForestNoiseEffect(),
-        new OceanNoiseEffect(),
-        new ColorEffect(),
-        new SnowEffect(),
-        new MatrixEffect(),
-        new LightersEffect(),
-        new ClockEffect(),
-        new ClockHorizontal1Effect(),
-        new ClockHorizontal2Effect(),
-        new ClockHorizontal3Effect(),
-        new SoundEffect(),
-        new StarfallEffect(),
-        new DiagonalRainbowEffect(),
-        new SoundStereoEffect(),
-    };
+    if (instance) {
+        return;
+    }
+
+    Serial.println(F("Initializing EffectsManager"));
+    instance = new EffectsManager();
+}
+
+void EffectsManager::ProcessEffectSettings(const JsonObject &json)
+{
+    const char* effectId = json[F("id")];
+
+    if (effectsMap.count(effectId) <= 0) {
+        Serial.print(F("Missing efect: "));
+        Serial.println(effectId);
+        return;
+    }
+
+    Effect *effect = effectsMap[effectId];
+    effects.push_back(effect);
+    effect->initialize(json);
 }
 
 void EffectsManager::Process()
 {
-    if (mySettings->currentEffect >= effects.size()) {
+    if (activeIndex >= effects.size()) {
         return;
     }
 
-    if (effectTimer != 0 && (millis() - effectTimer) < mySettings->CurrentEffectSettings()->effectSpeed) {
+    if (effectTimer != 0 && (millis() - effectTimer) < activeEffect()->speed()) {
         return;
     }
     effectTimer = millis();
 
-    effects[mySettings->currentEffect]->Process();
+    activeEffect()->Process();
 }
 
 void EffectsManager::Next()
 {
-    effects[mySettings->currentEffect]->deactivate();
+    activeEffect()->deactivate();
     myMatrix->clear();
-    if (mySettings->currentEffect == effects.size() - 1) {
-        mySettings->currentEffect = 0;
+    if (activeIndex == effects.size() - 1) {
+        activeIndex = 0;
     } else {
-        ++mySettings->currentEffect;
+        ++activeIndex;
     }
-    ActivateEffect(mySettings->currentEffect);
+    ActivateEffect(activeIndex);
 }
 
 void EffectsManager::Previous()
 {
-    effects[mySettings->currentEffect]->deactivate();
+    activeEffect()->deactivate();
     myMatrix->clear();
-    if (mySettings->currentEffect == 0) {
-        mySettings->currentEffect = static_cast<uint8_t>(effects.size() - 1);
+    if (activeIndex == 0) {
+        activeIndex = static_cast<uint8_t>(effects.size() - 1);
     } else {
-        --mySettings->currentEffect;
+        --activeIndex;
     }
-    ActivateEffect(mySettings->currentEffect);
+    ActivateEffect(activeIndex);
 }
 
 void EffectsManager::ChangeEffect(uint8_t index)
@@ -113,30 +120,28 @@ void EffectsManager::ChangeEffect(uint8_t index)
         return;
     }
 
-    if (index == mySettings->currentEffect) {
+    if (index == activeIndex) {
         return;
     }
 
-    effects[mySettings->currentEffect]->deactivate();
+    activeEffect()->deactivate();
     myMatrix->clear();
-    mySettings->currentEffect = index;
-    ActivateEffect(index);
+    activeIndex = index;
+    ActivateEffect(activeIndex);
     mySettings->SaveLater();
 }
 
 void EffectsManager::ActivateEffect(uint8_t index)
 {
     Effect *effect = effects[index];
-    if (!effect->settings) {
-        effect->settings = &mySettings->effectsSettings[index];
-        if (effect->settings->effectScale > 100) {
-            effect->settings->effectScale = 50;
-        }
-    }
-    myMatrix->setBrightness(mySettings->effectsSettings[index].effectBrightness);
-    Serial.printf("%s activated!\n", effect->effectName.c_str());
-    Serial.flush();
+    myMatrix->setBrightness(effect->brightness());
     effect->activate();
+}
+
+void EffectsManager::UpdateCurrentSettings(const JsonObject &json)
+{
+    activeEffect()->update(json);
+    myMatrix->setBrightness(activeEffect()->brightness());
 }
 
 uint8_t EffectsManager::Count()
@@ -147,7 +152,61 @@ uint8_t EffectsManager::Count()
 String EffectsManager::EffectName(uint8_t index)
 {
     if (index >= effects.size()) {
-        return "error";
+        return PSTR("error");
     }
-    return effects[index]->effectName;
+    return effects[index]->name();
+}
+
+Effect *EffectsManager::activeEffect()
+{
+    if (effects.size() > activeIndex) {
+        return  effects[activeIndex];
+    }
+
+    return nullptr;
+}
+
+uint8_t EffectsManager::ActiveEffectIndex()
+{
+    return activeIndex;
+}
+
+EffectsManager::EffectsManager()
+{
+    randomSeed(micros());
+
+    effectsMap[PSTR("SparklesEffect")] = new SparklesEffect();
+    effectsMap[PSTR("FireEffect")] = new FireEffect();
+    effectsMap[PSTR("VerticalRainbowEffect")] = new VerticalRainbowEffect();
+    effectsMap[PSTR("HorizontalRainbowEffect")] = new HorizontalRainbowEffect();
+    effectsMap[PSTR("ColorsEffect")] = new ColorsEffect();
+    effectsMap[PSTR("MadnessNoiseEffect")] = new MadnessNoiseEffect();
+    effectsMap[PSTR("CloudNoiseEffect")] = new CloudNoiseEffect();
+    effectsMap[PSTR("LavaNoiseEffect")] = new LavaNoiseEffect();
+    effectsMap[PSTR("PlasmaNoiseEffect")] = new PlasmaNoiseEffect();
+    effectsMap[PSTR("RainbowNoiseEffect")] = new RainbowNoiseEffect();
+    effectsMap[PSTR("RainbowStripeNoiseEffect")] = new RainbowStripeNoiseEffect();
+    effectsMap[PSTR("ZebraNoiseEffect")] = new ZebraNoiseEffect();
+    effectsMap[PSTR("ForestNoiseEffect")] = new ForestNoiseEffect();
+    effectsMap[PSTR("OceanNoiseEffect")] = new OceanNoiseEffect();
+    effectsMap[PSTR("ColorEffect")] = new ColorEffect();
+    effectsMap[PSTR("SnowEffect")] = new SnowEffect();
+    effectsMap[PSTR("MatrixEffect")] = new MatrixEffect();
+    effectsMap[PSTR("LightersEffect")] = new LightersEffect();
+    effectsMap[PSTR("ClockEffect")] = new ClockEffect();
+    effectsMap[PSTR("ClockHorizontal1Effect")] = new ClockHorizontal1Effect();
+    effectsMap[PSTR("ClockHorizontal2Effect")] = new ClockHorizontal2Effect();
+    effectsMap[PSTR("ClockHorizontal3Effect")] = new ClockHorizontal3Effect();
+    effectsMap[PSTR("SoundEffect")] = new SoundEffect();
+    effectsMap[PSTR("StarfallEffect")] = new StarfallEffect();
+    effectsMap[PSTR("DiagonalRainbowEffect")] = new DiagonalRainbowEffect();
+    effectsMap[PSTR("SoundStereoEffect")] = new SoundStereoEffect();
+
+    JsonArray effects = mySettings->GetEffects();
+    for (JsonObject effect : effects) {
+        ProcessEffectSettings(effect);
+    }
+
+    activeIndex = mySettings->GetByteField(nullptr, F("activeEffect"), 0);
+    ActivateEffect(activeIndex);
 }

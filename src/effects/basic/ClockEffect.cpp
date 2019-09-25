@@ -8,19 +8,13 @@ bool hours = true;
 
 String getClockTime()
 {
-    return GyverTimer::Hours() + ":" + GyverTimer::Minutes();
+    return GyverTimer::Hours() + PSTR(":") + GyverTimer::Minutes();
 }
 
 } // namespace
 
 ClockEffect::ClockEffect()
 {
-    effectName = "Clock vertical";
-
-    settings = new Settings::EffectSettings();
-    settings->effectScale = 1;
-    settings->effectSpeed = 250;
-    settings->effectBrightness = 10;
 }
 
 void ClockEffect::tick()

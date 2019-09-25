@@ -1,24 +1,24 @@
 #include "Settings.h"
 #include "EffectsManager.h"
 #include "MyMatrix.h"
+#include "LocalDNS.h"
 
 #if defined(ESP32)
 #include <SPIFFS.h>
 #else
 #include <FS.h>
 #endif
-#include <ArduinoJson.h>
 
 namespace {
 
 Settings *instance = nullptr;
 
-const uint8_t alarmsCount = 7;
 bool settingsChanged = false;
 uint32_t settingsSaveTimer = 0;
 uint32_t settingsSaveInterval = 3000;
 
-const char* settingsFileName = "/settings.json";
+const char* settingsFileName PROGMEM = "/settings.json";
+DynamicJsonDocument json(5130);
 
 } // namespace
 
@@ -33,7 +33,13 @@ void Settings::Initialize(uint32_t saveInterval)
         return;
     }
 
+    Serial.println(F("Initializing Settings"));
     instance = new Settings(saveInterval);
+}
+
+DynamicJsonDocument &Settings::Json()
+{
+    return json;
 }
 
 void Settings::Process()
@@ -53,33 +59,13 @@ void Settings::SaveLater()
 
 void Settings::Save()
 {
-    DynamicJsonDocument doc(4096);
-    JsonArray effects = doc.createNestedArray("effects");
-    for (uint8_t i = 0; i < EffectsManager::Count(); i++) {
-        Serial.printf("Write effect %s, speed: %u, scale: %u, brightness: %u\n",
-                      EffectsManager::EffectName(i).c_str(),
-                      effectsSettings[i].effectSpeed,
-                      effectsSettings[i].effectScale,
-                      effectsSettings[i].effectBrightness);
-        JsonObject effect = effects.createNestedObject();
-        effect["name"] = EffectsManager::EffectName(i);
-        effect["speed"] = effectsSettings[i].effectSpeed;
-        effect["scale"] = effectsSettings[i].effectScale;
-        effect["brightness"] = effectsSettings[i].effectBrightness;
-    }
-    doc["currentEffect"] = currentEffect;
-    doc["currentEffectName"] = EffectsManager::EffectName(currentEffect);
-    doc["matrixRotation"] = matrixRotation;
-
-    Serial.printf("Effects settings count: %zu\n", effects.size());
-
     File file = SPIFFS.open(settingsFileName, "w");
     if (!file) {
-        Serial.println("Error opening settings file from SPIFFS!");
+        Serial.println(F("Error opening settings file from SPIFFS!"));
         return;
     }
 
-    if (serializeJson(doc, file) == 0) {
+    if (serializeJson(json, file) == 0) {
         Serial.println(F("Failed to write to file"));
     }
 
@@ -90,158 +76,141 @@ void Settings::Save()
 
 String Settings::GetCurrentConfig()
 {
-    DynamicJsonDocument doc(4096);
-
-    doc["working"] = masterSwitch;
-    doc["activeEffect"] = currentEffect;
-
-    JsonArray effects = doc.createNestedArray("effects");
-
-    for (uint8_t index = 0; index < EffectsManager::Count(); index++) {
-        const EffectSettings settings = effectsSettings[index];
-
-        JsonObject effect = effects.createNestedObject();
-        effect["name"] = EffectsManager::EffectName(index);
-        effect["speed"] = settings.effectSpeed;
-        effect["scale"] = settings.effectScale;
-        effect["brightness"] = settings.effectBrightness;
-
-    }
-
-    JsonArray alarms = doc.createNestedArray("alarms");
-//    alarms.add(48.756080);
-//    alarms.add(2.302038);
+    json[F("working")] = effectsManager->working;
 
     String output;
-    serializeJson(doc, output);
+    serializeJson(json, output);
 
     Serial.print(">> ");
     Serial.println(output);
     return output;
 }
 
-void Settings::ApplyConfig(const String &message)
+size_t Settings::GetCurrentConfigSize()
+{
+    return measureJson(json);
+}
+
+void Settings::WriteConfigTo(char *buffer, size_t length)
+{
+    serializeJson(json, buffer, length);
+    Serial.print(F(">> "));
+    Serial.println(buffer);
+}
+
+void Settings::ProcessConfig(const String &message)
 {
     DynamicJsonDocument doc(4096);
     deserializeJson(doc, message);
 
-    const String event = doc["event"];
-    if (event == "WORKING") {
-        const bool working = doc["data"];
+    const String event = doc[F("event")];
+    if (event == F("WORKING")) {
+        const bool working = doc[PSTR("data")];
 
-        Serial.printf("working: %s\n", working ? "true" : "false");
-        masterSwitch = working;
-        if (!masterSwitch) {
+        Serial.printf_P(PSTR("working: %s\n"), working ? PSTR("true") : PSTR("false"));
+        effectsManager->working = working;
+        if (!working) {
             myMatrix->clear();
             myMatrix->show();
         }
-    } else if (event == "ACTIVE_EFFECT") {
-        const int index = doc["data"];
-        EffectsManager::ChangeEffect(static_cast<uint8_t>(index));
-    } else if (event == "EFFECTS_CHANGED") {
-        const JsonObject effect = doc["data"];
-        const int speed = effect["speed"];
-        const int scale = effect["scale"];
-        const int brightness = effect["brightness"];
-        CurrentEffectSettings()->effectSpeed = static_cast<uint8_t>(speed);
-        CurrentEffectSettings()->effectScale = static_cast<uint8_t>(scale);
-        CurrentEffectSettings()->effectBrightness = static_cast<uint8_t>(brightness);
-        myMatrix->setBrightness(brightness);
+    } else if (event == F("ACTIVE_EFFECT")) {
+        const int index = doc[F("data")];
+        effectsManager->ChangeEffect(static_cast<uint8_t>(index));
+    } else if (event == F("EFFECTS_CHANGED")) {
+        const JsonObject effect = doc[F("data")];
+        effectsManager->UpdateCurrentSettings(effect);
         SaveLater();
-    } else if (event == "ALARMS_CHANGED") {
+    } else if (event == F("ALARMS_CHANGED")) {
 
     }
 }
 
-Settings::EffectSettings* Settings::CurrentEffectSettings()
+const char *Settings::GetCharField(const __FlashStringHelper *group, const __FlashStringHelper *field, const char *defaultValue)
 {
-    return &effectsSettings[currentEffect];
+    JsonObject root = json.as<JsonObject>();
+    if (group && !root.containsKey(group)) {
+        return defaultValue;
+    }
+    JsonObject groupObject = group ? root[group] : root;
+    if (!groupObject.containsKey(field)) {
+        return defaultValue;
+    }
+    const char * value = groupObject[field];
+    return value;
+}
+
+uint8_t Settings::GetByteField(const __FlashStringHelper *group, const __FlashStringHelper *field, uint8_t defaultValue)
+{
+    JsonObject root = json.as<JsonObject>();
+    if (group && !root.containsKey(group)) {
+        return defaultValue;
+    }
+    JsonObject groupObject = group ? root[group] : root;
+    if (!groupObject.containsKey(field)) {
+        return defaultValue;
+    }
+    uint8_t value = groupObject[field];
+    return value;
+}
+
+uint32_t Settings::GetULongLongField(const __FlashStringHelper *group, const __FlashStringHelper *field, uint32_t defaultValue)
+{
+    JsonObject root = json.as<JsonObject>();
+    if (group && !root.containsKey(group)) {
+        return defaultValue;
+    }
+    JsonObject groupObject = group ? root[group] : root;
+    if (!groupObject.containsKey(field)) {
+        return defaultValue;
+    }
+    uint32_t value = groupObject[field];
+    return value;
+}
+
+int Settings::GetIntField(const __FlashStringHelper *group, const __FlashStringHelper *field, int defaultValue)
+{
+    JsonObject root = json.as<JsonObject>();
+    if (group && !root.containsKey(group)) {
+        return defaultValue;
+    }
+    JsonObject groupObject = group ? root[group] : root;
+    if (!groupObject.containsKey(field)) {
+        return defaultValue;
+    }
+    int value = groupObject[field];
+    return value;
+}
+
+JsonArray Settings::GetEffects()
+{
+    JsonObject root = json.as<JsonObject>();
+    JsonArray effects = root[F("effects")];
+    return effects;
 }
 
 Settings::Settings(uint32_t saveInterval)
 {
     settingsSaveInterval = saveInterval;
 
-    alarmSettings = new AlarmSettings[alarmsCount]();
-    effectsSettings = new EffectSettings[EffectsManager::Count()]();
-
     bool settingsExists = SPIFFS.exists(settingsFileName);
-    Serial.printf("SPIFFS Settings file exists: %s\n", settingsExists ? "true" : "false");
+    Serial.printf_P(PSTR("SPIFFS Settings file exists: %s\n"), settingsExists ? PSTR("true") : PSTR("false"));
     if (!settingsExists) {
         Save();
         return;
-    } else {
-        File settings = SPIFFS.open(settingsFileName, "r");
-        if (!settings) {
-            Serial.println("SPIFFS Error reading settings file");
-            return;
-        }
+    }
 
-        DynamicJsonDocument doc(4096);
-        DeserializationError err = deserializeJson(doc, settings);
-        settings.close();
-        if (err) {
-            Serial.print("SPIFFS Error parsing json file: ");
-            Serial.println(err.c_str());
-            return;
-        }
+    File settings = SPIFFS.open(settingsFileName, "r");
+    Serial.printf_P(PSTR("SPIFFS Settings file size: %zu\n"), settings.size());
+    if (!settings) {
+        Serial.println(F("SPIFFS Error reading settings file"));
+        return;
+    }
 
-        JsonObject root = doc.as<JsonObject>();
-        if (!root.containsKey("effects")) {
-            Serial.println("JSON contains no effects!");
-            return;
-        }
-
-        if (!root["effects"].is<JsonArray>()) {
-            Serial.println("JSON effects is not array!");
-            return;
-        }
-
-        JsonArray effects = root["effects"];
-        for (JsonVariant effectVariant : effects) {
-            if (!effectVariant.is<JsonObject>()) {
-                Serial.println("JSON effect is not object!");
-                continue;
-            }
-            JsonObject effect = effectVariant.as<JsonObject>();
-            String effectName = effect["name"];
-            uint8_t effectSpeed = effect["speed"];
-            uint8_t effectScale = effect["scale"];
-            uint8_t effectBrightness = effect["brightness"];
-            Serial.printf("SPIFFS Read effect %s, speed: %u, scale: %u, brightness: %u\n",
-                          effectName.c_str(),
-                          effectSpeed,
-                          effectScale,
-                          effectBrightness);
-        }
-
-        for (uint8_t i = 0; i < EffectsManager::Count(); i++) {
-            if (i >= effects.size()) {
-                continue;
-            }
-
-            JsonObject effect = effects[i];
-            String effectName = effect["name"];
-            uint8_t effectSpeed = effect["speed"];
-            uint8_t effectScale = effect["scale"];
-            uint8_t effectBrightness = effect["brightness"];
-            Serial.printf("SPIFFS Read effect %s, speed: %u, scale: %u, brightness: %u\n",
-                          effectName.c_str(),
-                          effectSpeed,
-                          effectScale,
-                          effectBrightness);
-
-            effectsSettings[i].effectSpeed = effectSpeed;
-            effectsSettings[i].effectScale = effectScale;
-            effectsSettings[i].effectBrightness = effectBrightness;
-        }
-
-        if (root.containsKey("currentEffect")) {
-            currentEffect = root["currentEffect"];
-        }
-
-        if (root.containsKey("matrixRotation")) {
-            matrixRotation = root["matrixRotation"];
-        }
+    DeserializationError err = deserializeJson(json, settings);
+    settings.close();
+    if (err) {
+        Serial.print(F("SPIFFS Error parsing json file: "));
+        Serial.println(err.c_str());
+        return;
     }
 }

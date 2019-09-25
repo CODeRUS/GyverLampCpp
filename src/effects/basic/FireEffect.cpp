@@ -38,7 +38,6 @@ bool sparkles = true;
 
 FireEffect::FireEffect()
 {
-    effectName = "Fire";
 }
 
 void FireEffect::activate()
@@ -101,7 +100,7 @@ void FireEffect::drawFrame(uint8_t pcnt)
                         - pgm_read_byte(&(valueMask[y][x]));
 
                 CRGB color = CHSV(
-                            settings->effectScale * 2.5 + pgm_read_byte(&(hueMask[y][x])), // H
+                        scale() * 2.5 + pgm_read_byte(&(hueMask[y][x])), // H
                         255, // S
                         (uint8_t)max(0, nextv) // V
                         );
@@ -127,7 +126,7 @@ void FireEffect::drawFrame(uint8_t pcnt)
     //first row interpolates with the "next" line
     for (uint8_t x = 0; x < width; x++) {
         CRGB color = CHSV(
-                    settings->effectScale * 2.5 + pgm_read_byte(&(hueMask[0][x])), // H
+                scale() * 2.5 + pgm_read_byte(&(hueMask[0][x])), // H
                 255,           // S
                 (uint8_t)(((100.0 - pcnt) * matrixValue[0][x] + pcnt * line[x]) / 100.0) // V
                 );

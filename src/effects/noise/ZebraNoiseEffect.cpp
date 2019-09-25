@@ -2,7 +2,6 @@
 
 ZebraNoiseEffect::ZebraNoiseEffect()
 {
-    effectName = "Zebra 3D";
     fill_solid(currentPalette, 16, CRGB::Black);
     // and set every fourth one to white.
     currentPalette[0] = CRGB::White;

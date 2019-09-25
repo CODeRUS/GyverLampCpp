@@ -4,7 +4,7 @@
 class GyverTimer
 {
 public:
-    static void Initialize(const char* poolServerName, int timeOffset, int updateInterval, uint32_t timerInterval);
+    static void Initialize();
     static void Process();
     static void SetInterval(uint32_t timerInterval);
     static void ForceUpdate();
