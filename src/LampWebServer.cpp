@@ -480,6 +480,14 @@ void LampWebServer::configureHandlers()
         request->send(SPIFFS, PSTR("/index.html"), PSTR("text/html"), false, templateProcessor);
     });
 
+    webServer->on(PSTR("/prettyJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
+        PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024 * 5);
+        JsonObject root = response->getRoot();
+        mySettings->BuildJson(root);
+        response->setLength();
+        request->send(response);
+    });
+
     webServer->on(PSTR("/update"), HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);
     webServer->on(PSTR("/updateSize"), HTTP_POST, updateSizeHandler);
 
