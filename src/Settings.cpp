@@ -9,9 +9,8 @@
 #include <SPIFFS.h>
 #else
 #include <FS.h>
-
-#include <effects/Effect.h>
 #endif
+#include "effects/Effect.h"
 
 namespace {
 

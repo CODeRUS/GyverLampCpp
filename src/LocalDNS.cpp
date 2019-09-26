@@ -16,7 +16,7 @@ bool started = false;
 
 bool LocalDNS::Begin()
 {
-    started = MDNS.begin(mySettings->connectionSettings.mdns);
+    started = MDNS.begin(mySettings->connectionSettings.mdns.c_str());
     if (started) {
         Serial.printf_P(PSTR("mDNS responder (%s) started!\n"), mySettings->connectionSettings.mdns.c_str());
     }
