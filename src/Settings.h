@@ -5,31 +5,58 @@
 
 #define mySettings Settings::Instance()
 
+class AsyncWebSocket;
+class AsyncWebSocketClient;
 class Settings
 {
 public:
+    struct EffectSettings {
+        String id = "";
+        String name = "";
+        uint8_t speed = 1;
+        uint8_t scale = 100;
+        uint8_t brightness = 80;
+    };
+
+    struct GeneralSettings {
+        uint8_t activeEffect = 0;
+        bool working = true;
+    };
+
+    struct MatrixSettings {
+        uint8_t width = 16;
+        uint8_t height = 16;
+        uint8_t segments = 1;
+        // NEO_MATRIX_BOTTOM + RIGHT + COLUMNS + ZIGZAG
+        uint8_t type = 15;
+        uint8_t maxBrightness = 80;
+        uint16_t currentLimit = 1000;
+        uint8_t rotation = 3;
+    };
+
+    struct ConenctionSettings {
+        String mdns = "firelamp";
+        String apName = "Fire Lamp";
+        String ntpServer = "europe.pool.ntp.org";
+        uint32_t ntpOffset = 10800;
+    };
+
     static Settings *Instance();
     static void Initialize(uint32_t saveInterval = 3000);
-
-    DynamicJsonDocument &Json();
 
     void Process();
     void Reset();
     void SaveLater();
     void Save();
 
-    String GetCurrentConfig();
-    size_t GetCurrentConfigSize();
-    void WriteConfigTo(char *buffer, size_t length);
+    void BuildJson(JsonObject &root);
+    void WriteConfigTo(AsyncWebSocket *socket, AsyncWebSocketClient *client);
 
     void ProcessConfig(const String &message);
 
-    const char* GetCharField(const __FlashStringHelper *group, const __FlashStringHelper *field, const char *defaultValue);
-    uint8_t GetByteField(const __FlashStringHelper *group, const __FlashStringHelper *field, uint8_t defaultValue);
-    uint32_t GetULongLongField(const __FlashStringHelper *group, const __FlashStringHelper *field, uint32_t defaultValue);
-    int GetIntField(const __FlashStringHelper *group, const __FlashStringHelper *field, int defaultValue);
-
-    JsonArray GetEffects();
+    GeneralSettings generalSettings;
+    MatrixSettings matrixSettings;
+    ConenctionSettings connectionSettings;
 
 protected:
     Settings(uint32_t saveInterval = 3000);

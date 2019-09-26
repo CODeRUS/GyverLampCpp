@@ -6,7 +6,6 @@
 
 namespace  {
 
-const char* defaultPoolServerName PROGMEM = "europe.pool.ntp.org";
 int timeOffset = 3 * 3600; // GMT + 3
 int updateInterval = 60 * 1000; // 1 min
 
@@ -30,16 +29,18 @@ void GyverTimer::Initialize()
 {
     ntpUDP = new WiFiUDP;
 
-    const char *poolServerName = mySettings->GetCharField(F("connection"), F("ntpServer"), defaultPoolServerName);
-    timeOffset = mySettings->GetIntField(F("connection"), F("ntpOffset"), timeOffset);
-
-    timeClient = new NTPClient(*ntpUDP, poolServerName, timeOffset, updateInterval);
+    timeClient = new NTPClient(*ntpUDP,
+                               mySettings->connectionSettings.ntpServer.c_str(),
+                               mySettings->connectionSettings.ntpOffset,
+                               updateInterval);
     timeClient->begin();
 
     interval = defaultInterval;
     timer = millis();
 
-    Serial.printf_P(PSTR("Initializing GyverTimer: %s, offset: %d\n"), poolServerName, timeOffset);
+    Serial.printf_P(PSTR("Initializing GyverTimer: %s, offset: %d\n"),
+                    mySettings->connectionSettings.ntpServer.c_str(),
+                    timeOffset);
 }
 
 void GyverTimer::Process()

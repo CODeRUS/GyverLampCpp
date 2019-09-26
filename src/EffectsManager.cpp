@@ -38,7 +38,6 @@ EffectsManager *instance = nullptr;
 
 std::map<String, Effect*> effectsMap;
 
-std::vector<Effect*> effects;
 uint32_t effectTimer = 0;
 
 uint8_t activeIndex = 0;
@@ -82,7 +81,7 @@ void EffectsManager::Process()
         return;
     }
 
-    if (effectTimer != 0 && (millis() - effectTimer) < activeEffect()->speed()) {
+    if (effectTimer != 0 && (millis() - effectTimer) < activeEffect()->settings.speed) {
         return;
     }
     effectTimer = millis();
@@ -133,28 +132,23 @@ void EffectsManager::ChangeEffect(uint8_t index)
 
 void EffectsManager::ActivateEffect(uint8_t index)
 {
+    if (activeIndex != index) {
+        activeIndex = index;
+    }
     Effect *effect = effects[index];
-    myMatrix->setBrightness(effect->brightness());
+    myMatrix->setBrightness(effect->settings.brightness);
     effect->activate();
 }
 
 void EffectsManager::UpdateCurrentSettings(const JsonObject &json)
 {
     activeEffect()->update(json);
-    myMatrix->setBrightness(activeEffect()->brightness());
+    myMatrix->setBrightness(activeEffect()->settings.brightness);
 }
 
 uint8_t EffectsManager::Count()
 {
     return static_cast<uint8_t>(effects.size());
-}
-
-String EffectsManager::EffectName(uint8_t index)
-{
-    if (index >= effects.size()) {
-        return PSTR("error");
-    }
-    return effects[index]->name();
 }
 
 Effect *EffectsManager::activeEffect()
@@ -201,12 +195,4 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("StarfallEffect")] = new StarfallEffect();
     effectsMap[PSTR("DiagonalRainbowEffect")] = new DiagonalRainbowEffect();
     effectsMap[PSTR("SoundStereoEffect")] = new SoundStereoEffect();
-
-    JsonArray effects = mySettings->GetEffects();
-    for (JsonObject effect : effects) {
-        ProcessEffectSettings(effect);
-    }
-
-    activeIndex = mySettings->GetByteField(nullptr, F("activeEffect"), 0);
-    ActivateEffect(activeIndex);
 }

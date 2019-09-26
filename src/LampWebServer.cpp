@@ -15,9 +15,11 @@
 #include <ESPAsyncWiFiManager.h>
 #include <DNSServer.h>
 
-namespace  {
+#define ARDUINOJSON_ENABLE_PROGMEM 1
+#include <AsyncJson.h>
+#include <ArduinoJson.h>
 
-const char* defaultApName PROGMEM = "Fire Lamp";
+namespace  {
 
 size_t updateSize = 0;
 bool isUpdatingFlag = false;
@@ -58,7 +60,7 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
         Serial.printf_P(PSTR("ws[%s][%u] connect\n"), server->url(), client->id());
         //        client->printf("Hello Client %u :)", client->id());
         client->ping();
-        client->text(mySettings->GetCurrentConfig());
+        lampWebServer->SendConfig(server, client);
     } else if (type == WS_EVT_DISCONNECT) {
         Serial.printf_P(PSTR("ws[%s][%u] disconnect\n"), server->url(), client->id());
     } else if (type == WS_EVT_ERROR) {
@@ -377,8 +379,6 @@ void LampWebServer::AutoConnect()
         dnsServer = new DNSServer();
     }
 
-    const char* apName = mySettings->GetCharField(F("connection"), F("apName"), defaultApName);
-
     wifiManager = new AsyncWiFiManager(webServer, dnsServer);
     wifiManager->setSaveConfigCallback(wifiConnectedCallback);
     wifiConnected = wifiManager->tryToConnect();
@@ -388,7 +388,7 @@ void LampWebServer::AutoConnect()
         Serial.println(WiFi.localIP());
     } else {
         Serial.println(F("Wifi not connected!"));
-        wifiManager->startConfigPortalModeless(apName, nullptr);
+        wifiManager->startConfigPortalModeless(mySettings->connectionSettings.apName.c_str(), nullptr);
         Serial.print(F("AP ip: "));
         Serial.println(WiFi.softAPIP());
         wifiManager->loop();
@@ -424,7 +424,7 @@ void LampWebServer::Process()
     }
 }
 
-void LampWebServer::SendConfig()
+void LampWebServer::SendConfig(AsyncWebSocket *server, AsyncWebSocketClient *client)
 {
     if (!socket) {
         return;
@@ -434,14 +434,7 @@ void LampWebServer::SendConfig()
         return;
     }
 
-    size_t configSize = mySettings->GetCurrentConfigSize();
-    AsyncWebSocketMessageBuffer *buffer = socket->makeBuffer(configSize);
-    if (!buffer) {
-        socket->textAll(mySettings->GetCurrentConfig());
-    } else {
-        mySettings->WriteConfigTo((char *)buffer->get(), configSize + 1);
-        socket->textAll(buffer);
-    }
+    mySettings->WriteConfigTo(server, client);
 }
 
 bool LampWebServer::isUpdating()

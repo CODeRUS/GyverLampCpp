@@ -74,10 +74,10 @@ void SoundEffect::tick()
 
 void SoundEffect::displayBand(int band, int dsize)
 {
-    int dmax = height - 1;
+    int dmax = mySettings->matrixSettings.height - 1;
     int ssize = dsize;
     int fsize = dsize / audiospectrum[band].amplitude;
-    double factor = scale() / 100.0;
+    double factor = settings.scale / 100.0;
     dsize = fsize * factor;
 //    Serial.printf("displayBand %d, %d, %d, %f, %d\n", band, ssize, fsize, factor, dsize);
     if (dsize > dmax) {

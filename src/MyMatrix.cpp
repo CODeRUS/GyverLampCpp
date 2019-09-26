@@ -40,19 +40,19 @@ void MyMatrix::Initialize()
         return;
     }
 
-    uint8_t sizeWidth = mySettings->GetByteField(F("matrix"), F("width"), defaultWidth);
-    uint8_t sizeHeight = mySettings->GetByteField(F("matrix"), F("height"), defaultHeight);
-    uint8_t matrixType = mySettings->GetByteField(F("matrix"), F("type"), defaultType);
+    uint8_t sizeWidth = mySettings->matrixSettings.width;
+    uint8_t sizeHeight = mySettings->matrixSettings.height;
+    uint8_t matrixType = mySettings->matrixSettings.type;
 
     numLeds = sizeWidth * sizeHeight;
     leds = new CRGB[numLeds]();
     FastLED.addLeds<WS2812B, ledPin, GRB>(leds, numLeds);
 
-    uint8_t maxBrightness = mySettings->GetByteField(F("matrix"), F("maxBrightness"), defaultMaxBrightness);
+    uint8_t maxBrightness = mySettings->matrixSettings.maxBrightness;
     Serial.printf_P(PSTR("Set max brightness to: %u\n"), maxBrightness);
     FastLED.setBrightness(maxBrightness);
 
-    uint32_t currentLimit = mySettings->GetULongLongField(F("matrix"), F("currentLimit"), defaultCurrentLimit);
+    uint32_t currentLimit = mySettings->matrixSettings.currentLimit;
     Serial.printf_P(PSTR("Set current limit to: %u\n"), currentLimit);
     FastLED.setMaxPowerInVoltsAndMilliamps(5, currentLimit);
 
@@ -68,7 +68,7 @@ void MyMatrix::Initialize()
 
 uint8_t MyMatrix::GetRotation()
 {
-    uint8_t rotation = mySettings->GetByteField(F("matrix"), F("rotation"), defaultRoatation);
+    uint8_t rotation = mySettings->matrixSettings.rotation;
     return rotation;
 }
 

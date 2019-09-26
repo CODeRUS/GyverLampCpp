@@ -3,10 +3,14 @@
 #include "MyMatrix.h"
 #include "LocalDNS.h"
 
+#include <ESPAsyncWebServer.h>
+
 #if defined(ESP32)
 #include <SPIFFS.h>
 #else
 #include <FS.h>
+
+#include <effects/Effect.h>
 #endif
 
 namespace {
@@ -18,7 +22,6 @@ uint32_t settingsSaveTimer = 0;
 uint32_t settingsSaveInterval = 3000;
 
 const char* settingsFileName PROGMEM = "/settings.json";
-DynamicJsonDocument json(5130);
 
 } // namespace
 
@@ -35,11 +38,6 @@ void Settings::Initialize(uint32_t saveInterval)
 
     Serial.println(F("Initializing Settings"));
     instance = new Settings(saveInterval);
-}
-
-DynamicJsonDocument &Settings::Json()
-{
-    return json;
 }
 
 void Settings::Process()
@@ -65,6 +63,10 @@ void Settings::Save()
         return;
     }
 
+    DynamicJsonDocument json(1024 * 5);
+    JsonObject root = json.to<JsonObject>();
+    BuildJson(root);
+
     if (serializeJson(json, file) == 0) {
         Serial.println(F("Failed to write to file"));
     }
@@ -74,28 +76,23 @@ void Settings::Save()
     }
 }
 
-String Settings::GetCurrentConfig()
+void Settings::WriteConfigTo(AsyncWebSocket *socket, AsyncWebSocketClient *client)
 {
-    json[F("working")] = effectsManager->working;
+    DynamicJsonDocument json(1024 * 5);
+    JsonObject root = json.to<JsonObject>();
+    BuildJson(root);
 
-    String output;
-    serializeJson(json, output);
-
-    Serial.print(">> ");
-    Serial.println(output);
-    return output;
-}
-
-size_t Settings::GetCurrentConfigSize()
-{
-    return measureJson(json);
-}
-
-void Settings::WriteConfigTo(char *buffer, size_t length)
-{
-    serializeJson(json, buffer, length);
-    Serial.print(F(">> "));
-    Serial.println(buffer);
+    size_t configSize = measureJson(json);
+    AsyncWebSocketMessageBuffer *buffer = socket->makeBuffer(configSize);
+    if (!buffer) {
+        return;
+    }
+    serializeJson(json, (char *)buffer->get(), configSize + 1);
+    if (client) {
+        client->text(buffer);
+    } else {
+        socket->textAll(buffer);
+    }
 }
 
 void Settings::ProcessConfig(const String &message)
@@ -108,7 +105,7 @@ void Settings::ProcessConfig(const String &message)
         const bool working = doc[PSTR("data")];
 
         Serial.printf_P(PSTR("working: %s\n"), working ? PSTR("true") : PSTR("false"));
-        effectsManager->working = working;
+        mySettings->generalSettings.working = working;
         if (!working) {
             myMatrix->clear();
             myMatrix->show();
@@ -125,67 +122,34 @@ void Settings::ProcessConfig(const String &message)
     }
 }
 
-const char *Settings::GetCharField(const __FlashStringHelper *group, const __FlashStringHelper *field, const char *defaultValue)
+void Settings::BuildJson(JsonObject &root)
 {
-    JsonObject root = json.as<JsonObject>();
-    if (group && !root.containsKey(group)) {
-        return defaultValue;
+    JsonArray effects = root.createNestedArray(F("effects"));
+    for (Effect *effect : effectsManager->effects) {
+        JsonObject effectObject = effects.createNestedObject();
+        effectObject[F("id")] = effect->settings.id;
+        effectObject[F("name")] = effect->settings.name;
+        effectObject[F("speed")] = effect->settings.speed;
+        effectObject[F("scale")] = effect->settings.scale;
+        effectObject[F("brightness")] = effect->settings.brightness;
     }
-    JsonObject groupObject = group ? root[group] : root;
-    if (!groupObject.containsKey(field)) {
-        return defaultValue;
-    }
-    const char * value = groupObject[field];
-    return value;
-}
+    root[F("activeEffect")] = effectsManager->ActiveEffectIndex();
+    root[F("working")] = generalSettings.working;
 
-uint8_t Settings::GetByteField(const __FlashStringHelper *group, const __FlashStringHelper *field, uint8_t defaultValue)
-{
-    JsonObject root = json.as<JsonObject>();
-    if (group && !root.containsKey(group)) {
-        return defaultValue;
-    }
-    JsonObject groupObject = group ? root[group] : root;
-    if (!groupObject.containsKey(field)) {
-        return defaultValue;
-    }
-    uint8_t value = groupObject[field];
-    return value;
-}
+    JsonObject matrixObject = root.createNestedObject(F("matrix"));
+    matrixObject[F("width")] = matrixSettings.width;
+    matrixObject[F("height")] = matrixSettings.height;
+    matrixObject[F("segments")] = matrixSettings.segments;
+    matrixObject[F("type")] = matrixSettings.type;
+    matrixObject[F("maxBrightness")] = matrixSettings.maxBrightness;
+    matrixObject[F("currentLimit")] = matrixSettings.currentLimit;
+    matrixObject[F("rotation")] = matrixSettings.rotation;
 
-uint32_t Settings::GetULongLongField(const __FlashStringHelper *group, const __FlashStringHelper *field, uint32_t defaultValue)
-{
-    JsonObject root = json.as<JsonObject>();
-    if (group && !root.containsKey(group)) {
-        return defaultValue;
-    }
-    JsonObject groupObject = group ? root[group] : root;
-    if (!groupObject.containsKey(field)) {
-        return defaultValue;
-    }
-    uint32_t value = groupObject[field];
-    return value;
-}
-
-int Settings::GetIntField(const __FlashStringHelper *group, const __FlashStringHelper *field, int defaultValue)
-{
-    JsonObject root = json.as<JsonObject>();
-    if (group && !root.containsKey(group)) {
-        return defaultValue;
-    }
-    JsonObject groupObject = group ? root[group] : root;
-    if (!groupObject.containsKey(field)) {
-        return defaultValue;
-    }
-    int value = groupObject[field];
-    return value;
-}
-
-JsonArray Settings::GetEffects()
-{
-    JsonObject root = json.as<JsonObject>();
-    JsonArray effects = root[F("effects")];
-    return effects;
+    JsonObject connectionObject = root.createNestedObject(F("connection"));
+    connectionObject[F("mdns")] = connectionSettings.mdns;
+    connectionObject[F("apName")] = connectionSettings.apName;
+    connectionObject[F("ntpServer")] = connectionSettings.ntpServer;
+    connectionObject[F("ntpOffset")] = connectionSettings.ntpOffset;
 }
 
 Settings::Settings(uint32_t saveInterval)
@@ -206,11 +170,65 @@ Settings::Settings(uint32_t saveInterval)
         return;
     }
 
+    DynamicJsonDocument json(1024 * 5); // ICE: compute with https://arduinojson.org/v6/assistant/
     DeserializationError err = deserializeJson(json, settings);
     settings.close();
     if (err) {
         Serial.print(F("SPIFFS Error parsing json file: "));
         Serial.println(err.c_str());
         return;
+    }
+
+    JsonObject root = json.as<JsonObject>();
+    if (root.containsKey(F("matrix"))) {
+       JsonObject matrixObject = root[F("matrix")];
+       if (matrixObject.containsKey(F("width"))) {
+           matrixSettings.width = matrixObject[F("width")];
+       }
+       if (matrixObject.containsKey(F("height"))) {
+           matrixSettings.height = matrixObject[F("height")];
+       }
+       if (matrixObject.containsKey(F("segments"))) {
+           matrixSettings.segments = matrixObject[F("segments")];
+       }
+       if (matrixObject.containsKey(F("type"))) {
+           matrixSettings.type = matrixObject[F("type")];
+       }
+       if (matrixObject.containsKey(F("maxBrightness"))) {
+           matrixSettings.maxBrightness = matrixObject[F("maxBrightness")];
+       }
+       if (matrixObject.containsKey(F("currentLimit"))) {
+           matrixSettings.currentLimit = matrixObject[F("currentLimit")];
+       }
+       if (matrixObject.containsKey(F("rotation"))) {
+           matrixSettings.rotation = matrixObject[F("rotation")];
+       }
+    }
+
+    if (root.containsKey(F("connection"))) {
+       JsonObject connectionObject = root[F("connection")];
+       if (connectionObject.containsKey(F("mdns"))) {
+           connectionSettings.mdns = connectionObject[F("mdns")].as<String>();
+       }
+       if (connectionObject.containsKey(F("apName"))) {
+           connectionSettings.apName = connectionObject[F("apName")].as<String>();
+       }
+       if (connectionObject.containsKey(F("ntpServer"))) {
+           connectionSettings.ntpServer = connectionObject[F("ntpServer")].as<String>();
+       }
+       if (connectionObject.containsKey(F("ntpOffset"))) {
+           connectionSettings.ntpOffset = connectionObject[F("ntpOffset")];
+       }
+    }
+
+    if (root.containsKey(F("effects"))) {
+        JsonArray effects = root[F("effects")];
+        for (JsonObject effect : effects) {
+            effectsManager->ProcessEffectSettings(effect);
+        }
+    }
+
+    if (root.containsKey(F("activeEffect"))) {
+        generalSettings.activeEffect = root[F("activeEffect")];
     }
 }

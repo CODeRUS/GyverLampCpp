@@ -10,16 +10,13 @@
 
 namespace  {
 
-const char *localHostname PROGMEM = "firelamp";
-
 bool started = false;
 
 } // namespace
 
 bool LocalDNS::Begin()
 {
-    const char* hostname = mySettings->GetCharField(F("connection"), F("mdns"), localHostname);
-    started = MDNS.begin(hostname);
+    started = MDNS.begin(mySettings->connectionSettings.mdns.c_str());
     if (started) {
         Serial.println(F("mDNS responder started!"));
     }

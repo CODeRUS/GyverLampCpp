@@ -42,7 +42,7 @@ FireEffect::FireEffect()
 
 void FireEffect::activate()
 {
-    line = new uint8_t[width]();
+    line = new uint8_t[mySettings->matrixSettings.width]();
     generateLine();
 }
 
@@ -64,15 +64,15 @@ void FireEffect::tick()
 
 void FireEffect::generateLine()
 {
-    for (uint8_t x = 0; x < width; x++) {
+    for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
         line[x] = static_cast<uint8_t>(random(64, 255));
     }
 }
 
 void FireEffect::shiftUp()
 {
-    for (uint8_t y = height - 1; y > 0; y--) {
-        for (uint8_t x = 0; x < width; x++) {
+    for (uint8_t y = mySettings->matrixSettings.height - 1; y > 0; y--) {
+        for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
             if (y > 7) {
                 continue;
             }
@@ -80,7 +80,7 @@ void FireEffect::shiftUp()
         }
     }
 
-    for (uint8_t x = 0; x < width; x++) {
+    for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
         matrixValue[0][x] = line[x];
     }
 }
@@ -91,8 +91,8 @@ void FireEffect::drawFrame(uint8_t pcnt)
     int nextv;
 
     //each row interpolates with the one before it
-    for (uint8_t y = height - 1; y > 0; y--) {
-        for (uint8_t x = 0; x < width; x++) {
+    for (uint8_t y = mySettings->matrixSettings.height - 1; y > 0; y--) {
+        for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
             if (y < 8) {
                 nextv =
                         (((100.0 - pcnt) * matrixValue[y][x]
@@ -100,7 +100,7 @@ void FireEffect::drawFrame(uint8_t pcnt)
                         - pgm_read_byte(&(valueMask[y][x]));
 
                 CRGB color = CHSV(
-                        scale() * 2.5 + pgm_read_byte(&(hueMask[y][x])), // H
+                        settings.scale * 2.5 + pgm_read_byte(&(hueMask[y][x])), // H
                         255, // S
                         (uint8_t)max(0, nextv) // V
                         );
@@ -124,9 +124,9 @@ void FireEffect::drawFrame(uint8_t pcnt)
     }
 
     //first row interpolates with the "next" line
-    for (uint8_t x = 0; x < width; x++) {
+    for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
         CRGB color = CHSV(
-                scale() * 2.5 + pgm_read_byte(&(hueMask[0][x])), // H
+                settings.scale * 2.5 + pgm_read_byte(&(hueMask[0][x])), // H
                 255,           // S
                 (uint8_t)(((100.0 - pcnt) * matrixValue[0][x] + pcnt * line[x]) / 100.0) // V
                 );

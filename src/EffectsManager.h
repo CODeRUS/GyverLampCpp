@@ -24,12 +24,11 @@ public:
     void UpdateCurrentSettings(const JsonObject &json);
 
     uint8_t Count();
-    String EffectName(uint8_t index);
 
     Effect *activeEffect();
     uint8_t ActiveEffectIndex();
 
-    bool working = true;
+    std::vector<Effect*> effects = {};
 
 protected:
     EffectsManager();

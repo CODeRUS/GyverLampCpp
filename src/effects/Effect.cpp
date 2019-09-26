@@ -2,8 +2,6 @@
 
 Effect::Effect()
 {
-    width = static_cast<uint8_t>(myMatrix->width());
-    height = static_cast<uint8_t>(myMatrix->height());
 }
 
 Effect::~Effect()
@@ -23,9 +21,11 @@ void Effect::initialize(const JsonObject &json)
 
 void Effect::update(const JsonObject &json)
 {
+    if (json.containsKey(F("id"))) {
+        settings.id = json[F("id")].as<String>();
+    }
     if (json.containsKey(F("name"))) {
-        String effectName = json[F("name")];
-        settings.name = effectName;
+        settings.name = json[F("name")].as<String>();
     }
     if (json.containsKey(F("speed"))) {
         settings.speed = json[F("speed")];
@@ -36,29 +36,4 @@ void Effect::update(const JsonObject &json)
     if (json.containsKey(F("scale"))) {
         settings.scale = json[F("scale")];
     }
-}
-
-String Effect::name()
-{
-    return settings.name;
-}
-
-uint8_t Effect::speed()
-{
-    return settings.speed;
-}
-
-uint8_t Effect::scale()
-{
-    return settings.scale;
-}
-
-uint8_t Effect::brightness()
-{
-   return settings.brightness;
-}
-
-void Effect::setBrightness(uint8_t newBrightness)
-{
-    settings.brightness = newBrightness;
 }

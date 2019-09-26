@@ -49,12 +49,12 @@ void processButton()
     button->tick();
     if (button->isSingle()) {
         Serial.println(F("Single button"));
-        effectsManager->working = !effectsManager->working;
-        if (!effectsManager->working) {
+        mySettings->generalSettings.working = !mySettings->generalSettings.working;
+        if (!mySettings->generalSettings.working) {
             myMatrix->clear(true);
         }
     }
-    if (!effectsManager->working) {
+    if (!mySettings->generalSettings.working) {
         return;
     }
     if (button->isDouble()) {
@@ -70,7 +70,7 @@ void processButton()
     if (button->isHolded()) {
         Serial.println(F("Holded button"));
         isHolding = true;
-        const uint8_t brightness = effectsManager->activeEffect()->brightness();
+        const uint8_t brightness = effectsManager->activeEffect()->settings.brightness;
         if (brightness <= 1) {
             stepDirection = 1;
         } else if (brightness == 255) {
@@ -78,7 +78,7 @@ void processButton()
         }
     }
     if (isHolding && button->isStep()) {
-        uint8_t brightness = effectsManager->activeEffect()->brightness();
+        uint8_t brightness = effectsManager->activeEffect()->settings.brightness;
         if (stepDirection < 0 && brightness == 1) {
             return;
         }
@@ -87,7 +87,7 @@ void processButton()
         }
         brightness += stepDirection;
         Serial.printf_P(PSTR("Step button %d. brightness: %u\n"), stepDirection, brightness);
-        effectsManager->activeEffect()->setBrightness(brightness);
+        effectsManager->activeEffect()->settings.brightness = brightness;
         myMatrix->setBrightness(brightness);
     }
     if (button->isRelease() && isHolding) {
@@ -119,12 +119,13 @@ void setup() {
         Serial.println(F("An Error has occurred while mounting SPIFFS"));
         return;
     }
+    EffectsManager::Initialize();
     Settings::Initialize();
 
     MyMatrix::Initialize();
     myMatrix->matrixTest();
+    effectsManager->ActivateEffect(mySettings->generalSettings.activeEffect);
 
-    EffectsManager::Initialize();
     LampWebServer::Initialize(webServerPort, webSocketPort);
 
     Serial.println(F("AutoConnect started"));
@@ -160,7 +161,7 @@ void loop() {
     GyverTimer::Process();
     processButton();
 
-    if (effectsManager->working) {
+    if (mySettings->generalSettings.working) {
         effectsManager->Process();
     }
 

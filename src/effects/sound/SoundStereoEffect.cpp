@@ -97,10 +97,10 @@ void SoundStereoEffect::tick()
 void SoundStereoEffect::displayLBand(int band)
 {
     int dsize = laudiospectrum[band].curval;
-    int dmax = height - 1;
+    int dmax = mySettings->matrixSettings.height - 1;
     int ssize = dsize;
     int fsize = dsize / laudiospectrum[band].amplitude;
-    double factor = scale() / 100.0;
+    double factor = settings.scale / 100.0;
     dsize = fsize * factor;
 //    Serial.printf("displayLBand %d, %d, %d, %f, %d\n", band, ssize, fsize, factor, dsize);
     if (dsize > dmax) {
@@ -119,10 +119,10 @@ void SoundStereoEffect::displayLBand(int band)
 void SoundStereoEffect::displayRBand(int band)
 {
     int dsize = raudiospectrum[band].curval;
-    int dmax = height - 1;
+    int dmax = mySettings->matrixSettings.height - 1;
     int ssize = dsize;
     int fsize = dsize / raudiospectrum[band].amplitude;
-    double factor = scale() / 100.0;
+    double factor = settings.scale / 100.0;
     dsize = fsize * factor;
 //    Serial.printf("displayRBand %d, %d, %d, %f, %d\n", band, ssize, fsize, factor, dsize);
     if (dsize > dmax) {

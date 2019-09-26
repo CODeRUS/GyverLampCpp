@@ -12,6 +12,6 @@ ColorsEffect::ColorsEffect()
 
 void ColorsEffect::tick()
 {
-    hue += scale();
+    hue += settings.scale;
     myMatrix->fill(CHSV(hue, 255, 255));
 }

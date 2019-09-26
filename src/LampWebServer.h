@@ -3,6 +3,8 @@
 
 #define lampWebServer LampWebServer::Instance()
 
+class AsyncWebSocket;
+class AsyncWebSocketClient;
 class LampWebServer
 {
 public:
@@ -12,7 +14,7 @@ public:
     void AutoConnect();
     void StartServer();
     void Process();
-    void SendConfig();
+    void SendConfig(AsyncWebSocket *server, AsyncWebSocketClient *client = nullptr);
     bool isUpdating();
 
 private:
