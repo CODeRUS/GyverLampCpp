@@ -159,6 +159,7 @@ void loop() {
     }
 
     GyverTimer::Process();
+    LocalDNS::Process();
     processButton();
 
     if (mySettings->generalSettings.working) {

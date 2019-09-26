@@ -16,19 +16,26 @@ bool started = false;
 
 bool LocalDNS::Begin()
 {
-    started = MDNS.begin(mySettings->connectionSettings.mdns.c_str());
+    started = MDNS.begin(mySettings->connectionSettings.mdns);
     if (started) {
-        Serial.println(F("mDNS responder started!"));
+        Serial.printf_P(PSTR("mDNS responder (%s) started!\n"), mySettings->connectionSettings.mdns.c_str());
     }
     return started;
 }
 
-void LocalDNS::AddService(const char *serviceName, const char *serviceProtocol, uint16_t servicePort)
+void LocalDNS::AddService(String serviceName, String serviceProtocol, uint16_t servicePort)
 {
     if (!started) {
         Serial.println(F("Trying to call LocalDNS::AddService, but MDNS is not started!"));
         return;
     }
-    Serial.printf_P(PSTR("Announcing %s (%s) service on port %u\n"), serviceName, serviceProtocol, servicePort);
+    Serial.printf_P(PSTR("Announcing %s (%s) service on port %u\n"), serviceName.c_str(), serviceProtocol.c_str(), servicePort);
     MDNS.addService(serviceName, serviceProtocol, servicePort);
+}
+
+void LocalDNS::Process()
+{
+#if defined(ESP8266)
+    MDNS.update();
+#endif
 }
