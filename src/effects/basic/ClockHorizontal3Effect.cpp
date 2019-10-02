@@ -6,32 +6,29 @@ namespace  {
 int8_t posx = 0;
 uint8_t indexx = 0;
 
+uint16_t hoursColor = myMatrix->Color(40, 40, 40);
+uint16_t minutesColor = myMatrix->Color(30, 60, 30);
+
 String getClockTime()
 {
     return GyverTimer::Hours() + GyverTimer::Minutes();
 }
 
-bool hoursColor = true;
+bool colored = true;
 void swapMatrixColor()
 {
-    if (hoursColor) {
-        myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+    if (colored) {
+        myMatrix->setTextColor(hoursColor);
     } else {
-        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
+        myMatrix->setTextColor(minutesColor);
     }
-    hoursColor = !hoursColor;
+    colored = !colored;
 }
 
 } // namespace
 
 ClockHorizontal3Effect::ClockHorizontal3Effect()
 {
-    effectName = "Clock horizontal single";
-
-    settings = new Settings::EffectSettings();
-    settings->effectScale = 1;
-    settings->effectSpeed = 250;
-    settings->effectBrightness = 10;
 }
 
 void ClockHorizontal3Effect::tick()
@@ -72,9 +69,10 @@ void ClockHorizontal3Effect::activate()
     GyverTimer::SetInterval(1 * 60 * 1000); // 1 min
 
     myMatrix->setTextWrap(false);
-    myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+    myMatrix->setTextColor(hoursColor);
 
-    int horizontalRotation = mySettings->matrixRotation - 3;
+    uint8_t matrixRotation = myMatrix->GetRotation();
+    int horizontalRotation = matrixRotation - 3;
     if (horizontalRotation < 0) {
         horizontalRotation = horizontalRotation + 4;
     }
@@ -87,7 +85,25 @@ void ClockHorizontal3Effect::activate()
 void ClockHorizontal3Effect::deactivate()
 {
     GyverTimer::SetInterval(0);
-    if (myMatrix->getRotation() != mySettings->matrixRotation) {
-        myMatrix->setRotation(mySettings->matrixRotation);
+    uint8_t matrixRotation = myMatrix->GetRotation();
+    if (myMatrix->getRotation() != matrixRotation) {
+        myMatrix->setRotation(matrixRotation);
     }
+}
+
+void ClockHorizontal3Effect::initialize(const JsonObject &json)
+{
+    Effect::initialize(json);
+    if (json.containsKey(F("hoursColor"))) {
+        hoursColor = json[F("hoursColor")];
+    }
+    if (json.containsKey(F("minutesColor"))) {
+        minutesColor = json[F("minutesColor")];
+    }
+}
+
+void ClockHorizontal3Effect::writeSettings(JsonObject &json)
+{
+    json[F("hoursColor")] = hoursColor;
+    json[F("minutesColor")] = minutesColor;
 }

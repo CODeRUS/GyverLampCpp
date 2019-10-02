@@ -4,7 +4,8 @@
 class LocalDNS
 {
 public:
-    static bool Begin(const char* hostname);
-    static void AddService(const char* serviceName, const char* serviceProtocol = "tcp", uint16_t servicePort = 80);
+    static bool Begin();
+    static void AddService(String serviceName, String serviceProtocol = "tcp", uint16_t servicePort = 80);
+    static void Process();
 };
 

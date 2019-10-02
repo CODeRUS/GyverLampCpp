@@ -27,7 +27,6 @@ double rvImag[SAMPLES];
 unsigned long newTime;
 
 struct eqBand {
-    const char *freqname;
     uint16_t amplitude;
     byte bandWidth;
     int peak;
@@ -42,14 +41,14 @@ eqBand laudiospectrum[EQBANDS] = {
                  Adjust the amplitude/bandWidth values
                  to fit your microphone
               */
-    { "125Hz", 1000, 2,   0, 0, 0, 0, 0},
-    { "250Hz", 500,  2,   0, 0, 0, 0, 0},
-    { "500Hz", 300,  3,   0, 0, 0, 0, 0},
-    { "1KHz",  250,  7,   0, 0, 0, 0, 0},
-    { "2KHz",  100,  14,  0, 0, 0, 0, 0},
-    { "4KHz",  100,  24,  0, 0, 0, 0, 0},
-    { "8KHz",  100,  48,  0, 0, 0, 0, 0},
-    { "16KHz", 100,  155, 0, 0, 0, 0, 0}
+    { 1000, 2,   0, 0, 0, 0, 0}, // 125
+    { 500,  2,   0, 0, 0, 0, 0}, // 250
+    { 300,  3,   0, 0, 0, 0, 0}, // 500
+    { 250,  7,   0, 0, 0, 0, 0}, // 1k
+    { 100,  14,  0, 0, 0, 0, 0}, // 2k
+    { 100,  24,  0, 0, 0, 0, 0}, // 4k
+    { 100,  48,  0, 0, 0, 0, 0}, // 8k
+    { 100,  155, 0, 0, 0, 0, 0}  // 16k
 };
 
 eqBand raudiospectrum[EQBANDS] = {
@@ -57,14 +56,14 @@ eqBand raudiospectrum[EQBANDS] = {
                  Adjust the amplitude/bandWidth values
                  to fit your microphone
               */
-    { "125Hz", 1000, 2,   0, 0, 0, 0, 0},
-    { "250Hz", 500,  2,   0, 0, 0, 0, 0},
-    { "500Hz", 300,  3,   0, 0, 0, 0, 0},
-    { "1KHz",  250,  7,   0, 0, 0, 0, 0},
-    { "2KHz",  100,  14,  0, 0, 0, 0, 0},
-    { "4KHz",  100,  24,  0, 0, 0, 0, 0},
-    { "8KHz",  100,  48,  0, 0, 0, 0, 0},
-    { "16KHz", 100,  155, 0, 0, 0, 0, 0}
+    { 1000, 2,   0, 0, 0, 0, 0}, // 125
+    { 500,  2,   0, 0, 0, 0, 0}, // 250
+    { 300,  3,   0, 0, 0, 0, 0}, // 500
+    { 250,  7,   0, 0, 0, 0, 0}, // 1k
+    { 100,  14,  0, 0, 0, 0, 0}, // 2k
+    { 100,  24,  0, 0, 0, 0, 0}, // 4k
+    { 100,  48,  0, 0, 0, 0, 0}, // 8k
+    { 100,  155, 0, 0, 0, 0, 0}  // 16k
 };
 
 /* store bandwidth variations when sample rate changes */
@@ -79,8 +78,6 @@ int rbandWidth[EQBANDS] = {
 
 SoundStereoEffect::SoundStereoEffect()
 {
-    effectName = "Sound Stereo spectrometer";
-
 #if defined(ESP32)
     adc1_config_width(ADC_WIDTH_BIT_12);   //Range 0-1023
     adc1_config_channel_atten(leftChannel, ADC_ATTEN_DB_11); //ADC_ATTEN_DB_11 = 0-3,6V
@@ -100,10 +97,10 @@ void SoundStereoEffect::tick()
 void SoundStereoEffect::displayLBand(int band)
 {
     int dsize = laudiospectrum[band].curval;
-    int dmax = height - 1;
+    int dmax = mySettings->matrixSettings.height;
     int ssize = dsize;
     int fsize = dsize / laudiospectrum[band].amplitude;
-    double factor = settings->effectScale / 100.0;
+    double factor = settings.scale / 100.0;
     dsize = fsize * factor;
 //    Serial.printf("displayLBand %d, %d, %d, %f, %d\n", band, ssize, fsize, factor, dsize);
     if (dsize > dmax) {
@@ -122,10 +119,10 @@ void SoundStereoEffect::displayLBand(int band)
 void SoundStereoEffect::displayRBand(int band)
 {
     int dsize = raudiospectrum[band].curval;
-    int dmax = height - 1;
+    int dmax = mySettings->matrixSettings.height - 1;
     int ssize = dsize;
     int fsize = dsize / raudiospectrum[band].amplitude;
-    double factor = settings->effectScale / 100.0;
+    double factor = settings.scale / 100.0;
     dsize = fsize * factor;
 //    Serial.printf("displayRBand %d, %d, %d, %f, %d\n", band, ssize, fsize, factor, dsize);
     if (dsize > dmax) {
@@ -209,21 +206,35 @@ void SoundStereoEffect::captureSoundSample()
 void SoundStereoEffect::renderSpectrometer()
 {
     myMatrix->clear();
+
+    int readLBands[EQBANDS] = {0};
+    int readRBands[EQBANDS] = {0};
     for (int i = 2; i < (SAMPLES / 2); i++) { // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency and its value the amplitude.
         if (lvReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
             byte bandNum = getLBand(i);
-            if (bandNum != bands) {
-                laudiospectrum[bandNum].curval = (int)lvReal[i];
-                displayLBand(bandNum);
+            int read = (int)lvReal[i];
+            if (bandNum != bands && readLBands[bandNum] < read) {
+                readLBands[bandNum] = read;
             }
         }
         if (rvReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
             byte bandNum = getRBand(i);
-            if (bandNum != bands) {
-                raudiospectrum[bandNum].curval = (int)rvReal[i];
-                displayRBand(bandNum);
+            int read = (int)rvReal[i];
+            if (bandNum != bands && readRBands[bandNum] < read) {
+                readRBands[bandNum] = read;
             }
         }
+    }
+
+    for (int bandNum = 0; bandNum < EQBANDS; bandNum++) {
+        if (readLBands[bandNum] > 0 && laudiospectrum[bandNum].curval != readLBands[bandNum]) {
+            laudiospectrum[bandNum].curval = readLBands[bandNum];
+        }
+        if (readRBands[bandNum] > 0 && raudiospectrum[bandNum].curval != readRBands[bandNum]) {
+            raudiospectrum[bandNum].curval = readRBands[bandNum];
+        }
+        displayLBand(bandNum);
+        displayRBand(bandNum);
     }
 }
 

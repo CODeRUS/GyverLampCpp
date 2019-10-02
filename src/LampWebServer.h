@@ -3,16 +3,18 @@
 
 #define lampWebServer LampWebServer::Instance()
 
+class AsyncWebSocket;
+class AsyncWebSocketClient;
 class LampWebServer
 {
 public:
     static LampWebServer *Instance();
     static void Initialize(uint16_t webPort = 80, uint16_t wsPort = 8000);
     bool IsConnected();
-    void AutoConnect(const char *apName);
+    void AutoConnect();
     void StartServer();
     void Process();
-    void SendConfig();
+    void SendConfig(AsyncWebSocket *server, AsyncWebSocketClient *client = nullptr);
     bool isUpdating();
 
 private:

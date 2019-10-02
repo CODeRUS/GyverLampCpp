@@ -24,13 +24,12 @@ double vImag[SAMPLES];
 unsigned long newTime;
 
 struct eqBand {
-    const char *freqname;
     uint16_t amplitude;
     byte bandWidth;
     int peak;
     int lastpeak;
-    uint16_t curval;
-    uint16_t lastval;
+    int curval;
+    int lastval;
     unsigned long lastmeasured;
 };
 
@@ -39,14 +38,14 @@ eqBand audiospectrum[EQBANDS] = {
                  Adjust the amplitude/bandWidth values
                  to fit your microphone
               */
-    { "125Hz", 1000, 2,   0, 0, 0, 0, 0},
-    { "250Hz", 500,  2,   0, 0, 0, 0, 0},
-    { "500Hz", 300,  3,   0, 0, 0, 0, 0},
-    { "1KHz",  250,  7,   0, 0, 0, 0, 0},
-    { "2KHz",  100,  14,  0, 0, 0, 0, 0},
-    { "4KHz",  100,  24,  0, 0, 0, 0, 0},
-    { "8KHz",  100,  48,  0, 0, 0, 0, 0},
-    { "16KHz", 100,  155, 0, 0, 0, 0, 0}
+    { 1000, 2,   0, 0, 0, 0, 0}, // 125
+    { 500,  2,   0, 0, 0, 0, 0}, // 250
+    { 300,  3,   0, 0, 0, 0, 0}, // 500
+    { 250,  7,   0, 0, 0, 0, 0}, // 1k
+    { 100,  14,  0, 0, 0, 0, 0}, // 2k
+    { 100,  24,  0, 0, 0, 0, 0}, // 4k
+    { 100,  48,  0, 0, 0, 0, 0}, // 8k
+    { 100,  155, 0, 0, 0, 0, 0}  // 16k
 };
 
 /* store bandwidth variations when sample rate changes */
@@ -58,8 +57,6 @@ int bandWidth[EQBANDS] = {
 
 SoundEffect::SoundEffect()
 {
-    effectName = "Sound spectrometer";
-
 #if defined(ESP32)
     adc1_config_width(ADC_WIDTH_BIT_12);   //Range 0-1023
     adc1_config_channel_atten(channel, ADC_ATTEN_DB_11); //ADC_ATTEN_DB_11 = 0-3,6V
@@ -77,10 +74,10 @@ void SoundEffect::tick()
 
 void SoundEffect::displayBand(int band, int dsize)
 {
-    int dmax = height - 1;
+    int dmax = mySettings->matrixSettings.height;
     int ssize = dsize;
     int fsize = dsize / audiospectrum[band].amplitude;
-    double factor = settings->effectScale / 100.0;
+    double factor = settings.scale / 100.0;
     dsize = fsize * factor;
 //    Serial.printf("displayBand %d, %d, %d, %f, %d\n", band, ssize, fsize, factor, dsize);
     if (dsize > dmax) {
@@ -90,11 +87,10 @@ void SoundEffect::displayBand(int band, int dsize)
         myMatrix->drawPixelXY(band * 2, y, CRGB(CRGB::Blue));
         myMatrix->drawPixelXY(band * 2 + 1, y, CRGB(CRGB::Blue));
     }
-    if (dsize > audiospectrum[band].peak) {
-        audiospectrum[band].peak = dsize;
-    }
     audiospectrum[band].lastval = dsize;
     audiospectrum[band].lastmeasured = millis();
+
+//    Serial.printf_P(PSTR("E%d %05d %02d\n"), band, audiospectrum[band].curval, dsize);
 }
 
 void SoundEffect::setBandwidth()
@@ -145,14 +141,26 @@ void SoundEffect::captureSoundSample()
 void SoundEffect::renderSpectrometer()
 {
     myMatrix->clear();
+    int readBands[EQBANDS] = {0};
     for (int i = 2; i < (SAMPLES / 2); i++) { // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency and its value the amplitude.
         if (vReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
             byte bandNum = getBand(i);
-            if (bandNum != bands) {
-                audiospectrum[bandNum].curval = (int)vReal[i];
-                displayBand(bandNum, audiospectrum[bandNum].curval);
+            int read = (int)vReal[i];
+            if (bandNum != bands && readBands[bandNum] < read) {
+                readBands[bandNum] = read;
             }
         }
     }
+
+//    Serial.print(F("E: "));
+    for (int bandNum = 0; bandNum < EQBANDS; bandNum++) {
+        if (readBands[bandNum] > 0 && audiospectrum[bandNum].curval != readBands[bandNum]) {
+            audiospectrum[bandNum].curval = readBands[bandNum];
+        }
+        displayBand(bandNum, audiospectrum[bandNum].curval);
+
+//        Serial.printf_P(PSTR("%05d %02d "), audiospectrum[bandNum].curval, audiospectrum[bandNum].lastval);
+    }
+//    Serial.println();
 }
 

@@ -10,29 +10,19 @@
 #include "MyMatrix.h"
 #include "EffectsManager.h"
 #include "Settings.h"
-#include "GyverUdp.h"
 #include "GyverTimer.h"
 
 #include "GyverButton.h"
 #include "LampWebServer.h"
 
-namespace  {
+#include "effects/Effect.h"
 
-const char* wifiSetupName = "Fire Lamp";
-const char* wifiOndemandName = "Fire Lamp AP";
-const char* wifiOndemandPassword = "ondemand";
+#include "Spectrometer.h"
+
+namespace  {
 
 uint16_t webServerPort = 80;
 uint16_t webSocketPort = 8000;
-uint16_t udpServerPort = 8888;
-
-const char* localHostname = "firelamp";
-
-uint8_t matrixWidth = 16;
-uint8_t matrixHeight = 16;
-
-uint8_t maxBrightness = 80;
-uint32_t maxCurrent = 1000;
 
 #if defined(ESP32)
 const uint8_t btnPin = 15;
@@ -44,41 +34,79 @@ const uint8_t btnPin = D5;
 
 GButton *button = nullptr;
 
-const char* poolServerName = "europe.pool.ntp.org";
-int timeOffset = 3 * 3600; // GMT + 3
-int updateInterval = 60 * 1000; // 1 min
-uint32_t timerInterval = 5 * 60 * 1000; // 5 min
-
 int stepDirection = 1;
 bool isHolding = false;
+
+uint32_t logTimer = 0;
+uint32_t logInterval = 10 * 1000;
+
+void printFlashInfo()
+{
+    uint32_t ideSize = ESP.getFlashChipSize();
+    FlashMode_t ideMode = ESP.getFlashChipMode();
+
+    Serial.printf_P(PSTR("Flash ide  size: %u bytes\n"), ideSize);
+    Serial.printf_P(PSTR("Flash ide speed: %u Hz\n"), ESP.getFlashChipSpeed());
+    Serial.print(F("Flash ide mode:  "));
+    Serial.println((ideMode == FM_QIO ? F("QIO") : ideMode == FM_QOUT ? F("QOUT") : ideMode == FM_DIO ? F("DIO") : ideMode == FM_DOUT ? F("DOUT") : F("UNKNOWN")));
+
+#if defined(ESP8266)
+    uint32_t realSize = ESP.getFlashChipRealSize();
+    Serial.printf_P(PSTR("Flash real id:   %08X\n"), ESP.getFlashChipId());
+    Serial.printf_P(PSTR("Flash real size: %u bytes\n\n"), realSize);
+    if (ideSize != realSize) {
+      Serial.println(F("Flash Chip configuration wrong!"));
+    } else {
+      Serial.println(F("Flash Chip configuration ok."));
+    }
+#endif
+
+    Serial.print(F("Sketch size: "));
+    Serial.println(ESP.getSketchSize());
+    Serial.print(F("Sketch free: "));
+    Serial.println(ESP.getFreeSketchSpace());
+
+    Serial.print(F("Total heap: "));
+    Serial.println(ESP.getHeapSize());
+    Serial.print(F("Min free heap: "));
+    Serial.println(ESP.getMinFreeHeap());
+    Serial.print(F("Max alloc heap: "));
+    Serial.println(ESP.getMaxAllocHeap());
+}
+
+void printFreeHeap()
+{
+    Serial.print(F("FreeHeap: "));
+    Serial.println(ESP.getFreeHeap());
+}
 
 void processButton()
 {
     button->tick();
     if (button->isSingle()) {
-        Serial.println("Single button");
-        mySettings->masterSwitch = !mySettings->masterSwitch;
-        if (!mySettings->masterSwitch) {
+        Serial.println(F("Single button"));
+        mySettings->generalSettings.working = !mySettings->generalSettings.working;
+        if (!mySettings->generalSettings.working) {
             myMatrix->clear(true);
         }
     }
-    if (!mySettings->masterSwitch) {
+    if (!mySettings->generalSettings.working) {
         return;
     }
     if (button->isDouble()) {
-        Serial.println("Double button");
-        EffectsManager::Next();
+        Serial.println(F("Double button"));
+        effectsManager->Next();
         mySettings->SaveLater();
     }
     if (button->isTriple()) {
-        Serial.println("Triple button");
-        EffectsManager::Previous();
+        Serial.println(F("Triple button"));
+        effectsManager->Previous();
         mySettings->SaveLater();
     }
     if (button->isHolded()) {
-        Serial.println("Holded button");
+        Serial.println(F("Holded button"));
         isHolding = true;
-        const uint8_t brightness = mySettings->CurrentEffectSettings()->effectBrightness;
+        const uint8_t brightness = effectsManager->activeEffect()->settings.brightness;
         if (brightness <= 1) {
             stepDirection = 1;
         } else if (brightness == 255) {
@@ -86,7 +114,7 @@ void processButton()
         }
     }
     if (isHolding && button->isStep()) {
-        uint8_t brightness = mySettings->CurrentEffectSettings()->effectBrightness;
+        uint8_t brightness = effectsManager->activeEffect()->settings.brightness;
         if (stepDirection < 0 && brightness == 1) {
             return;
         }
@@ -94,12 +122,12 @@ void processButton()
             return;
         }
         brightness += stepDirection;
-        Serial.printf("Step button %d. brightness: %u\n", stepDirection, brightness);
-        mySettings->CurrentEffectSettings()->effectBrightness = brightness;
+        Serial.printf_P(PSTR("Step button %d. brightness: %u\n"), stepDirection, brightness);
+        effectsManager->activeEffect()->settings.brightness = brightness;
         myMatrix->setBrightness(brightness);
     }
     if (button->isRelease() && isHolding) {
-        Serial.println("Release button");
+        Serial.println(F("Release button"));
         mySettings->SaveLater();
         isHolding = false;
     }
@@ -108,80 +136,52 @@ void processButton()
 void setupSerial()
 {
     Serial.begin(115200);
-    Serial.println("Happy debugging!");
+    Serial.println(F("\nHappy debugging!"));
     Serial.flush();
 }
 
 }
 
 void setup() {
-#if defined(ESP32)
-    setupSerial();
-#endif
-
-    if(!SPIFFS.begin()) {
-        Serial.println("An Error has occurred while mounting SPIFFS");
-        return;
-    }
-    Serial.printf("SPIFFS Settings file exists: %s\n", SPIFFS.exists("/settings.json") ? "true" : "false");
-
 #if defined(ESP8266)
     ESP.wdtDisable();
     ESP.wdtEnable(0);
 #endif
 
-    if (!LocalDNS::Begin(localHostname)) {
-        Serial.println("An Error has occurred while initializing mDNS");
+    setupSerial();
+    printFlashInfo();
+    printFreeHeap();
+
+    if(!SPIFFS.begin()) {
+        Serial.println(F("An Error has occurred while mounting SPIFFS"));
         return;
     }
+    EffectsManager::Initialize();
+    Settings::Initialize();
+
+    if (mySettings->generalSettings.soundControl) {
+        Spectrometer::Initialize();
+    }
+
+    MyMatrix::Initialize();
+    myMatrix->matrixTest();
+    effectsManager->ActivateEffect(mySettings->generalSettings.activeEffect);
 
     LampWebServer::Initialize(webServerPort, webSocketPort);
-    Serial.println("AutoConnect started");
-    lampWebServer->AutoConnect(wifiSetupName);
-    Serial.println("AutoConnect finished");
+
+    Serial.println(F("AutoConnect started"));
+    lampWebServer->AutoConnect();
+    Serial.println(F("AutoConnect finished"));
+    if (LocalDNS::Begin()) {
+        LocalDNS::AddService(PSTR("http"), PSTR("tcp"), webServerPort);
+        LocalDNS::AddService(PSTR("ws"), PSTR("tcp"), webSocketPort);
+    } else {
+        Serial.println(F("An Error has occurred while initializing mDNS"));
+    }
     lampWebServer->StartServer();
     if (lampWebServer->IsConnected()) {
-        GyverTimer::Initialize(poolServerName, timeOffset, updateInterval, timerInterval);
+        GyverTimer::Initialize();
     }
-    GyverUdp::Initiazlize(udpServerPort);
-    LocalDNS::AddService("http", "tcp", webServerPort);
-    LocalDNS::AddService("ws", "tcp", webSocketPort);
-    LocalDNS::AddService("app", "udp", udpServerPort);
-
-    randomSeed(micros());
-
-    MyMatrix::Initialize(
-        matrixWidth, matrixHeight,
-//                NEO_MATRIX_TOP + NEO_MATRIX_RIGHT +
-//                NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
-//                NEO_MATRIX_TOP + NEO_MATRIX_LEFT +
-//                NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
-                NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
-                NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
-//                NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT +
-//                NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
-//                NEO_MATRIX_TOP + NEO_MATRIX_RIGHT +
-//                NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG);
-//                NEO_MATRIX_TOP + NEO_MATRIX_LEFT +
-//                NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG);
-//                NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
-//                NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG);
-//                NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT +
-//                NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG);
-    myMatrix->setBrightness(maxBrightness);
-    myMatrix->setCurrentLimit(maxCurrent);
-
-    myMatrix->matrixTest();
-
-    EffectsManager::Initialize();
-
-#if defined(ESP8266)
-    setupSerial();
-#endif
-
-    Settings::Initialize();
-    myMatrix->setRotation(mySettings->matrixRotation);
-    EffectsManager::ActivateEffect(mySettings->currentEffect);
 
     button = new GButton(btnPin, GButton::PullTypeLow, GButton::DefaultStateOpen);
     button->setTickMode(false);
@@ -199,13 +199,22 @@ void loop() {
         return;
     }
 
-    GyverUdp::Process();
     GyverTimer::Process();
+    LocalDNS::Process();
     processButton();
 
-    if (mySettings->masterSwitch) {
-        EffectsManager::Process();
+    if (mySettings->generalSettings.soundControl) {
+        mySpectrometer->process();
+    }
+
+    if (mySettings->generalSettings.working) {
+        effectsManager->Process();
     }
 
     mySettings->Process();
+
+    if (millis() - logTimer > logInterval) {
+        printFreeHeap();
+        logTimer = millis();
+    }
 }

@@ -1,18 +1,36 @@
 #pragma once
 #include <Arduino.h>
+#define ARDUINOJSON_ENABLE_PROGMEM 1
+#include <ArduinoJson.h>
 
+#define effectsManager EffectsManager::Instance()
+
+class Effect;
 class EffectsManager
 {
 public:
+    static EffectsManager *Instance();
     static void Initialize();
-    static void Process();
 
-    static void Next();
-    static void Previous();
-    static void ChangeEffect(uint8_t index);
-    static void ActivateEffect(uint8_t index);
+    void Process();
 
-    static uint8_t Count();
-    static String EffectName(uint8_t index);
+    void ProcessEffectSettings(const JsonObject &json);
+
+    void Next();
+    void Previous();
+    void ChangeEffect(uint8_t index);
+    void ActivateEffect(uint8_t index);
+
+    void UpdateCurrentSettings(const JsonObject &json);
+
+    uint8_t Count();
+
+    Effect *activeEffect();
+    uint8_t ActiveEffectIndex();
+
+    std::vector<Effect*> effects = {};
+
+protected:
+    EffectsManager();
 };
 

@@ -6,6 +6,9 @@ namespace  {
 int8_t posx = 0;
 uint8_t indexx = 0;
 
+uint16_t hoursColor = myMatrix->Color(40, 40, 40);
+uint16_t minutesColor = myMatrix->Color(30, 60, 30);
+
 String getClockTime()
 {
     return GyverTimer::Hours() + ":" + GyverTimer::Minutes() + " ";
@@ -15,12 +18,6 @@ String getClockTime()
 
 ClockHorizontal1Effect::ClockHorizontal1Effect()
 {
-    effectName = "Clock horizontal colored";
-
-    settings = new Settings::EffectSettings();
-    settings->effectScale = 1;
-    settings->effectSpeed = 250;
-    settings->effectBrightness = 10;
 }
 
 void ClockHorizontal1Effect::tick()
@@ -44,18 +41,18 @@ void ClockHorizontal1Effect::tick()
     const uint8_t dotIndex1 = time.indexOf(':');
     const uint8_t spaceIndex1 = time.indexOf(' ');
     if (dotIndex1 < spaceIndex1) {
-        myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+        myMatrix->setTextColor(hoursColor);
         myMatrix->print(time.substring(0, dotIndex1));
-        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
+        myMatrix->setTextColor(minutesColor);
         myMatrix->print(time.substring(dotIndex1, spaceIndex1));
-        myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+        myMatrix->setTextColor(hoursColor);
         myMatrix->print(time.substring(spaceIndex1));
     } else {
-        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
+        myMatrix->setTextColor(minutesColor);
         myMatrix->print(time.substring(0, spaceIndex1));
-        myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+        myMatrix->setTextColor(hoursColor);
         myMatrix->print(time.substring(spaceIndex1, dotIndex1));
-        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
+        myMatrix->setTextColor(minutesColor);
         myMatrix->print(time.substring(dotIndex1));
     }
 
@@ -70,18 +67,18 @@ void ClockHorizontal1Effect::tick()
     const uint8_t dotIndex2 = time2.indexOf(':');
     const uint8_t spaceIndex2 =  time2.indexOf(' ');
     if (dotIndex2 < spaceIndex2) {
-        myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+        myMatrix->setTextColor(hoursColor);
         myMatrix->print(time2.substring(0, dotIndex2));
-        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
+        myMatrix->setTextColor(minutesColor);
         myMatrix->print(time2.substring(dotIndex2, spaceIndex2));
-        myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+        myMatrix->setTextColor(hoursColor);
         myMatrix->print(time2.substring(spaceIndex2));
     } else {
-        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
+        myMatrix->setTextColor(minutesColor);
         myMatrix->print(time2.substring(0, spaceIndex2));
-        myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+        myMatrix->setTextColor(hoursColor);
         myMatrix->print(time2.substring(spaceIndex2, dotIndex2));
-        myMatrix->setTextColor(myMatrix->Color(30, 60, 30));
+        myMatrix->setTextColor(minutesColor);
         myMatrix->print(time2.substring(dotIndex2));
     }
 
@@ -95,9 +92,10 @@ void ClockHorizontal1Effect::activate()
     GyverTimer::SetInterval(1 * 60 * 1000); // 1 min
 
     myMatrix->setTextWrap(false);
-    myMatrix->setTextColor(myMatrix->Color(40, 40, 40));
+    myMatrix->setTextColor(hoursColor);
 
-    int horizontalRotation = mySettings->matrixRotation - 3;
+    uint8_t matrixRotation = myMatrix->GetRotation();
+    int horizontalRotation = matrixRotation - 3;
     if (horizontalRotation < 0) {
         horizontalRotation = horizontalRotation + 4;
     }
@@ -110,7 +108,25 @@ void ClockHorizontal1Effect::activate()
 void ClockHorizontal1Effect::deactivate()
 {
     GyverTimer::SetInterval(0);
-    if (myMatrix->getRotation() != mySettings->matrixRotation) {
-        myMatrix->setRotation(mySettings->matrixRotation);
+    uint8_t matrixRotation = myMatrix->GetRotation();
+    if (myMatrix->getRotation() != matrixRotation) {
+        myMatrix->setRotation(matrixRotation);
     }
+}
+
+void ClockHorizontal1Effect::initialize(const JsonObject &json)
+{
+    Effect::initialize(json);
+    if (json.containsKey(F("hoursColor"))) {
+        hoursColor = json[F("hoursColor")];
+    }
+    if (json.containsKey(F("minutesColor"))) {
+        minutesColor = json[F("minutesColor")];
+    }
+}
+
+void ClockHorizontal1Effect::writeSettings(JsonObject &json)
+{
+    json[F("hoursColor")] = hoursColor;
+    json[F("minutesColor")] = minutesColor;
 }

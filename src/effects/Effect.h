@@ -1,6 +1,8 @@
 #pragma once
 #include "MyMatrix.h"
 #include "Settings.h"
+#define ARDUINOJSON_ENABLE_PROGMEM 1
+#include <ArduinoJson.h>
 
 class Effect
 {
@@ -12,12 +14,11 @@ public:
     virtual void activate() {}
     virtual void deactivate() {}
 
+    virtual void initialize(const JsonObject &json);
+    virtual void update(const JsonObject &json);
+    virtual void writeSettings(JsonObject &json);
+
     virtual void tick() = 0;
 
-    String effectName;
-    Settings::EffectSettings *settings = nullptr;
-
-protected:
-    uint8_t width = 0;
-    uint8_t height = 0;
+    Settings::EffectSettings settings;
 };

@@ -64,3 +64,6 @@ deploy:
   overwrite: true
   on:
     repo: CODeRUS/GyverLampCpp
+branches:
+  only:
+  - master

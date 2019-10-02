@@ -1,6 +1,17 @@
 #include "MyMatrix.h"
+#include "Settings.h"
 
 namespace  {
+
+uint8_t defaultWidth = 16;
+uint8_t defaultHeight = 16;
+uint8_t defaultType = NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
+                      NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG;
+
+uint8_t defaultMaxBrightness = 80;
+uint32_t defaultCurrentLimit = 1000;
+
+uint8_t defaultRoatation = 3;
 
 #if defined(SONOFF)
 const uint8_t ledPin = 14;
@@ -14,8 +25,6 @@ uint16_t numLeds = 0;
 
 CRGB* leds = nullptr;
 
-const uint32_t defaultMaxCurrent = 1000;
-
 MyMatrix *instance = nullptr;
 
 } // namespace
@@ -25,21 +34,42 @@ MyMatrix *MyMatrix::Instance()
     return instance;
 }
 
-void MyMatrix::Initialize(uint8_t sizeWidth, uint8_t sizeHeight, uint8_t matrixType)
+void MyMatrix::Initialize()
 {
     if (instance) {
         return;
     }
 
+    uint8_t sizeWidth = mySettings->matrixSettings.width;
+    uint8_t sizeHeight = mySettings->matrixSettings.height;
+    uint8_t matrixType = mySettings->matrixSettings.type;
+
     numLeds = sizeWidth * sizeHeight;
     leds = new CRGB[numLeds]();
     FastLED.addLeds<WS2812B, ledPin, GRB>(leds, numLeds);
 
+    uint8_t maxBrightness = mySettings->matrixSettings.maxBrightness;
+    Serial.printf_P(PSTR("Set max brightness to: %u\n"), maxBrightness);
+    FastLED.setBrightness(maxBrightness);
+
+    uint32_t currentLimit = mySettings->matrixSettings.currentLimit;
+    Serial.printf_P(PSTR("Set current limit to: %u\n"), currentLimit);
+    FastLED.setMaxPowerInVoltsAndMilliamps(5, currentLimit);
+
     instance = new MyMatrix(leds, sizeWidth, sizeHeight, matrixType);
+    uint8_t rotation = GetRotation();
+    Serial.printf_P(PSTR("Set rotation to: %u\n"), rotation);
+    instance->setRotation(rotation);
 
     instance->begin();
     instance->clear();
     instance->show();
+}
+
+uint8_t MyMatrix::GetRotation()
+{
+    uint8_t rotation = mySettings->matrixSettings.rotation;
+    return rotation;
 }
 
 void MyMatrix::setCurrentLimit(uint32_t maxCurrent)
@@ -71,12 +101,12 @@ void MyMatrix::fillProgress(double progress)
     const uint8_t remainingProgress = static_cast<uint8_t>(number % width());
 
     if (fullRows > 0) {
-        fillRectXY(0, 0, width(), fullRows, CRGB(10, 10, 10));
+        fillRectXY(0, 0, width(), fullRows, CRGB(5, 5, 5));
         delay(1);
     }
 
     if (remainingProgress > 0) {
-        drawLineXY(0, fullRows, remainingProgress, fullRows, CRGB(10, 10, 10));
+        drawLineXY(0, fullRows, remainingProgress, fullRows, CRGB(5, 5, 5));
         delay(1);
     }
 
@@ -87,20 +117,9 @@ void MyMatrix::fillProgress(double progress)
     show();
 }
 
-void MyMatrix::setLed(uint8_t x, uint8_t y, CRGB color, bool shouldShow)
-{
-    drawPixelXY(x, y, color);
-    if (shouldShow) {
-        show();
-    }
-}
-
-void MyMatrix::setLed(uint16_t index, CRGB color, bool shouldShow)
+void MyMatrix::setLed(uint16_t index, CRGB color)
 {
     leds[index] = color;
-    if (shouldShow) {
-        show();
-    }
 }
 
 void MyMatrix::fadeToBlackBy(uint16_t index, uint8_t step)
@@ -132,16 +151,14 @@ void MyMatrix::clear(bool shouldShow)
     }
 }
 
-uint16_t MyMatrix::getPixelNumber(uint8_t x, uint8_t y)
+uint16_t MyMatrix::getPixelNumberXY(uint8_t x, uint8_t y)
 {
     return static_cast<uint16_t>(XY(y, x));
 }
 
 void MyMatrix::drawPixelXY(uint8_t x, uint8_t y, CRGB color)
 {
-    setPassThruColor(color);
     drawPixel(y, x, color);
-    setPassThruColor();
 }
 
 void MyMatrix::drawLineXY(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, CRGB color)
@@ -161,7 +178,7 @@ CRGB MyMatrix::getPixColor(uint16_t number)
 
 CRGB MyMatrix::getPixColorXY(uint8_t x, uint8_t y)
 {
-    return getPixColor(getPixelNumber(x, y));
+    return getPixColor(getPixelNumberXY(x, y));
 }
 
 void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color)
@@ -173,7 +190,7 @@ void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color
 
 void MyMatrix::fadePixelXY(uint8_t x, uint8_t y, uint8_t step)
 {
-    const uint16_t pixelNum = myMatrix->getPixelNumber(x, y);
+    const uint16_t pixelNum = myMatrix->getPixelNumberXY(x, y);
     const CRGB color = myMatrix->getPixColor(pixelNum);
 
     if (!color) {

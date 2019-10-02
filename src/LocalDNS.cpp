@@ -6,26 +6,36 @@
 #include <ESPmDNS.h>
 #endif
 
+#include "Settings.h"
+
 namespace  {
 
 bool started = false;
 
 } // namespace
 
-bool LocalDNS::Begin(const char *hostname)
+bool LocalDNS::Begin()
 {
-    started = MDNS.begin(hostname);
+    started = MDNS.begin(mySettings->connectionSettings.mdns.c_str());
     if (started) {
-        Serial.println("mDNS responder started!");
+        Serial.printf_P(PSTR("mDNS responder (%s) started!\n"), mySettings->connectionSettings.mdns.c_str());
     }
     return started;
 }
 
-void LocalDNS::AddService(const char *serviceName, const char *serviceProtocol, uint16_t servicePort)
+void LocalDNS::AddService(String serviceName, String serviceProtocol, uint16_t servicePort)
 {
     if (!started) {
-        Serial.println("Trying to call LocalDNS::AddService, but MDNS is not started!");
+        Serial.println(F("Trying to call LocalDNS::AddService, but MDNS is not started!"));
         return;
     }
+    Serial.printf_P(PSTR("Announcing %s (%s) service on port %u\n"), serviceName.c_str(), serviceProtocol.c_str(), servicePort);
     MDNS.addService(serviceName, serviceProtocol, servicePort);
+}
+
+void LocalDNS::Process()
+{
+#if defined(ESP8266)
+    MDNS.update();
+#endif
 }
