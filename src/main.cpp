@@ -66,12 +66,14 @@ void printFlashInfo()
     Serial.print(F("Sketch free: "));
     Serial.println(ESP.getFreeSketchSpace());
 
+#if defined(ESP32)
     Serial.print(F("Total heap: "));
     Serial.println(ESP.getHeapSize());
     Serial.print(F("Min free heap: "));
     Serial.println(ESP.getMinFreeHeap());
     Serial.print(F("Max alloc heap: "));
     Serial.println(ESP.getMaxAllocHeap());
+#endif
 }
 
 void printFreeHeap()
