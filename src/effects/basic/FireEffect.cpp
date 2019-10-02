@@ -1,9 +1,12 @@
 #include "FireEffect.h"
+#include <Spectrometer.h>
 
 namespace{
 
 uint8_t* line = nullptr;
 uint8_t pcnt = 0;
+
+bool useSpectrometer = false;
 
 //these values are substracetd from the generated values to give a shape to the animation
 const unsigned char valueMask[8][16] PROGMEM = {
@@ -62,6 +65,19 @@ void FireEffect::tick()
     pcnt += 30;
 }
 
+void FireEffect::initialize(const JsonObject &json)
+{
+    Effect::initialize(json);
+    if (json.containsKey(F("useSpectrometer"))) {
+        useSpectrometer = json[F("useSpectrometer")];
+    }
+}
+
+void FireEffect::writeSettings(JsonObject &json)
+{
+    json[F("useSpectrometer")] = useSpectrometer;
+}
+
 void FireEffect::generateLine()
 {
     for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
@@ -99,12 +115,16 @@ void FireEffect::drawFrame(uint8_t pcnt)
                           + pcnt * matrixValue[y - 1][x]) / 100.0)
                         - pgm_read_byte(&(valueMask[y][x]));
 
+                uint8_t hue = (mySettings->generalSettings.soundControl && useSpectrometer)
+                        ? mySpectrometer->asHue()
+                        : settings.scale * 2.55;
+
                 CRGB color = CHSV(
-                        settings.scale * 2.5 + pgm_read_byte(&(hueMask[y][x])), // H
+                        hue + pgm_read_byte(&(hueMask[y][x])), // H
                         255, // S
                         (uint8_t)max(0, nextv) // V
                         );
-                myMatrix->setLed(x, y, color);
+                myMatrix->drawPixelXY(x, y, color);
             } else if (y == 8 && sparkles) {
                 if (random(0, 20) == 0 && myMatrix->getPixColorXY(x, y - 1)) {
                     myMatrix->drawPixelXY(x, y, myMatrix->getPixColorXY(x, y - 1));
@@ -125,11 +145,15 @@ void FireEffect::drawFrame(uint8_t pcnt)
 
     //first row interpolates with the "next" line
     for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
+        uint8_t hue = (mySettings->generalSettings.soundControl && useSpectrometer)
+                ? mySpectrometer->asHue()
+                : settings.scale * 2.55;
+
         CRGB color = CHSV(
-                settings.scale * 2.5 + pgm_read_byte(&(hueMask[0][x])), // H
+                hue + pgm_read_byte(&(hueMask[0][x])), // H
                 255,           // S
                 (uint8_t)(((100.0 - pcnt) * matrixValue[0][x] + pcnt * line[x]) / 100.0) // V
                 );
-        myMatrix->setLed(x, 0, color);
+        myMatrix->drawPixelXY(x, 0, color);
     }
 }

@@ -101,12 +101,12 @@ void MyMatrix::fillProgress(double progress)
     const uint8_t remainingProgress = static_cast<uint8_t>(number % width());
 
     if (fullRows > 0) {
-        fillRectXY(0, 0, width(), fullRows, CRGB(10, 10, 10));
+        fillRectXY(0, 0, width(), fullRows, CRGB(5, 5, 5));
         delay(1);
     }
 
     if (remainingProgress > 0) {
-        drawLineXY(0, fullRows, remainingProgress, fullRows, CRGB(10, 10, 10));
+        drawLineXY(0, fullRows, remainingProgress, fullRows, CRGB(5, 5, 5));
         delay(1);
     }
 
@@ -117,20 +117,9 @@ void MyMatrix::fillProgress(double progress)
     show();
 }
 
-void MyMatrix::setLed(uint8_t x, uint8_t y, CRGB color, bool shouldShow)
-{
-    drawPixelXY(x, y, color);
-    if (shouldShow) {
-        show();
-    }
-}
-
-void MyMatrix::setLed(uint16_t index, CRGB color, bool shouldShow)
+void MyMatrix::setLed(uint16_t index, CRGB color)
 {
     leds[index] = color;
-    if (shouldShow) {
-        show();
-    }
 }
 
 void MyMatrix::fadeToBlackBy(uint16_t index, uint8_t step)
@@ -162,16 +151,14 @@ void MyMatrix::clear(bool shouldShow)
     }
 }
 
-uint16_t MyMatrix::getPixelNumber(uint8_t x, uint8_t y)
+uint16_t MyMatrix::getPixelNumberXY(uint8_t x, uint8_t y)
 {
     return static_cast<uint16_t>(XY(y, x));
 }
 
 void MyMatrix::drawPixelXY(uint8_t x, uint8_t y, CRGB color)
 {
-    setPassThruColor(color);
     drawPixel(y, x, color);
-    setPassThruColor();
 }
 
 void MyMatrix::drawLineXY(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, CRGB color)
@@ -191,7 +178,7 @@ CRGB MyMatrix::getPixColor(uint16_t number)
 
 CRGB MyMatrix::getPixColorXY(uint8_t x, uint8_t y)
 {
-    return getPixColor(getPixelNumber(x, y));
+    return getPixColor(getPixelNumberXY(x, y));
 }
 
 void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color)
@@ -203,7 +190,7 @@ void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color
 
 void MyMatrix::fadePixelXY(uint8_t x, uint8_t y, uint8_t step)
 {
-    const uint16_t pixelNum = myMatrix->getPixelNumber(x, y);
+    const uint16_t pixelNum = myMatrix->getPixelNumberXY(x, y);
     const CRGB color = myMatrix->getPixColor(pixelNum);
 
     if (!color) {

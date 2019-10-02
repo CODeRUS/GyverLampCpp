@@ -37,3 +37,8 @@ void Effect::update(const JsonObject &json)
         settings.scale = json[F("scale")];
     }
 }
+
+void Effect::writeSettings(JsonObject &json)
+{
+
+}

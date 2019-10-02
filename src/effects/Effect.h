@@ -16,6 +16,7 @@ public:
 
     virtual void initialize(const JsonObject &json);
     virtual void update(const JsonObject &json);
+    virtual void writeSettings(JsonObject &json);
 
     virtual void tick() = 0;
 

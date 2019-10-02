@@ -17,6 +17,8 @@
 
 #include "effects/Effect.h"
 
+#include "Spectrometer.h"
+
 namespace  {
 
 uint16_t webServerPort = 80;
@@ -37,6 +39,40 @@ bool isHolding = false;
 
 uint32_t logTimer = 0;
 uint32_t logInterval = 10 * 1000;
+
+void printFlashInfo()
+{
+    uint32_t ideSize = ESP.getFlashChipSize();
+    FlashMode_t ideMode = ESP.getFlashChipMode();
+
+    Serial.printf_P(PSTR("Flash ide  size: %u bytes\n"), ideSize);
+    Serial.printf_P(PSTR("Flash ide speed: %u Hz\n"), ESP.getFlashChipSpeed());
+    Serial.print(F("Flash ide mode:  "));
+    Serial.println((ideMode == FM_QIO ? F("QIO") : ideMode == FM_QOUT ? F("QOUT") : ideMode == FM_DIO ? F("DIO") : ideMode == FM_DOUT ? F("DOUT") : F("UNKNOWN")));
+
+#if defined(ESP8266)
+    uint32_t realSize = ESP.getFlashChipRealSize();
+    Serial.printf_P(PSTR("Flash real id:   %08X\n"), ESP.getFlashChipId());
+    Serial.printf_P(PSTR("Flash real size: %u bytes\n\n"), realSize);
+    if (ideSize != realSize) {
+      Serial.println(F("Flash Chip configuration wrong!"));
+    } else {
+      Serial.println(F("Flash Chip configuration ok."));
+    }
+#endif
+
+    Serial.print(F("Sketch size: "));
+    Serial.println(ESP.getSketchSize());
+    Serial.print(F("Sketch free: "));
+    Serial.println(ESP.getFreeSketchSpace());
+
+    Serial.print(F("Total heap: "));
+    Serial.println(ESP.getHeapSize());
+    Serial.print(F("Min free heap: "));
+    Serial.println(ESP.getMinFreeHeap());
+    Serial.print(F("Max alloc heap: "));
+    Serial.println(ESP.getMaxAllocHeap());
+}
 
 void printFreeHeap()
 {
@@ -113,6 +149,7 @@ void setup() {
 #endif
 
     setupSerial();
+    printFlashInfo();
     printFreeHeap();
 
     if(!SPIFFS.begin()) {
@@ -121,6 +158,10 @@ void setup() {
     }
     EffectsManager::Initialize();
     Settings::Initialize();
+
+    if (mySettings->generalSettings.soundControl) {
+        Spectrometer::Initialize();
+    }
 
     MyMatrix::Initialize();
     myMatrix->matrixTest();
@@ -161,6 +202,10 @@ void loop() {
     GyverTimer::Process();
     LocalDNS::Process();
     processButton();
+
+    if (mySettings->generalSettings.soundControl) {
+        mySpectrometer->process();
+    }
 
     if (mySettings->generalSettings.working) {
         effectsManager->Process();

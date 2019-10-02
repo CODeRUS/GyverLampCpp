@@ -1,9 +1,12 @@
 #include "StarfallEffect.h"
+#include <Spectrometer.h>
 
 namespace  {
 
-const uint8_t tailStep = 100;
-const uint8_t saturation = 150;
+uint8_t tailStep = 100;
+uint8_t saturation = 150;
+
+bool useSpectrometer = false;
 
 } // namespace
 
@@ -13,20 +16,29 @@ StarfallEffect::StarfallEffect()
 
 void StarfallEffect::tick()
 {
+
     for (uint8_t i = mySettings->matrixSettings.height / 2; i < mySettings->matrixSettings.height; i++) {
         if (!myMatrix->getPixColorXY(0, i)
                 && (random(0, settings.scale) == 0)
                 && !myMatrix->getPixColorXY(0, i + 1)
-                && !myMatrix->getPixColorXY(0, i - 1))
-            myMatrix->setLed(0, i, CHSV(random(0, 200), saturation, 255));
+                && !myMatrix->getPixColorXY(0, i - 1)) {
+            uint8_t hue = (mySettings->generalSettings.soundControl && useSpectrometer)
+                    ? mySpectrometer->asHue()
+                    : random(0, 200);
+            myMatrix->drawPixelXY(0, i, CHSV(hue, saturation, 255));
+        }
     }
 
     for (uint8_t i = 0; i < mySettings->matrixSettings.width / 2; i++) {
         if (!myMatrix->getPixColorXY(i, mySettings->matrixSettings.height - 1)
                 && (random(0, settings.scale) == 0)
                 && !myMatrix->getPixColorXY(i + 1, mySettings->matrixSettings.height - 1)
-                && !myMatrix->getPixColorXY(i - 1, mySettings->matrixSettings.height - 1))
-            myMatrix->setLed(i, mySettings->matrixSettings.height - 1, CHSV(random(0, 200), saturation, 255));
+                && !myMatrix->getPixColorXY(i - 1, mySettings->matrixSettings.height - 1)) {
+            uint8_t hue = (mySettings->generalSettings.soundControl && useSpectrometer)
+                    ? mySpectrometer->asHue()
+                    : random(0, 200);
+            myMatrix->drawPixelXY(i, mySettings->matrixSettings.height - 1, CHSV(hue, saturation, 255));
+        }
     }
 
     // сдвигаем по диагонали
@@ -43,4 +55,25 @@ void StarfallEffect::tick()
     for (uint8_t i = 0; i < mySettings->matrixSettings.width / 2; i++) {
         myMatrix->fadePixelXY(i, mySettings->matrixSettings.height - 1, tailStep);
     }
+}
+
+void StarfallEffect::initialize(const JsonObject &json)
+{
+    Effect::initialize(json);
+    if (json.containsKey(F("useSpectrometer"))) {
+        useSpectrometer = json[F("useSpectrometer")];
+    }
+    if (json.containsKey(F("tailStep"))) {
+        tailStep = json[F("tailStep")];
+    }
+    if (json.containsKey(F("saturation"))) {
+        saturation = json[F("saturation")];
+    }
+}
+
+void StarfallEffect::writeSettings(JsonObject &json)
+{
+    json[F("useSpectrometer")] = useSpectrometer;
+    json[F("tailStep")] = tailStep;
+    json[F("saturation")] = saturation;
 }

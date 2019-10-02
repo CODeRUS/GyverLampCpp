@@ -28,8 +28,8 @@ struct eqBand {
     byte bandWidth;
     int peak;
     int lastpeak;
-    uint16_t curval;
-    uint16_t lastval;
+    int curval;
+    int lastval;
     unsigned long lastmeasured;
 };
 
@@ -74,7 +74,7 @@ void SoundEffect::tick()
 
 void SoundEffect::displayBand(int band, int dsize)
 {
-    int dmax = mySettings->matrixSettings.height - 1;
+    int dmax = mySettings->matrixSettings.height;
     int ssize = dsize;
     int fsize = dsize / audiospectrum[band].amplitude;
     double factor = settings.scale / 100.0;
@@ -87,11 +87,10 @@ void SoundEffect::displayBand(int band, int dsize)
         myMatrix->drawPixelXY(band * 2, y, CRGB(CRGB::Blue));
         myMatrix->drawPixelXY(band * 2 + 1, y, CRGB(CRGB::Blue));
     }
-    if (dsize > audiospectrum[band].peak) {
-        audiospectrum[band].peak = dsize;
-    }
     audiospectrum[band].lastval = dsize;
     audiospectrum[band].lastmeasured = millis();
+
+//    Serial.printf_P(PSTR("E%d %05d %02d\n"), band, audiospectrum[band].curval, dsize);
 }
 
 void SoundEffect::setBandwidth()
@@ -142,14 +141,26 @@ void SoundEffect::captureSoundSample()
 void SoundEffect::renderSpectrometer()
 {
     myMatrix->clear();
+    int readBands[EQBANDS] = {0};
     for (int i = 2; i < (SAMPLES / 2); i++) { // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency and its value the amplitude.
         if (vReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
             byte bandNum = getBand(i);
-            if (bandNum != bands) {
-                audiospectrum[bandNum].curval = (int)vReal[i];
-                displayBand(bandNum, audiospectrum[bandNum].curval);
+            int read = (int)vReal[i];
+            if (bandNum != bands && readBands[bandNum] < read) {
+                readBands[bandNum] = read;
             }
         }
     }
+
+//    Serial.print(F("E: "));
+    for (int bandNum = 0; bandNum < EQBANDS; bandNum++) {
+        if (readBands[bandNum] > 0 && audiospectrum[bandNum].curval != readBands[bandNum]) {
+            audiospectrum[bandNum].curval = readBands[bandNum];
+        }
+        displayBand(bandNum, audiospectrum[bandNum].curval);
+
+//        Serial.printf_P(PSTR("%05d %02d "), audiospectrum[bandNum].curval, audiospectrum[bandNum].lastval);
+    }
+//    Serial.println();
 }
 

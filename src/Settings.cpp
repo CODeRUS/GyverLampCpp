@@ -14,6 +14,8 @@
 
 namespace {
 
+const size_t jsonSerializeSize = 512 * 12;
+
 Settings *instance = nullptr;
 
 bool settingsChanged = false;
@@ -77,7 +79,7 @@ void Settings::Save()
 
 void Settings::WriteConfigTo(AsyncWebSocket *socket, AsyncWebSocketClient *client)
 {
-    DynamicJsonDocument json(1024 * 5);
+    DynamicJsonDocument json(jsonSerializeSize);
     JsonObject root = json.to<JsonObject>();
     BuildJson(root);
 
@@ -131,6 +133,7 @@ void Settings::BuildJson(JsonObject &root)
         effectObject[F("speed")] = effect->settings.speed;
         effectObject[F("scale")] = effect->settings.scale;
         effectObject[F("brightness")] = effect->settings.brightness;
+        effect->writeSettings(effectObject);
     }
     root[F("activeEffect")] = effectsManager->ActiveEffectIndex();
     root[F("working")] = generalSettings.working;
@@ -149,6 +152,9 @@ void Settings::BuildJson(JsonObject &root)
     connectionObject[F("apName")] = connectionSettings.apName;
     connectionObject[F("ntpServer")] = connectionSettings.ntpServer;
     connectionObject[F("ntpOffset")] = connectionSettings.ntpOffset;
+
+    JsonObject spectrometerObject = root.createNestedObject(F("spectrometer"));
+    spectrometerObject[F("active")] = generalSettings.soundControl;
 }
 
 Settings::Settings(uint32_t saveInterval)
@@ -169,7 +175,7 @@ Settings::Settings(uint32_t saveInterval)
         return;
     }
 
-    DynamicJsonDocument json(1024 * 5); // ICE: compute with https://arduinojson.org/v6/assistant/
+    DynamicJsonDocument json(jsonSerializeSize); // ICE: compute with https://arduinojson.org/v6/assistant/
     DeserializationError err = deserializeJson(json, settings);
     settings.close();
     if (err) {
@@ -217,6 +223,13 @@ Settings::Settings(uint32_t saveInterval)
        }
        if (connectionObject.containsKey(F("ntpOffset"))) {
            connectionSettings.ntpOffset = connectionObject[F("ntpOffset")];
+       }
+    }
+
+    if (root.containsKey(F("spectrometer"))) {
+       JsonObject spectrometerObject = root[F("spectrometer")];
+       if (spectrometerObject.containsKey(F("active"))) {
+           generalSettings.soundControl = spectrometerObject[F("active")];
        }
     }
 

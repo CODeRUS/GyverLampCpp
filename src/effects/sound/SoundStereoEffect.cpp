@@ -97,7 +97,7 @@ void SoundStereoEffect::tick()
 void SoundStereoEffect::displayLBand(int band)
 {
     int dsize = laudiospectrum[band].curval;
-    int dmax = mySettings->matrixSettings.height - 1;
+    int dmax = mySettings->matrixSettings.height;
     int ssize = dsize;
     int fsize = dsize / laudiospectrum[band].amplitude;
     double factor = settings.scale / 100.0;
@@ -206,21 +206,35 @@ void SoundStereoEffect::captureSoundSample()
 void SoundStereoEffect::renderSpectrometer()
 {
     myMatrix->clear();
+
+    int readLBands[EQBANDS] = {0};
+    int readRBands[EQBANDS] = {0};
     for (int i = 2; i < (SAMPLES / 2); i++) { // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency and its value the amplitude.
         if (lvReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
             byte bandNum = getLBand(i);
-            if (bandNum != bands) {
-                laudiospectrum[bandNum].curval = (int)lvReal[i];
-                displayLBand(bandNum);
+            int read = (int)lvReal[i];
+            if (bandNum != bands && readLBands[bandNum] < read) {
+                readLBands[bandNum] = read;
             }
         }
         if (rvReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
             byte bandNum = getRBand(i);
-            if (bandNum != bands) {
-                raudiospectrum[bandNum].curval = (int)rvReal[i];
-                displayRBand(bandNum);
+            int read = (int)rvReal[i];
+            if (bandNum != bands && readRBands[bandNum] < read) {
+                readRBands[bandNum] = read;
             }
         }
+    }
+
+    for (int bandNum = 0; bandNum < EQBANDS; bandNum++) {
+        if (readLBands[bandNum] > 0 && laudiospectrum[bandNum].curval != readLBands[bandNum]) {
+            laudiospectrum[bandNum].curval = readLBands[bandNum];
+        }
+        if (readRBands[bandNum] > 0 && raudiospectrum[bandNum].curval != readRBands[bandNum]) {
+            raudiospectrum[bandNum].curval = readRBands[bandNum];
+        }
+        displayLBand(bandNum);
+        displayRBand(bandNum);
     }
 }
 
