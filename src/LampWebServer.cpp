@@ -35,6 +35,8 @@ bool wifiConnected = false;
 uint16_t httpPort = 80;
 uint16_t websocketPort = 8000;
 
+uint32_t restartTimer = 0;
+
 void parseTextMessage(const String &message)
 {
     Serial.print(F("<< "));
@@ -235,13 +237,7 @@ void updateRequestHandler(AsyncWebServerRequest *request)
 {
     Serial.println(F("updateRequestHandler"));
     request->send(200);
-    delay(1000);
-#if defined(ESP8266)
-    ESP.wdtFeed();
-#else
-    yield();
-#endif
-    ESP.restart();
+    restartTimer = millis() + 2000;
 }
 
 void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool final)
@@ -267,8 +263,8 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             } else {
                 Serial.println(F("Uploading FLASH started!"));
             }
+            FastLED.clear();
 #if defined(ESP8266)
-            myMatrix->fill(CRGB(40, 40, 60), true);
             Update.runAsync(true);
             if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000), command) {
 #elif defined(ESP32)
@@ -280,18 +276,16 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
                 return;
             } else {
                 isUpdatingFlag = true;
-#if defined(ESP32)
-                myMatrix->setRotation(myMatrix->GetRotation());
-                myMatrix->setTextColor(myMatrix->Color(40, 0, 00));
-                myMatrix->setTextWrap(false);
                 myMatrix->setBrightness(80);
-#endif
+                myMatrix->setRotation(myMatrix->GetRotation());
+                myMatrix->setTextWrap(false);
                 if (updateSize == 0) {
                     updateSize = total;
                 }
             }
         }
     }
+    drawProgress(index + len);
     if (settings) {
         settings.write(data, len);
     } else if (Update.write(data, len) != len) {
@@ -299,10 +293,6 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
         myMatrix->fill(CRGB::Red, true);
         isUpdatingFlag = false;
         return;
-    } else {
-#if defined(ESP32)
-        drawProgress(index + len);
-#endif
     }
     if (final) {
         if (settings) {
@@ -313,9 +303,10 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             isUpdatingFlag = false;
             return;
         } else {
-            Serial.printf_P(PSTR("Update Success: %zd\nRebooting...\n"), index + len);
             myMatrix->fill(CRGB::Green, true);
         }
+        Serial.printf_P(PSTR("Update Success: %zd\nRebooting...\n"), index + len);
+        return;
     }
 #if defined(ESP8266)
     ESP.wdtFeed();
@@ -421,6 +412,10 @@ void LampWebServer::Process()
     if (!wifiConnected) {
         wifiManager->safeLoop();
         wifiManager->criticalLoop();
+    }
+
+    if (restartTimer > 0 && (millis() > restartTimer)) {
+        ESP.restart();
     }
 }
 

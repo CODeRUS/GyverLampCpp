@@ -92,29 +92,29 @@ void MyMatrix::fill(CRGB color, bool shouldShow)
 
 void MyMatrix::fillProgress(double progress)
 {
-    clear();
+    FastLED.clear();
 
     const uint16_t number = static_cast<uint16_t>(numLeds * progress);
-    const String percent = String(static_cast<int>(progress * 100));
-
     const uint8_t fullRows = static_cast<uint8_t>(number / width());
+    for (uint8_t y = 0; y < fullRows; ++y) {
+        for (uint8_t x = 0; x < width(); ++x) {
+            drawPixelXY(x, y, CRGB(5, 5, 5));
+        }
+    }
+
     const uint8_t remainingProgress = static_cast<uint8_t>(number % width());
-
-    if (fullRows > 0) {
-        fillRectXY(0, 0, width(), fullRows, CRGB(5, 5, 5));
-        delay(1);
+    for (uint8_t x = 0; x < remainingProgress; ++x) {
+        drawPixelXY(x, fullRows, CRGB(5, 5, 5));
     }
 
-    if (remainingProgress > 0) {
-        drawLineXY(0, fullRows, remainingProgress, fullRows, CRGB(5, 5, 5));
-        delay(1);
-    }
-
+    const String percent = String(static_cast<int>(progress * 100));
     setCursor(0, 0);
+    setPassThruColor(CRGB(40, 0, 0));
     print(percent);
+    setPassThruColor();
     delay(1);
 
-    show();
+    FastLED.show();
 }
 
 void MyMatrix::setLed(uint16_t index, CRGB color)
@@ -158,7 +158,7 @@ uint16_t MyMatrix::getPixelNumberXY(uint8_t x, uint8_t y)
 
 void MyMatrix::drawPixelXY(uint8_t x, uint8_t y, CRGB color)
 {
-    drawPixel(y, x, color);
+    leds[myMatrix->getPixelNumberXY(x, y)] = color;
 }
 
 void MyMatrix::drawLineXY(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, CRGB color)
