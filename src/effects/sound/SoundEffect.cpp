@@ -26,7 +26,7 @@ unsigned long newTime;
 
 struct eqBand {
     uint16_t amplitude;
-    byte bandWidth;
+    uint8_t bandWidth;
     int peak;
     int lastpeak;
     int curval;
@@ -35,18 +35,18 @@ struct eqBand {
 };
 
 eqBand audiospectrum[EQBANDS] = {
-    /*
-                 Adjust the amplitude/bandWidth values
-                 to fit your microphone
-              */
-    { 1000, 2,   0, 0, 0, 0, 0}, // 125
-    { 500,  2,   0, 0, 0, 0, 0}, // 250
-    { 300,  3,   0, 0, 0, 0, 0}, // 500
-    { 250,  7,   0, 0, 0, 0, 0}, // 1k
-    { 100,  14,  0, 0, 0, 0, 0}, // 2k
-    { 100,  24,  0, 0, 0, 0, 0}, // 4k
-    { 100,  48,  0, 0, 0, 0, 0}, // 8k
-    { 100,  155, 0, 0, 0, 0, 0}  // 16k
+/*
+ Adjust the amplitude/bandWidth values
+ to fit your microphone
+*/
+    { 200,  7,   0, 0, 0, 0, 0}, // 250
+    { 250,  15,  0, 0, 0, 0, 0}, // 500
+    { 220,  20,  0, 0, 0, 0, 0}, // 750
+    { 200,  30,  0, 0, 0, 0, 0}, // 1k
+    { 175,  39,  0, 0, 0, 0, 0}, // 1.5k
+    { 150,  54,  0, 0, 0, 0, 0}, // 2k
+    { 125,  85,  0, 0, 0, 0, 0}, // 3k
+    { 100,  125, 0, 0, 0, 0, 0}, // 4k
 };
 
 /* store bandwidth variations when sample rate changes */
@@ -126,7 +126,7 @@ void SoundEffect::tick()
 void SoundEffect::displayBand(int band, int dsize)
 {
     int dmax = mySettings->matrixSettings.height;
-    int ssize = dsize;
+//    int ssize = dsize;
     int fsize = dsize / audiospectrum[band].amplitude;
     double factor = settings.scale / 100.0;
     dsize = fsize * factor;
@@ -147,9 +147,8 @@ void SoundEffect::displayBand(int band, int dsize)
 void SoundEffect::setBandwidth()
 {
     byte multiplier = SAMPLES / 256;
-    bandWidth[0] = audiospectrum[0].bandWidth * multiplier;
-    for (byte j = 1; j < EQBANDS; j++) {
-        bandWidth[j] = audiospectrum[j].bandWidth * multiplier + bandWidth[j - 1];
+    for (byte j = 0; j < EQBANDS; j++) {
+        bandWidth[j] = audiospectrum[j].bandWidth * multiplier;
     }
 }
 
