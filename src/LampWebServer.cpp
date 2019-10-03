@@ -245,6 +245,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
     static File settings;
     if (index == 0) {
         Serial.println(F("Update started!"));
+        FastLED.clear();
         if (data[0] == '{') {
             if (settings) {
                 settings.close();
@@ -263,7 +264,6 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             } else {
                 Serial.println(F("Uploading FLASH started!"));
             }
-            FastLED.clear();
 #if defined(ESP8266)
             Update.runAsync(true);
             if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000), command) {
@@ -276,14 +276,14 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
                 return;
             } else {
                 isUpdatingFlag = true;
-                myMatrix->setBrightness(80);
-                myMatrix->setRotation(myMatrix->GetRotation());
-                myMatrix->setTextWrap(false);
                 if (updateSize == 0) {
                     updateSize = total;
                 }
             }
         }
+        myMatrix->setBrightness(80);
+        myMatrix->setRotation(myMatrix->GetRotation());
+        myMatrix->setTextWrap(false);
     }
     drawProgress(index + len);
     if (settings) {
