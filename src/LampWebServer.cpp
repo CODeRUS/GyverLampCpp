@@ -249,7 +249,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             if (settings) {
                 settings.close();
             }
-            settings = SPIFFS.open(PSTR("/settings.json"), "w");
+            settings = SPIFFS.open("/settings.json", "w");
             if (!settings) {
                 Serial.println(F("SPIFFS Error opening settings file for write"));
                 return;
