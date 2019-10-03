@@ -33,6 +33,7 @@ Spectrometer::eqBand audiospectrum[EQBANDS] = {
  Adjust the amplitude/bandWidth values
  to fit your microphone
 */
+#if defined(ESP8266)
     { 200,  7,   0, 0, 0, 0, 0}, // 250
     { 250,  15,  0, 0, 0, 0, 0}, // 500
     { 220,  20,  0, 0, 0, 0, 0}, // 750
@@ -40,7 +41,17 @@ Spectrometer::eqBand audiospectrum[EQBANDS] = {
     { 175,  39,  0, 0, 0, 0, 0}, // 1.5k
     { 150,  54,  0, 0, 0, 0, 0}, // 2k
     { 125,  85,  0, 0, 0, 0, 0}, // 3k
-    { 100,  125, 0, 0, 0, 0, 0}, // 4k
+    { 100,  255, 0, 0, 0, 0, 0}, // 4k
+#else
+    { 100,  3,   0, 0, 0, 0, 0}, // 250
+    { 250,  8,   0, 0, 0, 0, 0}, // 500
+    { 220,  14,  0, 0, 0, 0, 0}, // 750
+    { 200,  18,  0, 0, 0, 0, 0}, // 1k
+    { 175,  26,  0, 0, 0, 0, 0}, // 1.5k
+    { 150,  34,  0, 0, 0, 0, 0}, // 2k
+    { 125,  56,  0, 0, 0, 0, 0}, // 3k
+    { 100,  255, 0, 0, 0, 0, 0}, // 4k
+#endif
 };
 
 /* store bandwidth variations when sample rate changes */

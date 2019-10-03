@@ -8,6 +8,9 @@
 
 namespace  {
 
+bool heatColor = true;
+uint32_t color = CRGB::Blue;
+
 #if defined(ESP32)
 adc1_channel_t channel = ADC1_CHANNEL_0;
 double noiseFilter = 512;
@@ -39,6 +42,7 @@ eqBand audiospectrum[EQBANDS] = {
  Adjust the amplitude/bandWidth values
  to fit your microphone
 */
+#if defined(ESP8266)
     { 200,  7,   0, 0, 0, 0, 0}, // 250
     { 250,  15,  0, 0, 0, 0, 0}, // 500
     { 220,  20,  0, 0, 0, 0, 0}, // 750
@@ -46,7 +50,17 @@ eqBand audiospectrum[EQBANDS] = {
     { 175,  39,  0, 0, 0, 0, 0}, // 1.5k
     { 150,  54,  0, 0, 0, 0, 0}, // 2k
     { 125,  85,  0, 0, 0, 0, 0}, // 3k
-    { 100,  125, 0, 0, 0, 0, 0}, // 4k
+    { 100,  255, 0, 0, 0, 0, 0}, // 4k
+#else
+    { 100,  3,   0, 0, 0, 0, 0}, // 250
+    { 250,  8,   0, 0, 0, 0, 0}, // 500
+    { 220,  14,  0, 0, 0, 0, 0}, // 750
+    { 200,  18,  0, 0, 0, 0, 0}, // 1k
+    { 175,  26,  0, 0, 0, 0, 0}, // 1.5k
+    { 150,  34,  0, 0, 0, 0, 0}, // 2k
+    { 125,  56,  0, 0, 0, 0, 0}, // 3k
+    { 100,  255, 0, 0, 0, 0, 0}, // 4k
+#endif
 };
 
 /* store bandwidth variations when sample rate changes */
@@ -123,6 +137,23 @@ void SoundEffect::tick()
 
 }
 
+void SoundEffect::initialize(const JsonObject &json)
+{
+    Effect::initialize(json);
+    if (json.containsKey(F("color"))) {
+        color = json[F("color")];
+    }
+    if (json.containsKey(F("heatColor"))) {
+        heatColor = json[F("heatColor")];
+    }
+}
+
+void SoundEffect::writeSettings(JsonObject &json)
+{
+    json[F("color")] = color;
+    json[F("heatColor")] = heatColor;
+}
+
 void SoundEffect::displayBand(int band, int dsize)
 {
     int dmax = mySettings->matrixSettings.height;
@@ -135,8 +166,16 @@ void SoundEffect::displayBand(int band, int dsize)
         dsize = dmax;
     }
     for (int y = 0; y < dsize; y++) {
-        myMatrix->drawPixelXY(band * 2, y, CRGB(CRGB::Blue));
-        myMatrix->drawPixelXY(band * 2 + 1, y, CRGB(CRGB::Blue));
+        CRGB pixColor;
+        if (heatColor) {
+            uint8_t r = (y + 1) * 16 - 1;
+            uint8_t b = 255 - ((y + 1) * 16 - 1);
+            pixColor = CRGB(r, 0, b);
+        } else {
+            pixColor = CRGB(color);
+        }
+        myMatrix->drawPixelXY(band * 2, y, pixColor);
+        myMatrix->drawPixelXY(band * 2 + 1, y, pixColor);
     }
     audiospectrum[band].lastval = dsize;
     audiospectrum[band].lastmeasured = millis();
