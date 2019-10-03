@@ -244,6 +244,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
 {
     static File settings;
     if (index == 0) {
+        isUpdatingFlag = true;
         Serial.println(F("Update started!"));
         FastLED.clear();
         if (data[0] == '{') {
@@ -275,7 +276,6 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
                 isUpdatingFlag = false;
                 return;
             } else {
-                isUpdatingFlag = true;
                 if (updateSize == 0) {
                     updateSize = total;
                 }
