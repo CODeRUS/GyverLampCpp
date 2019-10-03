@@ -14,6 +14,9 @@ uint32_t timeout = 1;
 
 #if defined(ESP32)
 adc1_channel_t channel = ADC1_CHANNEL_0;
+double noiseFilter = 512;
+#else
+double noiseFilter = 32;
 #endif
 
 #define SAMPLES 256
@@ -23,8 +26,6 @@ uint16_t bands = EQBANDS;
 
 unsigned int sampling_period_us;
 
-double vReal[SAMPLES];
-double vImag[SAMPLES];
 unsigned long newTime;
 
 Spectrometer::eqBand audiospectrum[EQBANDS] = {
@@ -72,22 +73,9 @@ void Spectrometer::process()
     }
     timer = millis();
 
-    captureSoundSample();
-    renderSpectrometer();
-}
+    double* vReal = new double[SAMPLES]();
+    double* vImag = new double[SAMPLES]();
 
-Spectrometer::eqBand Spectrometer::band(uint8_t i)
-{
-    return audiospectrum[i];
-}
-
-uint8_t Spectrometer::asHue()
-{
-    return hue;
-}
-
-void Spectrometer::captureSoundSample()
-{
     for (int i = 0; i < SAMPLES; i++) {
         newTime = micros();
 #if defined(ESP32)
@@ -96,7 +84,6 @@ void Spectrometer::captureSoundSample()
 #else
         vReal[i] = analogRead(A0); // A conversion takes about 1uS on an ESP32
 #endif
-
         vImag[i] = 0;
 
         while ((micros() - newTime) < sampling_period_us) {
@@ -109,13 +96,12 @@ void Spectrometer::captureSoundSample()
     FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
     FFT.Compute(FFT_FORWARD);
     FFT.ComplexToMagnitude();
-}
 
-void Spectrometer::renderSpectrometer()
-{
+    delete[] vImag;
+
     uint16_t readBands[EQBANDS] = {0};
     for (uint16_t i = 2; i < (SAMPLES / 2); i++) { // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency and its value the amplitude.
-        if (vReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
+        if (vReal[i] > noiseFilter) { // Add a crude noise filter, 10 x amplitude or more
             uint8_t bandNum = getBand(i);
             uint16_t read = static_cast<uint16_t>(vReal[i]);
             if (bandNum != bands && readBands[bandNum] < read) {
@@ -123,6 +109,8 @@ void Spectrometer::renderSpectrometer()
             }
         }
     }
+
+    delete[] vReal;
 
 //    Serial.print(F("S: "));
     hue = 0;
@@ -133,9 +121,13 @@ void Spectrometer::renderSpectrometer()
 
         uint8_t dmax = 32;
         uint16_t dsize = audiospectrum[bandNum].curval;
+#if defined(ESP32)
         uint16_t fsize = dsize / audiospectrum[bandNum].amplitude;
         double factor = 20 / 100.0;
         dsize = fsize * factor;
+#else
+        dsize = dsize / audiospectrum[bandNum].amplitude;
+#endif
         if (dsize > dmax) {
             dsize = dmax;
         }
@@ -149,6 +141,16 @@ void Spectrometer::renderSpectrometer()
 //    hue = hue * 8;
 //    Serial.print(hue);
 //    Serial.println();
+}
+
+Spectrometer::eqBand Spectrometer::band(uint8_t i)
+{
+    return audiospectrum[i];
+}
+
+uint8_t Spectrometer::asHue()
+{
+    return hue;
 }
 
 uint8_t Spectrometer::getBand(uint16_t i)

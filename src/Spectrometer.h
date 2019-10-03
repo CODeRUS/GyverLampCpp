@@ -25,8 +25,6 @@ public:
     uint8_t asHue();
 
 private:
-    void captureSoundSample();
-    void renderSpectrometer();
     uint8_t getBand(uint16_t i);
     void setBandwidth();
 

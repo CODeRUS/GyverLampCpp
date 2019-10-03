@@ -40,12 +40,12 @@ eqBand audiospectrum[EQBANDS] = {
                  to fit your microphone
               */
     { 1000, 2,   0, 0, 0, 0, 0}, // 125
-    { 500,  2,   0, 0, 0, 0, 0}, // 250
-    { 300,  3,   0, 0, 0, 0, 0}, // 500
-    { 250,  7,   0, 0, 0, 0, 0}, // 1k
-    { 100,  14,  0, 0, 0, 0, 0}, // 2k
-    { 100,  24,  0, 0, 0, 0, 0}, // 4k
-    { 100,  48,  0, 0, 0, 0, 0}, // 8k
+    { 500,  5,   0, 0, 0, 0, 0}, // 250
+    { 300,  7,   0, 0, 0, 0, 0}, // 500
+    { 250,  15,   0, 0, 0, 0, 0}, // 1k
+    { 100,  30,  0, 0, 0, 0, 0}, // 2k
+    { 100,  53,  0, 0, 0, 0, 0}, // 4k
+    { 100,  200,  0, 0, 0, 0, 0}, // 8k
     { 100,  155, 0, 0, 0, 0, 0}  // 16k
 };
 
@@ -148,9 +148,9 @@ void SoundEffect::setBandwidth()
 {
     byte multiplier = SAMPLES / 256;
     bandWidth[0] = audiospectrum[0].bandWidth * multiplier;
-    for (byte j = 1; j < EQBANDS; j++) {
-        bandWidth[j] = audiospectrum[j].bandWidth * multiplier + bandWidth[j - 1];
-    }
+//    for (byte j = 1; j < EQBANDS; j++) {
+//        bandWidth[j] = audiospectrum[j].bandWidth * multiplier + bandWidth[j - 1];
+//    }
 }
 
 

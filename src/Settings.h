@@ -21,7 +21,7 @@ public:
     struct GeneralSettings {
         uint8_t activeEffect = 0;
         bool working = true;
-        bool soundControl = true;
+        bool soundControl = false;
     };
 
     struct MatrixSettings {

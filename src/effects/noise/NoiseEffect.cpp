@@ -25,9 +25,9 @@ void NoiseEffect::activate()
 void NoiseEffect::deactivate()
 {
     for (uint8_t i = 0; i < maxDimension; i++) {
-        delete noise[i];
+        delete[] noise[i];
     }
-    delete noise;
+    delete[] noise;
 }
 
 void NoiseEffect::tick()

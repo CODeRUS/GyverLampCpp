@@ -20,10 +20,6 @@ uint16_t bands = EQBANDS;
 
 unsigned int sampling_period_us;
 
-double lvReal[SAMPLES];
-double lvImag[SAMPLES];
-double rvReal[SAMPLES];
-double rvImag[SAMPLES];
 unsigned long newTime;
 
 struct eqBand {
@@ -90,8 +86,79 @@ SoundStereoEffect::SoundStereoEffect()
 
 void SoundStereoEffect::tick()
 {
-    captureSoundSample();
-    renderSpectrometer();
+    double* lvReal = new double[SAMPLES]();
+    double* lvImag = new double[SAMPLES]();
+    double* rvReal = new double[SAMPLES]();
+    double* rvImag = new double[SAMPLES]();
+
+    for (int i = 0; i < SAMPLES; i++) {
+        newTime = micros();
+#if defined(ESP32)
+        lvReal[i] = adc1_get_raw(leftChannel); // A raw conversion takes about 20uS on an ESP32
+        rvReal[i] = adc1_get_raw(rightChannel); // A raw conversion takes about 20uS on an ESP32
+        delayMicroseconds(20);
+#else
+        lvReal[i] = rvReal[i] = analogRead(A0); // A conversion takes about 1uS on an ESP32
+#endif
+
+        lvImag[i] = 0;
+        rvImag[i] = 0;
+
+        while ((micros() - newTime) < sampling_period_us) {
+            // do nothing to wait
+            yield();
+        }
+    }
+
+    arduinoFFT FFT1(lvReal, lvImag, SAMPLES, samplingFrequency);
+    FFT1.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+    FFT1.Compute(FFT_FORWARD);
+    FFT1.ComplexToMagnitude();
+
+    delete[] lvImag;
+
+    arduinoFFT FFT2(rvReal, rvImag, SAMPLES, samplingFrequency);
+    FFT2.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+    FFT2.Compute(FFT_FORWARD);
+    FFT2.ComplexToMagnitude();
+
+    delete[] rvImag;
+
+    myMatrix->clear();
+
+    int readLBands[EQBANDS] = {0};
+    int readRBands[EQBANDS] = {0};
+    for (int i = 2; i < (SAMPLES / 2); i++) { // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency and its value the amplitude.
+        if (lvReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
+            byte bandNum = getLBand(i);
+            int read = (int)lvReal[i];
+            if (bandNum != bands && readLBands[bandNum] < read) {
+                readLBands[bandNum] = read;
+            }
+        }
+        if (rvReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
+            byte bandNum = getRBand(i);
+            int read = (int)rvReal[i];
+            if (bandNum != bands && readRBands[bandNum] < read) {
+                readRBands[bandNum] = read;
+            }
+        }
+    }
+
+    delete[] lvReal;
+    delete[] rvReal;
+
+    for (int bandNum = 0; bandNum < EQBANDS; bandNum++) {
+        if (readLBands[bandNum] > 0 && laudiospectrum[bandNum].curval != readLBands[bandNum]) {
+            laudiospectrum[bandNum].curval = readLBands[bandNum];
+        }
+        if (readRBands[bandNum] > 0 && raudiospectrum[bandNum].curval != readRBands[bandNum]) {
+            raudiospectrum[bandNum].curval = readRBands[bandNum];
+        }
+        displayLBand(bandNum);
+        displayRBand(bandNum);
+    }
+
 }
 
 void SoundStereoEffect::displayLBand(int band)
@@ -170,71 +237,3 @@ byte SoundStereoEffect::getRBand(int i)
     }
     return EQBANDS;
 }
-
-void SoundStereoEffect::captureSoundSample()
-{
-    for (int i = 0; i < SAMPLES; i++) {
-        newTime = micros();
-#if defined(ESP32)
-        lvReal[i] = adc1_get_raw(leftChannel); // A raw conversion takes about 20uS on an ESP32
-        rvReal[i] = adc1_get_raw(rightChannel); // A raw conversion takes about 20uS on an ESP32
-        delayMicroseconds(20);
-#else
-        lvReal[i] = rvReal[i] = analogRead(A0); // A conversion takes about 1uS on an ESP32
-#endif
-
-        lvImag[i] = 0;
-        rvImag[i] = 0;
-
-        while ((micros() - newTime) < sampling_period_us) {
-            // do nothing to wait
-            yield();
-        }
-    }
-
-    arduinoFFT FFT1(lvReal, lvImag, SAMPLES, samplingFrequency);
-    FFT1.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-    FFT1.Compute(FFT_FORWARD);
-    FFT1.ComplexToMagnitude();
-
-    arduinoFFT FFT2(rvReal, rvImag, SAMPLES, samplingFrequency);
-    FFT2.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-    FFT2.Compute(FFT_FORWARD);
-    FFT2.ComplexToMagnitude();
-}
-
-void SoundStereoEffect::renderSpectrometer()
-{
-    myMatrix->clear();
-
-    int readLBands[EQBANDS] = {0};
-    int readRBands[EQBANDS] = {0};
-    for (int i = 2; i < (SAMPLES / 2); i++) { // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency and its value the amplitude.
-        if (lvReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
-            byte bandNum = getLBand(i);
-            int read = (int)lvReal[i];
-            if (bandNum != bands && readLBands[bandNum] < read) {
-                readLBands[bandNum] = read;
-            }
-        }
-        if (rvReal[i] > 512) { // Add a crude noise filter, 10 x amplitude or more
-            byte bandNum = getRBand(i);
-            int read = (int)rvReal[i];
-            if (bandNum != bands && readRBands[bandNum] < read) {
-                readRBands[bandNum] = read;
-            }
-        }
-    }
-
-    for (int bandNum = 0; bandNum < EQBANDS; bandNum++) {
-        if (readLBands[bandNum] > 0 && laudiospectrum[bandNum].curval != readLBands[bandNum]) {
-            laudiospectrum[bandNum].curval = readLBands[bandNum];
-        }
-        if (readRBands[bandNum] > 0 && raudiospectrum[bandNum].curval != readRBands[bandNum]) {
-            raudiospectrum[bandNum].curval = readRBands[bandNum];
-        }
-        displayLBand(bandNum);
-        displayRBand(bandNum);
-    }
-}
-

@@ -51,7 +51,7 @@ void FireEffect::activate()
 
 void FireEffect::deactivate()
 {
-    delete line;
+    delete[] line;
 }
 
 void FireEffect::tick()

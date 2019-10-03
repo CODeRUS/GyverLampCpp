@@ -98,7 +98,7 @@ void Settings::WriteConfigTo(AsyncWebSocket *socket, AsyncWebSocketClient *clien
 
 void Settings::ProcessConfig(const String &message)
 {
-    DynamicJsonDocument doc(4096);
+    DynamicJsonDocument doc(512);
     deserializeJson(doc, message);
 
     const String event = doc[F("event")];

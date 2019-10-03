@@ -10,8 +10,6 @@ public:
 private:
     void displayLBand(int band);
     void displayRBand(int band);
-    void renderSpectrometer();
-    void captureSoundSample();
     byte getLBand(int i);
     byte getRBand(int i);
     void setBandwidth();

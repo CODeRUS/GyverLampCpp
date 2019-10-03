@@ -39,15 +39,15 @@ void LightersEffect::activate()
 
 void LightersEffect::deactivate()
 {
-    delete lightersPos[0];
-    delete lightersPos[1];
-    delete lightersPos;
+    delete[] lightersPos[0];
+    delete[] lightersPos[1];
+    delete[] lightersPos;
 
-    delete lightersSpeed[0];
-    delete lightersSpeed[1];
-    delete lightersSpeed;
+    delete[] lightersSpeed[0];
+    delete[] lightersSpeed[1];
+    delete[] lightersSpeed;
 
-    delete lightersColor;
+    delete[] lightersColor;
 }
 
 void LightersEffect::tick()

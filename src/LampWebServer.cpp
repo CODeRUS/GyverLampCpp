@@ -409,9 +409,14 @@ LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
 
 void LampWebServer::Process()
 {
-    if (!wifiConnected) {
+    if (!wifiConnected && wifiManager) {
         wifiManager->safeLoop();
         wifiManager->criticalLoop();
+    } else {
+        delete wifiManager;
+        wifiManager = nullptr;
+        delete dnsServer;
+        dnsServer = nullptr;
     }
 
     if (restartTimer > 0 && (millis() > restartTimer)) {
