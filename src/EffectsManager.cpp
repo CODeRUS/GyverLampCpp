@@ -132,6 +132,9 @@ void EffectsManager::ChangeEffect(uint8_t index)
 
 void EffectsManager::ActivateEffect(uint8_t index)
 {
+    if (index >= effects.size()) {
+        index = 0;
+    }
     if (activeIndex != index) {
         activeIndex = index;
     }
