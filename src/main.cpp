@@ -88,9 +88,6 @@ void processButton()
     if (button->isSingle()) {
         Serial.println(F("Single button"));
         mySettings->generalSettings.working = !mySettings->generalSettings.working;
-        if (!mySettings->generalSettings.working) {
-            myMatrix->clear(true);
-        }
     }
     if (!mySettings->generalSettings.working) {
         return;
@@ -211,6 +208,8 @@ void loop() {
 
     if (mySettings->generalSettings.working) {
         effectsManager->Process();
+    } else {
+        myMatrix->clear(true);
     }
 
     mySettings->Process();
