@@ -13,7 +13,7 @@ uint32_t color = CRGB::Blue;
 
 #if defined(ESP32)
 adc1_channel_t channel = ADC1_CHANNEL_0;
-double noiseFilter = 512;
+double noiseFilter = 256;
 #else
 double noiseFilter = 0;
 #endif
