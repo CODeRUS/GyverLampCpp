@@ -379,6 +379,7 @@ void LampWebServer::AutoConnect()
         Serial.println(WiFi.localIP());
     } else {
         Serial.println(F("Wifi not connected!"));
+        wifiManager->setAPStaticIPConfig(IPAddress(8,8,8,8), IPAddress(8,8,8,8), IPAddress(255,255,255,0));
         wifiManager->startConfigPortalModeless(mySettings->connectionSettings.apName.c_str(), nullptr);
         Serial.print(F("AP ip: "));
         Serial.println(WiFi.softAPIP());
@@ -476,10 +477,6 @@ void LampWebServer::configureHandlers()
     }
 #endif
 
-    webServer->on(PSTR("/"), HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, PSTR("/index.html"), PSTR("text/html"), false, templateProcessor);
-    });
-
     webServer->on(PSTR("/prettyJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
         PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024 * 5);
         JsonObject root = response->getRoot();
@@ -491,5 +488,15 @@ void LampWebServer::configureHandlers()
     webServer->on(PSTR("/update"), HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);
     webServer->on(PSTR("/updateSize"), HTTP_POST, updateSizeHandler);
 
-    webServer->onNotFound(notFoundHandler);
+    if (wifiConnected) {
+        webServer->on(PSTR("/"), HTTP_GET, [](AsyncWebServerRequest *request) {
+            request->send(SPIFFS, PSTR("/index.html"), PSTR("text/html"), false, templateProcessor);
+        });
+
+        webServer->onNotFound(notFoundHandler);
+    } else {
+        webServer->on(PSTR("/lamp"), HTTP_GET, [](AsyncWebServerRequest *request) {
+            request->send(SPIFFS, PSTR("/index.html"), PSTR("text/html"), false, templateProcessor);
+        });
+    }
 }
