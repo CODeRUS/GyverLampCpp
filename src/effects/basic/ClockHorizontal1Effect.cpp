@@ -23,6 +23,7 @@ ClockHorizontal1Effect::ClockHorizontal1Effect()
 void ClockHorizontal1Effect::tick()
 {
     myMatrix->clear();
+    delay(1);
 
     const String clockTime = getClockTime();
     if (--posx == -6) {
@@ -82,9 +83,8 @@ void ClockHorizontal1Effect::tick()
         myMatrix->print(time2.substring(dotIndex2));
     }
 
-
-    delay(1);
     myMatrix->show();
+    delay(10);
 }
 
 void ClockHorizontal1Effect::activate()

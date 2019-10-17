@@ -28,6 +28,8 @@ void ClockEffect::tick()
     }
 
     myMatrix->clear();
+    delay(1);
+
     if (hours) {
         myMatrix->setTextColor(hoursColor);
         myMatrix->setCursor(0, 0);
@@ -37,7 +39,8 @@ void ClockEffect::tick()
     }
     myMatrix->print(getClockTime());
     myMatrix->show();
-    delay(100);
+    delay(10);
+
     hours = !hours;
     delayer = 0;
 }

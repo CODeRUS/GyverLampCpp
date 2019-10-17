@@ -28,6 +28,7 @@ ClockHorizontal2Effect::ClockHorizontal2Effect()
 void ClockHorizontal2Effect::tick()
 {
     myMatrix->clear();
+    delay(1);
 
     const String clockTime = getClockTime1();
     if (--posx == -6) {
@@ -56,8 +57,8 @@ void ClockHorizontal2Effect::tick()
     myMatrix->setTextColor(minutesColor);
     myMatrix->print(time2);
 
-    delay(1);
     myMatrix->show();
+    delay(10);
 }
 
 void ClockHorizontal2Effect::activate()

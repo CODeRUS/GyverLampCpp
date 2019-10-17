@@ -34,6 +34,7 @@ ClockHorizontal3Effect::ClockHorizontal3Effect()
 void ClockHorizontal3Effect::tick()
 {
     myMatrix->clear();
+    delay(1);
 
     const String clockTime = getClockTime();
     if (--posx == -6) {
@@ -60,8 +61,8 @@ void ClockHorizontal3Effect::tick()
         myMatrix->print(time[index]);
     }
 
-    delay(1);
     myMatrix->show();
+    delay(10);
 }
 
 void ClockHorizontal3Effect::activate()
