@@ -18,7 +18,7 @@ const uint8_t ledPin = 14;
 #elif defined(ESP32)
 const uint8_t ledPin = 13;
 #else
-const uint8_t ledPin = D6;
+const uint8_t ledPin = D4;
 #endif
 
 uint16_t numLeds = 0;
