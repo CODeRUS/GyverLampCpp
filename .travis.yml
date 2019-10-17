@@ -20,7 +20,7 @@ install:
   - pip install -U platformio
   - platformio update
 script:
-  - git clone --single-branch --branch firelamp https://github.com/coderus/led-lamp-webui.git || true
+  - git clone --single-branch --branch master https://github.com/coderus/led-lamp-webui.git || true
   - pushd led-lamp-webui
   - git pull
   - npm install
