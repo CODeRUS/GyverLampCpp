@@ -32,10 +32,10 @@ void ClockEffect::tick()
 
     if (hours) {
         myMatrix->setTextColor(hoursColor);
-        myMatrix->setCursor(0, 0);
+        myMatrix->setCursor(0, 5);
     } else {
         myMatrix->setTextColor(minutesColor);
-        myMatrix->setCursor(-13, 0);
+        myMatrix->setCursor(-13, 5);
     }
     myMatrix->print(getClockTime());
     myMatrix->show();

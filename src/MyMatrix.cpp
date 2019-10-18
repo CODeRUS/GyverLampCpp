@@ -108,7 +108,7 @@ void MyMatrix::fillProgress(double progress)
     }
 
     const String percent = String(static_cast<int>(progress * 100));
-    setCursor(0, 0);
+    setCursor(0, 5);
     setPassThruColor(CRGB(40, 0, 0));
     print(percent);
     setPassThruColor();
