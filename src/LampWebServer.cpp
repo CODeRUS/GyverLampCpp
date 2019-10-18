@@ -43,15 +43,6 @@ void parseTextMessage(const String &message)
     mySettings->ProcessConfig(message);
 }
 
-String templateProcessor(const String &var)
-{
-    Serial.printf_P(PSTR("[TEMPLATE] %s\n"), var.c_str());
-    if (var == F("ARG_HTTP_PORT")) {
-        return String(httpPort);
-    }
-    return String();
-}
-
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
     if (type == WS_EVT_CONNECT) {
         Serial.printf_P(PSTR("ws[%s][%u] connect\n"), server->url(), client->id());
@@ -205,7 +196,7 @@ void notFoundHandler(AsyncWebServerRequest *request) {
     if (request->url().endsWith(F(".map"))) {
         request->send(404);
     } else {
-        request->send(SPIFFS, F("/index.html"), F("text/html"), false, templateProcessor);
+        request->send(SPIFFS, F("/index.html"), F("text/html"));
     }
 }
 
@@ -449,6 +440,10 @@ void LampWebServer::configureHandlers()
         String fileName = root.fileName();
 #endif
         String resultName = String(fileName);
+        if (resultName.endsWith(F(".gz"))) {
+            resultName = resultName.substring(0, resultName.length() - 3);
+            fileName = resultName;
+        }
         if (resultName.endsWith(F(".css"))) {
             resultName = String(F("/static/css")) + fileName;
         } else if (resultName.endsWith(".js")) {
@@ -479,14 +474,9 @@ void LampWebServer::configureHandlers()
     webServer->on(PSTR("/updateSize"), HTTP_POST, updateSizeHandler);
 
     if (wifiConnected) {
-        webServer->on(PSTR("/"), HTTP_GET, [](AsyncWebServerRequest *request) {
-            request->send(SPIFFS, F("/index.html"), F("text/html"), false, templateProcessor);
-        });
-
+        webServer->serveStatic(PSTR("/"), SPIFFS, PSTR("/index.html"));
         webServer->onNotFound(notFoundHandler);
     } else {
-        webServer->on(PSTR("/lamp"), HTTP_GET, [](AsyncWebServerRequest *request) {
-            request->send(SPIFFS, F("/index.html"), F("text/html"), false, templateProcessor);
-        });
+        webServer->serveStatic(PSTR("/lamp"), SPIFFS, PSTR("/index.html"));
     }
 }
