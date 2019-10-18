@@ -110,7 +110,7 @@ void SoundEffect::tick()
     delete[] vImag;
 
     myMatrix->clear();
-    int readBands[EQBANDS] = {0};
+    int readBands[EQBANDS] = {INT_MAX};
     for (int i = 2; i < (SAMPLES / 2); i++) { // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency and its value the amplitude.
         if (vReal[i] > noiseFilter) { // Add a crude noise filter, 10 x amplitude or more
             byte bandNum = getBand(i);
@@ -125,7 +125,7 @@ void SoundEffect::tick()
 
 //    Serial.print(F("E: "));
     for (int bandNum = 0; bandNum < EQBANDS; bandNum++) {
-        if (readBands[bandNum] > 0 && audiospectrum[bandNum].curval != readBands[bandNum]) {
+        if (readBands[bandNum] < INT_MAX && audiospectrum[bandNum].curval != readBands[bandNum]) {
             audiospectrum[bandNum].curval = readBands[bandNum];
         }
         displayBand(bandNum, audiospectrum[bandNum].curval);
