@@ -171,7 +171,7 @@ void setup() {
     lampWebServer->AutoConnect();
     Serial.println(F("AutoConnect finished"));
     if (LocalDNS::Begin()) {
-        LocalDNS::AddService(PSTR("http"), PSTR("tcp"), webServerPort);
+        LocalDNS::AddService(F("http"), F("tcp"), webServerPort);
     } else {
         Serial.println(F("An Error has occurred while initializing mDNS"));
     }

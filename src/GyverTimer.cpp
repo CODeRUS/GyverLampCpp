@@ -92,13 +92,13 @@ void GyverTimer::ReadTime()
 
     const unsigned long rawTime = timeClient->getEpochTime();
     hours = (rawTime % 86400L) / 3600;
-    hoursString = hours < 10 ? PSTR("0") + String(hours) : String(hours);
+    hoursString = hours < 10 ? String(0) + String(hours) : String(hours);
 
     minutes = (rawTime % 3600) / 60;
-    minutesString = minutes < 10 ? PSTR("0") + String(minutes) : String(minutes);
+    minutesString = minutes < 10 ? String(0) + String(minutes) : String(minutes);
 
     seconds = rawTime % 60;
-    secondsString = seconds < 10 ? PSTR("0") + String(seconds) : String(seconds);
+    secondsString = seconds < 10 ? String(0) + String(seconds) : String(seconds);
 }
 
 String GyverTimer::Hours()

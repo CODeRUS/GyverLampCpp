@@ -11,7 +11,7 @@ uint16_t minutesColor = myMatrix->Color(30, 60, 30);
 
 String getClockTime()
 {
-    return GyverTimer::Hours() + PSTR(":") + GyverTimer::Minutes();
+    return GyverTimer::Hours() + F(":") + GyverTimer::Minutes();
 }
 
 } // namespace

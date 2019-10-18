@@ -103,7 +103,7 @@ void Settings::ProcessConfig(const String &message)
 
     const String event = doc[F("event")];
     if (event == F("WORKING")) {
-        const bool working = doc[PSTR("data")];
+        const bool working = doc[F("data")];
 
         Serial.printf_P(PSTR("working: %s\n"), working ? PSTR("true") : PSTR("false"));
         mySettings->generalSettings.working = working;
