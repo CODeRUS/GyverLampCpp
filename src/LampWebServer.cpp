@@ -202,10 +202,10 @@ void notFoundHandler(AsyncWebServerRequest *request) {
         }
     }
 
-    if (request->url().endsWith(PSTR(".map"))) {
+    if (request->url().endsWith(F(".map"))) {
         request->send(404);
     } else {
-        request->send(SPIFFS, PSTR("/index.html"), PSTR("text/html"), false, templateProcessor);
+        request->send(SPIFFS, F("/index.html"), F("text/html"), false, templateProcessor);
     }
 }
 
@@ -222,7 +222,7 @@ void drawProgress(size_t progress)
 
 void updateSizeHandler(AsyncWebServerRequest *request)
 {
-    const String fileSize = request->arg(PSTR("fileSize"));
+    const String fileSize = request->arg(F("fileSize"));
     updateSize = static_cast<size_t>(fileSize.toInt());
     Serial.printf_P(PSTR("Update size: %zu\n"), updateSize);
     request->send(200);
@@ -384,7 +384,7 @@ void LampWebServer::StartServer()
 {
     Serial.println(F("Start WebSocket server"));
 
-    socket = new AsyncWebSocket(PSTR("/ws"));
+    socket = new AsyncWebSocket(F("/ws"));
     socket->onEvent(onWsEvent);
 
     webServer->addHandler(socket);
@@ -480,13 +480,13 @@ void LampWebServer::configureHandlers()
 
     if (wifiConnected) {
         webServer->on(PSTR("/"), HTTP_GET, [](AsyncWebServerRequest *request) {
-            request->send(SPIFFS, PSTR("/index.html"), PSTR("text/html"), false, templateProcessor);
+            request->send(SPIFFS, F("/index.html"), F("text/html"), false, templateProcessor);
         });
 
         webServer->onNotFound(notFoundHandler);
     } else {
         webServer->on(PSTR("/lamp"), HTTP_GET, [](AsyncWebServerRequest *request) {
-            request->send(SPIFFS, PSTR("/index.html"), PSTR("text/html"), false, templateProcessor);
+            request->send(SPIFFS, F("/index.html"), F("text/html"), false, templateProcessor);
         });
     }
 }
