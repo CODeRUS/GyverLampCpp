@@ -26,14 +26,12 @@ bool isUpdatingFlag = false;
 
 LampWebServer *instance = nullptr;
 AsyncWebServer *webServer = nullptr;
-AsyncWebServer *socketServer = nullptr;
 AsyncWebSocket *socket = nullptr;
 AsyncWiFiManager  *wifiManager = nullptr;
 DNSServer *dnsServer = nullptr;
 bool wifiConnected = false;
 
 uint16_t httpPort = 80;
-uint16_t websocketPort = 8000;
 
 uint32_t restartTimer = 0;
 
@@ -50,9 +48,6 @@ String templateProcessor(const String &var)
     Serial.printf_P(PSTR("[TEMPLATE] %s\n"), var.c_str());
     if (var == F("ARG_HTTP_PORT")) {
         return String(httpPort);
-    }
-    if (var == F("ARG_WS_PORT")) {
-        return String(websocketPort);
     }
     return String();
 }
@@ -342,17 +337,15 @@ LampWebServer *LampWebServer::Instance()
     return instance;
 }
 
-void LampWebServer::Initialize(uint16_t webPort, uint16_t wsPort)
+void LampWebServer::Initialize(uint16_t webPort)
 {
     if (instance) {
         return;
     }
 
     httpPort = webPort;
-    websocketPort = wsPort;
     Serial.printf_P(PSTR("Initializing web server at: %u\n"), webPort);
-    Serial.printf_P(PSTR("Initializing web socket at: %u\n"), wsPort);
-    instance = new LampWebServer(webPort, wsPort);
+    instance = new LampWebServer(webPort);
 }
 
 bool LampWebServer::IsConnected()
@@ -389,31 +382,28 @@ void LampWebServer::AutoConnect()
 
 void LampWebServer::StartServer()
 {
-    configureHandlers();
-
-    webServer->begin();
-
     Serial.println(F("Start WebSocket server"));
 
-    socket = new AsyncWebSocket(PSTR("/"));
+    socket = new AsyncWebSocket(PSTR("/ws"));
     socket->onEvent(onWsEvent);
 
-    socketServer->addHandler(socket);
-    socketServer->begin();
+    webServer->addHandler(socket);
+
+    configureHandlers();
+    webServer->begin();
 }
 
-LampWebServer::LampWebServer(uint16_t webPort, uint16_t wsPort)
+LampWebServer::LampWebServer(uint16_t webPort)
 {
     webServer = new AsyncWebServer(webPort);
-    socketServer = new AsyncWebServer(wsPort);
 }
 
 void LampWebServer::Process()
 {
-    if (!wifiConnected && wifiManager) {
+    if (!wifiConnected) {
         wifiManager->safeLoop();
-        wifiManager->criticalLoop();
-    } else {
+//        wifiManager->criticalLoop();
+    } else if (wifiManager) {
         delete wifiManager;
         wifiManager = nullptr;
         delete dnsServer;

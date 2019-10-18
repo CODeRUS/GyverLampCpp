@@ -22,14 +22,13 @@
 namespace  {
 
 uint16_t webServerPort = 80;
-uint16_t webSocketPort = 8000;
 
 #if defined(ESP32)
 const uint8_t btnPin = 15;
 #elif defined(SONOFF)
 const uint8_t btnPin = 5;
 #else
-const uint8_t btnPin = D5;
+const uint8_t btnPin = D2;
 #endif
 
 GButton *button = nullptr;
@@ -39,6 +38,8 @@ bool isHolding = false;
 
 uint32_t logTimer = 0;
 uint32_t logInterval = 10 * 1000;
+
+bool setupMode = false;
 
 void printFlashInfo()
 {
@@ -155,36 +156,46 @@ void setup() {
         Serial.println(F("An Error has occurred while mounting SPIFFS"));
         return;
     }
+
+    button = new GButton(btnPin, GButton::PullTypeLow, GButton::DefaultStateOpen);
+    button->setTickMode(false);
+    button->setStepTimeout(20);
+
     EffectsManager::Initialize();
     Settings::Initialize();
-
-    if (mySettings->generalSettings.soundControl) {
-        Spectrometer::Initialize();
-    }
-
     MyMatrix::Initialize();
-    myMatrix->matrixTest();
-    effectsManager->ActivateEffect(mySettings->generalSettings.activeEffect);
 
-    LampWebServer::Initialize(webServerPort, webSocketPort);
+    LampWebServer::Initialize(webServerPort);
 
     Serial.println(F("AutoConnect started"));
     lampWebServer->AutoConnect();
     Serial.println(F("AutoConnect finished"));
     if (LocalDNS::Begin()) {
         LocalDNS::AddService(PSTR("http"), PSTR("tcp"), webServerPort);
-        LocalDNS::AddService(PSTR("ws"), PSTR("tcp"), webSocketPort);
     } else {
         Serial.println(F("An Error has occurred while initializing mDNS"));
     }
     lampWebServer->StartServer();
+    myMatrix->matrixTest();
     if (lampWebServer->IsConnected()) {
         GyverTimer::Initialize();
+    } else {
+        button->tick();
+        if (button->state()) {
+            Serial.println(F("Setup mode entered. No effects!"));
+            myMatrix->setBrightness(80);
+            myMatrix->fill(CRGB(0, 20, 0), true);
+            setupMode = true;
+            myMatrix->clear(true);
+            return;
+        }
     }
 
-    button = new GButton(btnPin, GButton::PullTypeLow, GButton::DefaultStateOpen);
-    button->setTickMode(false);
-    button->setStepTimeout(20);
+//    if (mySettings->generalSettings.soundControl) {
+//        Spectrometer::Initialize();
+//    }
+
+    effectsManager->ActivateEffect(mySettings->generalSettings.activeEffect);
 }
 
 void loop() {
@@ -198,13 +209,17 @@ void loop() {
         return;
     }
 
-    GyverTimer::Process();
     LocalDNS::Process();
+    if (lampWebServer->IsConnected()) {
+        GyverTimer::Process();
+    } else if (setupMode) {
+        return;
+    }
     processButton();
 
-    if (mySettings->generalSettings.soundControl) {
-        mySpectrometer->process();
-    }
+//    if (mySettings->generalSettings.soundControl) {
+//        mySpectrometer->process();
+//    }
 
     if (mySettings->generalSettings.working) {
         effectsManager->Process();
@@ -214,8 +229,8 @@ void loop() {
 
     mySettings->Process();
 
-    if (millis() - logTimer > logInterval) {
-        printFreeHeap();
-        logTimer = millis();
-    }
+//    if (millis() - logTimer > logInterval) {
+//        printFreeHeap();
+//        logTimer = millis();
+//    }
 }

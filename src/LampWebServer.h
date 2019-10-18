@@ -9,7 +9,7 @@ class LampWebServer
 {
 public:
     static LampWebServer *Instance();
-    static void Initialize(uint16_t webPort = 80, uint16_t wsPort = 8000);
+    static void Initialize(uint16_t webPort = 80);
     bool IsConnected();
     void AutoConnect();
     void StartServer();
@@ -21,6 +21,6 @@ private:
     void configureHandlers();
 
 protected:
-    LampWebServer(uint16_t webPort, uint16_t wsPort);
+    LampWebServer(uint16_t webPort);
 };
 
