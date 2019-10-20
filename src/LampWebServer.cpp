@@ -426,41 +426,11 @@ bool LampWebServer::isUpdating()
 
 void LampWebServer::configureHandlers()
 {
-#if defined(ESP32)
-    File root = SPIFFS.open("/");
-    if (!root) {
-        Serial.println("Error opening SPIFFS root!");
-        return;
-    }
-    while (File file = root.openNextFile()) {
-        String fileName = String(file.name());
-#else
-    Dir root = SPIFFS.openDir("/");
-    while (root.next()) {
-        String fileName = root.fileName();
-#endif
-        String resultName = String(fileName);
-        if (resultName.endsWith(F(".gz"))) {
-            resultName = resultName.substring(0, resultName.length() - 3);
-            fileName = resultName;
-        }
-        if (resultName.endsWith(F(".css"))) {
-            resultName = String(F("/static/css")) + fileName;
-        } else if (resultName.endsWith(".js")) {
-            resultName = String(F("/static/js")) + fileName;
-        } else if (resultName.endsWith(F(".html"))) {
-            resultName = resultName.substring(0, resultName.indexOf('.'));
-        }
-        Serial.printf_P(PSTR("Adding web handler from %s to %s\n"), resultName.c_str(), fileName.c_str());
-
-        webServer->serveStatic(resultName.c_str(), SPIFFS, fileName.c_str());
-#if defined(ESP32)
-        file.close();
-    }
-    root.close();
-#else
-    }
-#endif
+    webServer->serveStatic(PSTR("/static/js/"), SPIFFS, PSTR("/"));
+    webServer->serveStatic(PSTR("/static/css/"), SPIFFS, PSTR("/"));
+    AsyncStaticWebHandler &rootHandler =
+    webServer->serveStatic(PSTR("/"), SPIFFS, PSTR("/"))
+               .setCacheControl(PSTR("max-age=86400"));
 
     webServer->on(PSTR("/prettyJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
         PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024 * 5);
@@ -474,9 +444,11 @@ void LampWebServer::configureHandlers()
     webServer->on(PSTR("/updateSize"), HTTP_POST, updateSizeHandler);
 
     if (wifiConnected) {
-        webServer->serveStatic(PSTR("/"), SPIFFS, PSTR("/index.html"));
+        Serial.println(F("Installing handlers for STA mode"));
+        rootHandler.setDefaultFile(PSTR("index.html"));
         webServer->onNotFound(notFoundHandler);
     } else {
+        Serial.println(F("Installing handlers for AP mode"));
         webServer->serveStatic(PSTR("/lamp"), SPIFFS, PSTR("/index.html"));
     }
 }
