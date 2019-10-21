@@ -19,6 +19,17 @@
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
 
+#if defined(WPAE_USERNAME)
+#if defined(ESP8266)
+extern "C" {
+#include <user_interface.h>
+#include <wpa2_enterprise.h>
+}
+#else
+#include <esp_wpa2.h>
+#endif
+#endif
+
 namespace  {
 
 size_t updateSize = 0;
@@ -354,9 +365,59 @@ void LampWebServer::AutoConnect()
         dnsServer = new DNSServer();
     }
 
+#if defined(WPAE_USERNAME)
+    Serial.print(F("Connecting to WPA-E network: "));
+    Serial.println(WPAE_SSID);
+#if defined(ESP32)
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_STA);
+    esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)WPAE_USERNAME, strlen(WPAE_USERNAME));
+    esp_wifi_sta_wpa2_ent_set_username((uint8_t *)WPAE_USERNAME, strlen(WPAE_USERNAME));
+    esp_wifi_sta_wpa2_ent_set_password((uint8_t *)WPAE_PASSWORD, strlen(WPAE_PASSWORD));
+    esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();
+    esp_wifi_sta_wpa2_ent_enable(&config);
+    WiFi.begin(WPAE_SSID);
+#else
+    wifi_set_opmode(STATION_MODE);
+    struct station_config wifi_config;
+    memset(&wifi_config, 0, sizeof(wifi_config));
+    strcpy((char*)wifi_config.ssid, WPAE_SSID);
+    wifi_station_set_config(&wifi_config);
+    wifi_station_clear_cert_key();
+    wifi_station_clear_enterprise_ca_cert();
+    wifi_station_set_wpa2_enterprise_auth(1);
+    wifi_station_set_enterprise_identity((uint8*)WPAE_USERNAME, strlen(WPAE_USERNAME));
+    wifi_station_set_enterprise_username((uint8*)WPAE_USERNAME, strlen(WPAE_USERNAME));
+    wifi_station_set_enterprise_password((uint8*)WPAE_PASSWORD, strlen(WPAE_PASSWORD));
+    wifi_station_connect();
+#endif
+
+    int counter = 0;
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+
+#if defined(ESP8266)
+        ESP.wdtFeed();
+        station_status_t status = wifi_station_get_connect_status();
+        if (status == STATION_CONNECT_FAIL) {
+            ESP.restart();
+        }
+#endif
+
+        counter++;
+        if (counter >= 60) { //after 30 seconds timeout - reset board
+            ESP.restart();
+        }
+    }
+    wifiConnected = true;
+
+#else
     wifiManager = new AsyncWiFiManager(webServer, dnsServer);
     wifiManager->setSaveConfigCallback(wifiConnectedCallback);
     wifiConnected = wifiManager->tryToConnect();
+#endif
+
     if (wifiConnected) {
         Serial.println(F("Wifi connected to saved AP!"));
         Serial.print(F("Local ip: "));
