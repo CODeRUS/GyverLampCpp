@@ -273,7 +273,9 @@ void LampWebServer::Initialize(uint16_t webPort)
     if (instance) {
         return;
     }
-
+#if defined(ESP8266)
+    WiFi.setSleepMode(WIFI_NONE_SLEEP);
+#endif
     httpPort = webPort;
     Serial.printf_P(PSTR("Initializing web server at: %u\n"), webPort);
     instance = new LampWebServer(webPort);

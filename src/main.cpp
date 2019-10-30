@@ -147,7 +147,6 @@ void setup() {
 #if defined(ESP8266)
     ESP.wdtDisable();
     ESP.wdtEnable(0);
-    WiFi.setSleepMode(WIFI_NONE_SLEEP);
 #endif
 
     setupSerial();
