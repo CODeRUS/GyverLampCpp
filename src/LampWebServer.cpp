@@ -12,23 +12,12 @@
 #endif
 
 #include <ESPAsyncWebServer.h>
-#include <ESPAsyncWiFiManager.h>
-#include <DNSServer.h>
+#include <ESPReactWifiManager.h>
 
 #define ARDUINOJSON_ENABLE_PROGMEM 1
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
 
-#if defined(WPAE_USERNAME)
-#if defined(ESP8266)
-extern "C" {
-#include <user_interface.h>
-#include <wpa2_enterprise.h>
-}
-#else
-#include <esp_wpa2.h>
-#endif
-#endif
 
 namespace  {
 
@@ -38,9 +27,10 @@ bool isUpdatingFlag = false;
 LampWebServer *instance = nullptr;
 AsyncWebServer *webServer = nullptr;
 AsyncWebSocket *socket = nullptr;
-AsyncWiFiManager  *wifiManager = nullptr;
-DNSServer *dnsServer = nullptr;
+ESPReactWifiManager *wifiManager = nullptr;
 bool wifiConnected = false;
+
+void (*onConnectedCallback)(bool) = nullptr;
 
 uint16_t httpPort = 80;
 
@@ -160,57 +150,6 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
     }
 }
 
-void notFoundHandler(AsyncWebServerRequest *request) {
-    Serial.print(F("NOT_FOUND: "));
-    if (request->method() == HTTP_GET)
-        Serial.print(F("GET"));
-    else if (request->method() == HTTP_POST)
-        Serial.print(F("POST"));
-    else if (request->method() == HTTP_DELETE)
-        Serial.print(F("DELETE"));
-    else if (request->method() == HTTP_PUT)
-        Serial.print(F("PUT"));
-    else if (request->method() == HTTP_PATCH)
-        Serial.print(F("PATCH"));
-    else if (request->method() == HTTP_HEAD)
-        Serial.print(F("HEAD"));
-    else if (request->method() == HTTP_OPTIONS)
-        Serial.print(F("OPTIONS"));
-    else
-        Serial.print(F("UNKNOWN"));
-    Serial.printf_P(PSTR(" http://%s%s\n"), request->host().c_str(), request->url().c_str());
-
-    if (request->contentLength()) {
-        Serial.printf_P(PSTR("_CONTENT_TYPE: %s\n"), request->contentType().c_str());
-        Serial.printf_P(PSTR("_CONTENT_LENGTH: %zu\n"), request->contentLength());
-    }
-
-    size_t headers = request->headers();
-    size_t i;
-    for(i=0; i<headers; i++) {
-        AsyncWebHeader* h = request->getHeader(i);
-        Serial.printf_P(PSTR("_HEADER[%s]: %s\n"), h->name().c_str(), h->value().c_str());
-    }
-
-    size_t params = request->params();
-    for(i=0; i<params; i++) {
-        AsyncWebParameter* p = request->getParam(i);
-        if (p->isFile()) {
-            Serial.printf_P(PSTR("_FILE[%s]: %s, size: %zu\n"), p->name().c_str(), p->value().c_str(), p->size());
-        } else if (p->isPost()) {
-            Serial.printf_P(PSTR("_POST[%s]: %s\n"), p->name().c_str(), p->value().c_str());
-        } else {
-            Serial.printf_P(PSTR("_GET[%s]: %s\n"), p->name().c_str(), p->value().c_str());
-        }
-    }
-
-    if (request->url().endsWith(F(".map"))) {
-        request->send(404);
-    } else {
-        request->send(SPIFFS, F("/index.html"), F("text/html"));
-    }
-}
-
 void drawProgress(size_t progress)
 {
     double pcs;
@@ -322,16 +261,6 @@ void updateFileHandler(AsyncWebServerRequest *request, const String& filename, s
     updateHandler(data, len, index, request->contentLength(), final);
 }
 
-void wifiConnectedCallback()
-{
-    Serial.println(F("Wifi connected!"));
-    wifiConnected = true;
-    Serial.print(F("Local ip: "));
-    Serial.println(WiFi.localIP());
-
-    ESP.restart();
-}
-
 } // namespace
 
 LampWebServer *LampWebServer::Instance()
@@ -361,80 +290,24 @@ void LampWebServer::AutoConnect()
         return;
     }
 
-    if (!dnsServer) {
-        dnsServer = new DNSServer();
-    }
-
-#if defined(WPAE_USERNAME)
-    Serial.print(F("Connecting to WPA-E network: "));
-    Serial.println(WPAE_SSID);
-#if defined(ESP32)
-    WiFi.disconnect(true);
-    WiFi.mode(WIFI_STA);
-    esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)WPAE_USERNAME, strlen(WPAE_USERNAME));
-    esp_wifi_sta_wpa2_ent_set_username((uint8_t *)WPAE_USERNAME, strlen(WPAE_USERNAME));
-    esp_wifi_sta_wpa2_ent_set_password((uint8_t *)WPAE_PASSWORD, strlen(WPAE_PASSWORD));
-    esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();
-    esp_wifi_sta_wpa2_ent_enable(&config);
-    WiFi.begin(WPAE_SSID);
-#else
-    wifi_set_opmode(STATION_MODE);
-    struct station_config wifi_config;
-    memset(&wifi_config, 0, sizeof(wifi_config));
-    strcpy((char*)wifi_config.ssid, WPAE_SSID);
-    wifi_station_set_config(&wifi_config);
-    wifi_station_clear_cert_key();
-    wifi_station_clear_enterprise_ca_cert();
-    wifi_station_set_wpa2_enterprise_auth(1);
-    wifi_station_set_enterprise_identity((uint8*)WPAE_USERNAME, strlen(WPAE_USERNAME));
-    wifi_station_set_enterprise_username((uint8*)WPAE_USERNAME, strlen(WPAE_USERNAME));
-    wifi_station_set_enterprise_password((uint8*)WPAE_PASSWORD, strlen(WPAE_PASSWORD));
-    wifi_station_connect();
-#endif
-
-    int counter = 0;
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-
-#if defined(ESP8266)
-        ESP.wdtFeed();
-        station_status_t status = wifi_station_get_connect_status();
-        if (status == STATION_CONNECT_FAIL) {
-            ESP.restart();
+    wifiManager = new ESPReactWifiManager();
+    wifiManager->setFinishedCallback([](bool isAPMode) {
+        webServer->begin();
+        wifiConnected = !isAPMode;
+        if (onConnectedCallback) {
+            onConnectedCallback(wifiConnected);
         }
-#endif
-
-        counter++;
-        if (counter >= 60) { //after 30 seconds timeout - reset board
-            ESP.restart();
-        }
-    }
-    wifiConnected = true;
-
-#else
-    wifiManager = new AsyncWiFiManager(webServer, dnsServer);
-    wifiManager->setSaveConfigCallback(wifiConnectedCallback);
-    wifiConnected = wifiManager->tryToConnect();
-#endif
-
-    if (wifiConnected) {
-        Serial.println(F("Wifi connected to saved AP!"));
-        Serial.print(F("Local ip: "));
-        Serial.println(WiFi.localIP());
-    } else {
-        Serial.println(F("Wifi not connected!"));
-        wifiManager->setAPStaticIPConfig(IPAddress(8,8,8,8), IPAddress(8,8,8,8), IPAddress(255,255,255,0));
-        wifiManager->startConfigPortalModeless(mySettings->connectionSettings.apName.c_str(), nullptr);
-        Serial.print(F("AP ip: "));
-        Serial.println(WiFi.softAPIP());
-        wifiManager->loop();
-    }
+    });
+    wifiManager->setNotFoundCallback([](AsyncWebServerRequest* request) {
+        request->send(SPIFFS, F("index.html"));
+    });
+    wifiManager->setupHandlers(webServer);
+    wifiManager->autoConnect(mySettings->connectionSettings.apName);
 }
 
-void LampWebServer::StartServer()
+LampWebServer::LampWebServer(uint16_t webPort)
 {
-    Serial.println(F("Start WebSocket server"));
+    webServer = new AsyncWebServer(webPort);
 
     socket = new AsyncWebSocket(F("/ws"));
     socket->onEvent(onWsEvent);
@@ -442,25 +315,11 @@ void LampWebServer::StartServer()
     webServer->addHandler(socket);
 
     configureHandlers();
-    webServer->begin();
-}
-
-LampWebServer::LampWebServer(uint16_t webPort)
-{
-    webServer = new AsyncWebServer(webPort);
 }
 
 void LampWebServer::Process()
 {
-    if (!wifiConnected) {
-        wifiManager->safeLoop();
-//        wifiManager->criticalLoop();
-    } else if (wifiManager) {
-        delete wifiManager;
-        wifiManager = nullptr;
-        delete dnsServer;
-        dnsServer = nullptr;
-    }
+    wifiManager->loop();
 
     if (restartTimer > 0 && (millis() > restartTimer)) {
         ESP.restart();
@@ -485,13 +344,20 @@ bool LampWebServer::isUpdating()
     return isUpdatingFlag;
 }
 
+void LampWebServer::onConnected(void (*func)(bool))
+{
+    onConnectedCallback = func;
+}
+
 void LampWebServer::configureHandlers()
 {
-    webServer->serveStatic(PSTR("/static/js/"), SPIFFS, PSTR("/"));
-    webServer->serveStatic(PSTR("/static/css/"), SPIFFS, PSTR("/"));
-    AsyncStaticWebHandler &rootHandler =
+    webServer->serveStatic(PSTR("/static/js/"), SPIFFS, PSTR("/"))
+        .setCacheControl(PSTR("max-age=86400"));
+    webServer->serveStatic(PSTR("/static/css/"), SPIFFS, PSTR("/"))
+        .setCacheControl(PSTR("max-age=86400"));
     webServer->serveStatic(PSTR("/"), SPIFFS, PSTR("/"))
-               .setCacheControl(PSTR("max-age=86400"));
+        .setCacheControl(PSTR("max-age=86400"))
+        .setDefaultFile(PSTR("index.html"));
 
     webServer->on(PSTR("/prettyJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
         PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024 * 5);
@@ -503,13 +369,4 @@ void LampWebServer::configureHandlers()
 
     webServer->on(PSTR("/update"), HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);
     webServer->on(PSTR("/updateSize"), HTTP_POST, updateSizeHandler);
-
-    if (wifiConnected) {
-        Serial.println(F("Installing handlers for STA mode"));
-        rootHandler.setDefaultFile(PSTR("index.html"));
-        webServer->onNotFound(notFoundHandler);
-    } else {
-        Serial.println(F("Installing handlers for AP mode"));
-        webServer->serveStatic(PSTR("/lamp"), SPIFFS, PSTR("/index.html"));
-    }
 }

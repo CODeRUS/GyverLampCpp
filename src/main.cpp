@@ -40,6 +40,7 @@ uint32_t logTimer = 0;
 uint32_t logInterval = 10 * 1000;
 
 bool setupMode = false;
+bool connectFinished = false;
 
 void printFlashInfo()
 {
@@ -146,6 +147,7 @@ void setup() {
 #if defined(ESP8266)
     ESP.wdtDisable();
     ESP.wdtEnable(0);
+    WiFi.setSleepMode(WIFI_NONE_SLEEP);
 #endif
 
     setupSerial();
@@ -168,34 +170,36 @@ void setup() {
     LampWebServer::Initialize(webServerPort);
 
     Serial.println(F("AutoConnect started"));
-    lampWebServer->AutoConnect();
-    Serial.println(F("AutoConnect finished"));
-    if (LocalDNS::Begin()) {
-        LocalDNS::AddService(F("http"), F("tcp"), webServerPort);
-    } else {
-        Serial.println(F("An Error has occurred while initializing mDNS"));
-    }
-    lampWebServer->StartServer();
-    myMatrix->matrixTest();
-    if (lampWebServer->IsConnected()) {
-        GyverTimer::Initialize();
-    } else {
-        button->tick();
-        if (button->state()) {
-            Serial.println(F("Setup mode entered. No effects!"));
-            myMatrix->setBrightness(80);
-            myMatrix->fill(CRGB(0, 20, 0), true);
-            setupMode = true;
-            myMatrix->clear(true);
-            return;
+    lampWebServer->onConnected([](bool isConnected) {
+        connectFinished = true;
+        Serial.println(F("AutoConnect finished"));
+        if (LocalDNS::Begin()) {
+            LocalDNS::AddService(F("http"), F("tcp"), webServerPort);
+        } else {
+            Serial.println(F("An Error has occurred while initializing mDNS"));
         }
-    }
+        myMatrix->matrixTest();
+        if (isConnected) {
+            GyverTimer::Initialize();
+        } else {
+            button->tick();
+            if (button->state()) {
+                Serial.println(F("Setup mode entered. No effects!"));
+                myMatrix->setBrightness(80);
+                myMatrix->fill(CRGB(0, 20, 0), true);
+                setupMode = true;
+                myMatrix->clear(true);
+                return;
+            }
+        }
 
 //    if (mySettings->generalSettings.soundControl) {
 //        Spectrometer::Initialize();
 //    }
 
-    effectsManager->ActivateEffect(mySettings->generalSettings.activeEffect);
+        effectsManager->ActivateEffect(mySettings->generalSettings.activeEffect);
+    });
+    lampWebServer->AutoConnect();
 }
 
 void loop() {
@@ -204,6 +208,10 @@ void loop() {
 #endif
 
     lampWebServer->Process();
+
+    if (!connectFinished) {
+        return;
+    }
 
     if (lampWebServer->isUpdating()) {
         return;

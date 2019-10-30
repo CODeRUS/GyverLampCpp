@@ -12,10 +12,10 @@ public:
     static void Initialize(uint16_t webPort = 80);
     bool IsConnected();
     void AutoConnect();
-    void StartServer();
     void Process();
     void SendConfig(AsyncWebSocket *server, AsyncWebSocketClient *client = nullptr);
     bool isUpdating();
+    void onConnected(void (*func)(bool));
 
 private:
     void configureHandlers();
