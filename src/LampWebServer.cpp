@@ -293,14 +293,15 @@ void LampWebServer::AutoConnect()
     }
 
     wifiManager = new ESPReactWifiManager();
-    wifiManager->setFinishedCallback([](bool isAPMode) {
+    wifiManager->setFallbackToAp(false);
+    wifiManager->onFinished([](bool isAPMode) {
         webServer->begin();
         wifiConnected = !isAPMode;
         if (onConnectedCallback) {
             onConnectedCallback(wifiConnected);
         }
     });
-    wifiManager->setNotFoundCallback([](AsyncWebServerRequest* request) {
+    wifiManager->onNotFound([](AsyncWebServerRequest* request) {
         request->send(SPIFFS, F("index.html"));
     });
     wifiManager->setupHandlers(webServer);
@@ -321,7 +322,9 @@ LampWebServer::LampWebServer(uint16_t webPort)
 
 void LampWebServer::Process()
 {
-    wifiManager->loop();
+    if (wifiManager) {
+        wifiManager->loop();
+    }
 
     if (restartTimer > 0 && (millis() > restartTimer)) {
         ESP.restart();
