@@ -11,6 +11,10 @@
 #include <FS.h>
 #endif
 
+#ifndef U_FS
+#define U_FS U_SPIFFS
+#endif
+
 #include <ESPAsyncWebServer.h>
 #include <ESPReactWifiManager.h>
 
