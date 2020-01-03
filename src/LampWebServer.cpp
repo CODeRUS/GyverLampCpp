@@ -196,14 +196,14 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
         } else {
             int command = U_FLASH;
             if (data[0] == 0) {
-                command = U_SPIFFS;
+                command = U_FS;
                 Serial.println(F("Uploading SPIFFS started!"));
             } else {
                 Serial.println(F("Uploading FLASH started!"));
             }
 #if defined(ESP8266)
             Update.runAsync(true);
-            if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000), command) {
+            if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000, command)) {
 #elif defined(ESP32)
             if (!Update.begin(UPDATE_SIZE_UNKNOWN, command)) {
 #endif
