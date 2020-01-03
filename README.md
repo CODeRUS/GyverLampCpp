@@ -6,6 +6,26 @@ You can download latest build with artifacts from GitHub [Releases](https://gith
 
 fork of https://github.com/AlexGyver/GyverLamp for PlatformIO
 
+# How to build
+
+1. build firmware
+2. build filesystem
+
+# Filesystem build
+
+Manual steps:
+
+- build https://github.com/zeburek/led-lamp-webui
+- build https://github.com/CODeRUS/wifimanager-react-page
+- copy artifacts without folder structure to data_src
+
+Easy steps:
+
+- grab data_src.zip from latest release (https://github.com/CODeRUS/GyverLampCpp/releases)
+- extract to project folder
+
+Then just upload fs to module
+
 ## Changes
 
 - Rewritten for easier maintenance
