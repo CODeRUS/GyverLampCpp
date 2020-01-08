@@ -198,5 +198,11 @@
     "apName": "Fire Lamp",
     "ntpServer": "europe.pool.ntp.org",
     "ntpOffset": 10800
+  },
+  "mqtt": {
+    "host": "",
+    "port": 1883,
+    "username": "",
+    "password": ""
   }
 }

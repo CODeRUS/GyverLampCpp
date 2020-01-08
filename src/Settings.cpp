@@ -2,6 +2,8 @@
 #include "EffectsManager.h"
 #include "MyMatrix.h"
 #include "LocalDNS.h"
+#include "MqttClient.h"
+#include "LampWebServer.h"
 
 #include <ESPAsyncWebServer.h>
 
@@ -64,7 +66,7 @@ void Settings::Save()
         return;
     }
 
-    DynamicJsonDocument json(1024 * 5);
+    DynamicJsonDocument json(1024 * 6);
     JsonObject root = json.to<JsonObject>();
     BuildJson(root);
 
@@ -96,6 +98,13 @@ void Settings::WriteConfigTo(AsyncWebSocket *socket, AsyncWebSocketClient *clien
     }
 }
 
+void Settings::WriteEffectsMqtt(JsonArray &array)
+{
+    for (Effect *effect : effectsManager->effects) {
+        array.add(effect->settings.name);
+    }
+}
+
 void Settings::ProcessConfig(const String &message)
 {
     DynamicJsonDocument doc(512);
@@ -117,6 +126,24 @@ void Settings::ProcessConfig(const String &message)
     } else if (event == F("ALARMS_CHANGED")) {
 
     }
+
+    mqtt->update();
+}
+
+void Settings::ProcessCommandMqtt(const JsonObject &json)
+{
+    if (json.containsKey(F("state"))) {
+        const String state = json[F("state")];
+        mySettings->generalSettings.working = state == F("ON");
+    }
+    if (json.containsKey(F("effect"))) {
+        const String effect = json[F("effect")];
+        effectsManager->ChangeEffectByName(effect);
+    }
+    effectsManager->UpdateCurrentSettings(json);
+    SaveLater();
+
+    lampWebServer->Update();
 }
 
 void Settings::BuildJson(JsonObject &root)
@@ -149,8 +176,23 @@ void Settings::BuildJson(JsonObject &root)
     connectionObject[F("ntpServer")] = connectionSettings.ntpServer;
     connectionObject[F("ntpOffset")] = connectionSettings.ntpOffset;
 
+    JsonObject mqttObject = root.createNestedObject(F("mqtt"));
+    mqttObject[F("host")] = mqttSettings.host;
+    mqttObject[F("port")] = mqttSettings.port;
+    mqttObject[F("username")] = mqttSettings.username;
+    mqttObject[F("password")] = mqttSettings.password;
+
     JsonObject spectrometerObject = root.createNestedObject(F("spectrometer"));
     spectrometerObject[F("active")] = generalSettings.soundControl;
+}
+
+void Settings::BuildJsonMqtt(JsonObject &root)
+{
+    root[F("state")] = generalSettings.working ? F("ON") : F("OFF");
+    root[F("brightness")] = effectsManager->activeEffect()->settings.brightness;
+    root[F("speed")] = effectsManager->activeEffect()->settings.speed;
+    root[F("scale")] = effectsManager->activeEffect()->settings.scale;
+    root[F("effect")] = effectsManager->activeEffect()->settings.name;
 }
 
 Settings::Settings(uint32_t saveInterval)
@@ -219,6 +261,22 @@ Settings::Settings(uint32_t saveInterval)
        }
        if (connectionObject.containsKey(F("ntpOffset"))) {
            connectionSettings.ntpOffset = connectionObject[F("ntpOffset")];
+       }
+    }
+
+    if (root.containsKey(F("mqtt"))) {
+       JsonObject mqttObject = root[F("mqtt")];
+       if (mqttObject.containsKey(F("host"))) {
+           mqttSettings.host = mqttObject[F("host")].as<String>();
+       }
+       if (mqttObject.containsKey(F("port"))) {
+           mqttSettings.port = mqttObject[F("port")];
+       }
+       if (mqttObject.containsKey(F("username"))) {
+           mqttSettings.username = mqttObject[F("username")].as<String>();
+       }
+       if (mqttObject.containsKey(F("password"))) {
+           mqttSettings.password = mqttObject[F("password")].as<String>();
        }
     }
 

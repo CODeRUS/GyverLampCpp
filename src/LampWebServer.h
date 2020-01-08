@@ -16,6 +16,7 @@ public:
     void SendConfig(AsyncWebSocket *server, AsyncWebSocketClient *client = nullptr);
     bool isUpdating();
     void onConnected(void (*func)(bool));
+    void Update();
 
 private:
     void configureHandlers();

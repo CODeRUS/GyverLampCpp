@@ -42,6 +42,13 @@ public:
         uint32_t ntpOffset = 10800;
     };
 
+    struct MqttSettings {
+        String host = "";
+        uint16_t port = 1883;
+        String username = "";
+        String password = "";
+    };
+
     static Settings *Instance();
     static void Initialize(uint32_t saveInterval = 3000);
 
@@ -51,13 +58,17 @@ public:
     void Save();
 
     void BuildJson(JsonObject &root);
+    void BuildJsonMqtt(JsonObject &root);
     void WriteConfigTo(AsyncWebSocket *socket, AsyncWebSocketClient *client);
+    void WriteEffectsMqtt(JsonArray &array);
 
     void ProcessConfig(const String &message);
+    void ProcessCommandMqtt(const JsonObject &json);
 
     GeneralSettings generalSettings;
     MatrixSettings matrixSettings;
     ConenctionSettings connectionSettings;
+    MqttSettings mqttSettings;
 
 protected:
     Settings(uint32_t saveInterval = 3000);

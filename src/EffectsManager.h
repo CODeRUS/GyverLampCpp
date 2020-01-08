@@ -19,6 +19,7 @@ public:
     void Next();
     void Previous();
     void ChangeEffect(uint8_t index);
+    void ChangeEffectByName(const String &name);
     void ActivateEffect(uint8_t index);
 
     void UpdateCurrentSettings(const JsonObject &json);

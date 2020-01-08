@@ -130,6 +130,22 @@ void EffectsManager::ChangeEffect(uint8_t index)
     mySettings->SaveLater();
 }
 
+void EffectsManager::ChangeEffectByName(const String &name)
+{
+    for (size_t index = 0; index < effects.size(); index++) {
+        Effect *effect = effects[index];
+        if (effect->settings.name == name) {
+            activeEffect()->deactivate();
+            myMatrix->clear();
+            activeIndex = index;
+            ActivateEffect(activeIndex);
+            mySettings->SaveLater();
+
+            break;
+        }
+    }
+}
+
 void EffectsManager::ActivateEffect(uint8_t index)
 {
     if (index >= effects.size()) {

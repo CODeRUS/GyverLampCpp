@@ -358,6 +358,11 @@ void LampWebServer::onConnected(void (*func)(bool))
     onConnectedCallback = func;
 }
 
+void LampWebServer::Update()
+{
+    SendConfig(socket, nullptr);
+}
+
 void LampWebServer::configureHandlers()
 {
     webServer->serveStatic(PSTR("/static/js/"), SPIFFS, PSTR("/"))
@@ -369,7 +374,7 @@ void LampWebServer::configureHandlers()
         .setDefaultFile(PSTR("index.html"));
 
     webServer->on(PSTR("/prettyJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
-        PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024 * 5);
+        PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024 * 6);
         JsonObject root = response->getRoot();
         mySettings->BuildJson(root);
         response->setLength();

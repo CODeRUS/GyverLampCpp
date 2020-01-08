@@ -18,6 +18,7 @@
 #include "effects/Effect.h"
 
 #include "Spectrometer.h"
+#include "MqttClient.h"
 
 namespace  {
 
@@ -180,6 +181,7 @@ void setup() {
         myMatrix->matrixTest();
         if (isConnected) {
             GyverTimer::Initialize();
+            MqttClient::Initialize();
         } else {
             button->tick();
             if (button->state()) {
@@ -219,6 +221,7 @@ void loop() {
     LocalDNS::Process();
     if (lampWebServer->IsConnected()) {
         GyverTimer::Process();
+        mqtt->loop();
     } else if (setupMode) {
         return;
     }
