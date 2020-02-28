@@ -10,10 +10,12 @@ cache:
   - "~/.platformio"
   - ".pio/libdeps/esp32dev"
   - ".pio/libdeps/nodemcu"
-  - ".pio/libdeps/sonoff"
+  - ".pio/libdeps/sonoff-r1"
+  - ".pio/libdeps/sonoff-r1-4m"
   - ".pio/build/esp32dev"
   - ".pio/build/nodemcu"
-  - ".pio/build/sonoff"
+  - ".pio/build/sonoff-r1"
+  - ".pio/build/sonoff-r1-4m"
 before_install:
   - pip install -U pip
 install:
@@ -43,8 +45,10 @@ script:
   - platformio run -e esp32dev --target buildfs
   - platformio run -e nodemcu
   - platformio run -e nodemcu --target buildfs
-  - platformio run -e sonoff
-  - platformio run -e sonoff --target buildfs
+  - platformio run -e sonoff-r1
+  - platformio run -e sonoff-r1 --target buildfs
+  - platformio run -e sonoff-r1-4m
+  - platformio run -e sonoff-r1-4m --target buildfs
 before_deploy:
   - git config --local user.name "Travis CI"
   - git config --local user.email "coderusinbox@gmail.com"
@@ -54,8 +58,10 @@ before_deploy:
   - cp .pio/build/esp32dev/spiffs.bin esp32dev-spiffs.bin
   - cp .pio/build/nodemcu/firmware.bin nodemcu.bin
   - cp .pio/build/nodemcu/spiffs.bin nodemcu-spiffs.bin
-  - cp .pio/build/sonoff/firmware.bin sonoff.bin
-  - cp .pio/build/sonoff/spiffs.bin sonoff-spiffs.bin
+  - cp .pio/build/sonoff-r1/firmware.bin sonoff-r1.bin
+  - cp .pio/build/sonoff-r1/spiffs.bin sonoff-r1-spiffs.bin
+  - cp .pio/build/sonoff-r1-4m/firmware.bin sonoff-r1-4m.bin
+  - cp .pio/build/sonoff-r1-4m/spiffs.bin sonoff-r1-4m-spiffs.bin
 deploy:
   provider: releases
   api_key:
@@ -65,8 +71,10 @@ deploy:
     - "esp32dev-spiffs.bin"
     - "nodemcu.bin"
     - "nodemcu-spiffs.bin"
-    - "sonoff.bin"
-    - "sonoff-spiffs.bin"
+    - "sonoff-r1.bin"
+    - "sonoff-r1-spiffs.bin"
+    - "sonoff-r1-4m.bin"
+    - "sonoff-r1-4m-spiffs.bin"
     - "data_src.zip"
   skip_cleanup: true
   overwrite: true
