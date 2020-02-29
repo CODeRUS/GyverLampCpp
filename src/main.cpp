@@ -27,9 +27,17 @@ uint16_t webServerPort = 80;
 #if defined(ESP32)
 const uint8_t btnPin = 15;
 #elif defined(SONOFF)
-const uint8_t btnPin = 5;
+const uint8_t btnPin = 0;
+const uint8_t relayPin = 12;
+const uint8_t miniLedPin = 13;
 #else
 const uint8_t btnPin = D2;
+#endif
+
+#if defined(SONOFF)
+#define BTN_PULL GButton::PullTypeHigh
+#else
+#define BTN_PULL GButton::PullTypeLow
 #endif
 
 GButton *button = nullptr;
@@ -142,6 +150,14 @@ void setupSerial()
     Serial.flush();
 }
 
+#if defined(SONOFF)
+void updateSonoffPins()
+{
+    digitalWrite(relayPin, mySettings->generalSettings.working);
+    digitalWrite(miniLedPin, mySettings->generalSettings.working);
+}
+#endif
+
 }
 
 void setup() {
@@ -159,7 +175,12 @@ void setup() {
         return;
     }
 
-    button = new GButton(btnPin, GButton::PullTypeLow, GButton::DefaultStateOpen);
+#if defined(SONOFF)
+    pinMode(relayPin, OUTPUT);
+    pinMode(miniLedPin, OUTPUT);
+#endif
+
+    button = new GButton(btnPin, BTN_PULL, GButton::DefaultStateOpen);
     button->setTickMode(false);
     button->setStepTimeout(20);
 
@@ -199,6 +220,9 @@ void setup() {
 //    }
 
         effectsManager->ActivateEffect(mySettings->generalSettings.activeEffect);
+#if defined(SONOFF)
+        updateSonoffPins();
+#endif
     });
     lampWebServer->AutoConnect();
 }
@@ -236,6 +260,10 @@ void loop() {
     } else {
         myMatrix->clear(true);
     }
+
+#if defined(SONOFF)
+    updateSonoffPins();
+#endif
 
     mySettings->Process();
 
