@@ -1,23 +1,25 @@
 language: python
 python:
-- '2.7'
-node_js: 11
+  - '3.7'
+node_js:
+  - 'lts/*'
 sudo: false
 cache:
   directories:
-  - "~/virtualenv"
-  - "~/.cache/pip"
-  - "~/.platformio"
-  - ".pio/libdeps/esp32dev"
-  - ".pio/libdeps/nodemcu"
-  - ".pio/libdeps/sonoff-r1"
-  - ".pio/libdeps/sonoff-r1-4m"
-  - ".pio/build/esp32dev"
-  - ".pio/build/nodemcu"
-  - ".pio/build/sonoff-r1"
-  - ".pio/build/sonoff-r1-4m"
+    - "~/virtualenv"
+    - "~/.cache/pip"
+    - "~/.platformio"
+    - ".pio/libdeps/esp32dev"
+    - ".pio/libdeps/nodemcu"
+    - ".pio/libdeps/sonoff-r1"
+    - ".pio/libdeps/sonoff-r1-4m"
+    - ".pio/build/esp32dev"
+    - ".pio/build/nodemcu"
+    - ".pio/build/sonoff-r1"
+    - ".pio/build/sonoff-r1-4m"
 before_install:
   - pip install -U pip
+  - nvm install lts/*
 install:
   - pip install -U platformio
   - platformio update
@@ -34,13 +36,12 @@ script:
   - npm install
   - npm run build
   - popd
-  - for f in $(find led-lamp-webui/build/static -name "*.js" -o -name "*.css"); do cp -f $f data_src; done
-  - cp -f led-lamp-webui/build/index.html data_src
-  - cp -f led-lamp-webui/build/favicon.ico data_src
-  - sed -i -e "s#<body>#<body><script>window.ENV_HTTP_HOST=window.location.hostname+\":80\";</script><script>window.ENV_WEBSOCKET_HOST=window.location.hostname+\":80\";</script>#" data_src/index.html
-  - for f in $(find wifimanager-react-page/build/static -name "*.js" -o -name "*.css"); do cp -f $f data_src; done
-  - cp -f wifimanager-react-page/build/index.html data_src/wifi.html
-  - zip -r data_src.zip data_src
+  - for f in $(find led-lamp-webui/gzipped/static -name "*.js.gz" -o -name "*.css.gz"); do cp -f $f data; done
+  - cp -f led-lamp-webui/gzipped/index.html.gz data
+  - cp -f led-lamp-webui/build/favicon.ico data
+  - for f in $(find wifimanager-react-page/gzipped/static -name "*.js.gz" -o -name "*.css.gz"); do cp -f $f data; done
+  - cp -f wifimanager-react-page/gzipped/index.html.gz data/wifi.html.gz
+  - zip -r data.zip data
   - platformio run -e esp32dev
   - platformio run -e esp32dev --target buildfs
   - platformio run -e nodemcu
@@ -75,7 +76,7 @@ deploy:
     - "sonoff-r1-spiffs.bin"
     - "sonoff-r1-4m.bin"
     - "sonoff-r1-4m-spiffs.bin"
-    - "data_src.zip"
+    - "data.zip"
   skip_cleanup: true
   overwrite: true
   on:
