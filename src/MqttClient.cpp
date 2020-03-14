@@ -100,7 +100,7 @@ void reconnect()
 
     while (!client->connected() && tries < 10) {
         clientId = String(F("FireLampClient-")) + String(random(0xffff), HEX);
-        // client->setWill(availabilityTopic, String(F("false")), true);
+
         if (client->connect(clientId.c_str(),
                             mySettings->mqttSettings.username.c_str(),
                             mySettings->mqttSettings.password.c_str(),
