@@ -17,9 +17,11 @@ WiFiClient wifiClient;
 PubSubClient *client = nullptr;
 
 String commonTopic;
+
+String availabilityTopic;
+String configTopic;
 String setTopic;
 String stateTopic;
-String configTopic;
 
 String clientId;
 
@@ -61,7 +63,15 @@ void sendState()
     serializeJsonPretty(doc, Serial);
     Serial.println();
 
-    sendJson(stateTopic.c_str(), doc);
+    boolean success = sendJson(stateTopic.c_str(), doc);
+    Serial.printf_P(PSTR("State sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
+}
+
+void sendAvailability()
+{
+    Serial.println(F("Sending availability"));
+    boolean success = client->publish(availabilityTopic.c_str(), PSTR("true"));
+    Serial.printf_P(PSTR("Availability sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
 }
 
 void sendDiscovery()
@@ -72,6 +82,9 @@ void sendDiscovery()
     doc[F("unique_id")] = mySettings->connectionSettings.mdns;
     doc[F("cmd_t")] = F("~/set");
     doc[F("stat_t")] = F("~/state");
+    doc[F("avty_t")] = F("~/available");
+    doc[F("pl_avail")] = F("true");
+    doc[F("pl_not_avail")] = F("false");
     doc[F("schema")] = F("json");
     doc[F("brightness")] = true;
 //    doc[F("rgb")] = true;
@@ -85,7 +98,8 @@ void sendDiscovery()
     serializeJsonPretty(doc, Serial);
     Serial.println();
 
-    sendJson(configTopic.c_str(), doc);
+    boolean success = sendJson(configTopic.c_str(), doc);
+    Serial.printf_P(PSTR("Discovery sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
 }
 
 void reconnect()
@@ -102,11 +116,16 @@ void reconnect()
 
         if (client->connect(clientId.c_str(),
                             mySettings->mqttSettings.username.c_str(),
-                            mySettings->mqttSettings.password.c_str())) {
+                            mySettings->mqttSettings.password.c_str(),
+                            availabilityTopic.c_str(),
+                            0,
+                            false,
+                            PSTR("false"))) {
             Serial.println(F(" connected"));
 
             sendDiscovery();
             sendState();
+            sendAvailability();
             subscribe();
         } else {
             Serial.print('.');
@@ -128,6 +147,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     JsonObject json = doc.as<JsonObject>();
 
     serializeJsonPretty(doc, Serial);
+    Serial.println();
 
     mySettings->ProcessCommandMqtt(json);
 
@@ -172,6 +192,7 @@ void MqttClient::update()
 MqttClient::MqttClient()
 {
     if (mySettings->mqttSettings.host.isEmpty()) {
+        Serial.println(F("Empty host for MqttClient"));
         return;
     }
 
@@ -179,6 +200,7 @@ MqttClient::MqttClient()
     setTopic = commonTopic + String(F("/set"));
     stateTopic = commonTopic + String(F("/state"));
     configTopic = commonTopic + String(F("/config"));
+    availabilityTopic = commonTopic + String(F("/available"));
 
     client = new PubSubClient(wifiClient);
     client->setServer(mySettings->mqttSettings.host.c_str(),
