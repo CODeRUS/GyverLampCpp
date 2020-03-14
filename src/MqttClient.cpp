@@ -16,10 +16,11 @@ MqttClient *instance = nullptr;
 WiFiClient wifiClient;
 PubSubClient *client = nullptr;
 
+String availabilityTopic;
 String commonTopic;
+String configTopic;
 String setTopic;
 String stateTopic;
-String configTopic;
 
 String clientId;
 
@@ -99,15 +100,18 @@ void reconnect()
 
     while (!client->connected() && tries < 10) {
         clientId = String(F("FireLampClient-")) + String(random(0xffff), HEX);
-
+        // client->setWill(availabilityTopic, String(F("false")), true);
         if (client->connect(clientId.c_str(),
                             mySettings->mqttSettings.username.c_str(),
-                            mySettings->mqttSettings.password.c_str())) {
+                            mySettings->mqttSettings.password.c_str(),
+                            availabilityTopic.c_str(),
+                            0, true, String(F("false")).c_str())) {
             Serial.println(F(" connected"));
 
             sendDiscovery();
             sendState();
             subscribe();
+            client->publish(availabilityTopic.c_str(), String(F("true")).c_str(), true);
         } else {
             Serial.print('.');
             delay(1000);
@@ -179,6 +183,7 @@ MqttClient::MqttClient()
     setTopic = commonTopic + String(F("/set"));
     stateTopic = commonTopic + String(F("/state"));
     configTopic = commonTopic + String(F("/config"));
+    availabilityTopic = commonTopic + String(F("/available"));
 
     client = new PubSubClient(wifiClient);
     client->setServer(mySettings->mqttSettings.host.c_str(),
