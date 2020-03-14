@@ -1,0 +1,208 @@
+{
+  "effects": [
+    {
+      "id": "SparklesEffect",
+      "name": "Sparkles",
+      "speed": 121,
+      "scale": 12,
+      "brightness": 255
+    },
+    {
+      "id": "FireEffect",
+      "name": "Fire",
+      "speed": 37,
+      "scale": 1,
+      "brightness": 80
+    },
+    {
+      "id": "VerticalRainbowEffect",
+      "name": "Vertical rainbow",
+      "speed": 100,
+      "scale": 18,
+      "brightness": 80
+    },
+    {
+      "id": "HorizontalRainbowEffect",
+      "name": "Horizontal rainbow",
+      "speed": 100,
+      "scale": 18,
+      "brightness": 80
+    },
+    {
+      "id": "ColorsEffect",
+      "name": "Color change",
+      "speed": 112,
+      "scale": 1,
+      "brightness": 80
+    },
+    {
+      "id": "MadnessNoiseEffect",
+      "name": "Madness 3D",
+      "speed": 50,
+      "scale": 100,
+      "brightness": 80
+    },
+    {
+      "id": "CloudNoiseEffect",
+      "name": "Clouds 3D",
+      "speed": 1,
+      "scale": 100,
+      "brightness": 80
+    },
+    {
+      "id": "LavaNoiseEffect",
+      "name": "Lava 3D",
+      "speed": 1,
+      "scale": 100,
+      "brightness": 80
+    },
+    {
+      "id": "PlasmaNoiseEffect",
+      "name": "Plasma 3D",
+      "speed": 1,
+      "scale": 100,
+      "brightness": 80
+    },
+    {
+      "id": "RainbowNoiseEffect",
+      "name": "Rainbow 3D",
+      "speed": 1,
+      "scale": 52,
+      "brightness": 80
+    },
+    {
+      "id": "RainbowStripeNoiseEffect",
+      "name": "Rainbow stripe 3D",
+      "speed": 1,
+      "scale": 47,
+      "brightness": 80
+    },
+    {
+      "id": "ZebraNoiseEffect",
+      "name": "Zebra 3D",
+      "speed": 1,
+      "scale": 26,
+      "brightness": 80
+    },
+    {
+      "id": "ForestNoiseEffect",
+      "name": "Forest 3D",
+      "speed": 1,
+      "scale": 64,
+      "brightness": 80
+    },
+    {
+      "id": "OceanNoiseEffect",
+      "name": "Ocean 3D",
+      "speed": 1,
+      "scale": 24,
+      "brightness": 80
+    },
+    {
+      "id": "ColorEffect",
+      "name": "Single color",
+      "speed": 10,
+      "scale": 1,
+      "brightness": 80
+    },
+    {
+      "id": "SnowEffect",
+      "name": "Snow",
+      "speed": 255,
+      "scale": 33,
+      "brightness": 80
+    },
+    {
+      "id": "MatrixEffect",
+      "name": "Matrix",
+      "speed": 255,
+      "scale": 25,
+      "brightness": 80
+    },
+    {
+      "id": "LightersEffect",
+      "name": "Lighters",
+      "speed": 127,
+      "scale": 10,
+      "brightness": 80
+    },
+    {
+      "id": "ClockEffect",
+      "name": "Clock vertical",
+      "speed": 250,
+      "scale": 1,
+      "brightness": 80
+    },
+    {
+      "id": "ClockHorizontal1Effect",
+      "name": "Clock horizontal colored",
+      "speed": 250,
+      "scale": 1,
+      "brightness": 80
+    },
+    {
+      "id": "ClockHorizontal2Effect",
+      "name": "Clock horizontal",
+      "speed": 250,
+      "scale": 1,
+      "brightness": 80
+    },
+    {
+      "id": "ClockHorizontal3Effect",
+      "name": "Clock horizontal single",
+      "speed": 250,
+      "scale": 1,
+      "brightness": 80
+    },
+    {
+      "id": "SoundEffect",
+      "name": "Sound spectrometer",
+      "speed": 1,
+      "scale": 50,
+      "brightness": 236
+    },
+    {
+      "id": "StarfallEffect",
+      "name": "Starfall",
+      "speed": 80,
+      "scale": 100,
+      "brightness": 80
+    },
+    {
+      "id": "DiagonalRainbowEffect",
+      "name": "DiagonalRainbow",
+      "speed": 100,
+      "scale": 20,
+      "brightness": 80
+    },
+    {
+      "id": "SoundStereoEffect",
+      "name": "Sound stereo spectrometer",
+      "speed": 1,
+      "scale": 50,
+      "brightness": 236
+    }
+  ],
+  "activeEffect": 1,
+  "matrix": {
+    "width": 16,
+    "height": 16,
+    "segments": 1,
+    "type": 15,
+    "maxBrightness": 255,
+    "currentLimit": 3000,
+    "rotation": 3
+  },
+  "connection": {
+    "mdns": "devlamp",
+    "apName": "Dev Lamp",
+    "ntpServer": "europe.pool.ntp.org",
+    "ntpOffset": 10800
+  },
+  "mqtt": {
+    "host": "192.168.1.111",
+    "port": 1883,
+    "username": "username",
+    "password": "only4one8mqtt"
+  }
+}
