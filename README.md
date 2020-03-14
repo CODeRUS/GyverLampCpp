@@ -15,13 +15,13 @@ fork of https://github.com/AlexGyver/GyverLamp for PlatformIO
 
 Manual steps:
 
-- build https://github.com/zeburek/led-lamp-webui
+- build https://github.com/CODeRUS/led-lamp-webui
 - build https://github.com/CODeRUS/wifimanager-react-page
-- copy artifacts without folder structure to data_src
+- copy gzipped artifacts without folder structure to data folder
 
 Easy steps:
 
-- grab data_src.zip from latest release (https://github.com/CODeRUS/GyverLampCpp/releases)
+- grab data.zip from latest release (https://github.com/CODeRUS/GyverLampCpp/releases)
 - extract to project folder
 
 Then just upload fs to module
@@ -41,6 +41,7 @@ Then just upload fs to module
 - React web with controls (over websockets)
 - Firmware update page
 - SPIFFS update page
+- Mqtt for Home AAssistant integration
 
 ## Known issues
 
