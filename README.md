@@ -39,9 +39,9 @@ Then just upload fs to module
 - Clock effects
 - Spectrometer effect (requires microphone module or aux)
 - React web with controls (over websockets)
-- Firmware update page
-- SPIFFS update page
-- Mqtt for Home AAssistant integration
+- Firmware update page, allowing to upload firmware bin, spiffs bin or settings json
+- MQTT for Home Assistant integration
+- Sonoff Basic relay and led are bound to led state
 
 ## Known issues
 
