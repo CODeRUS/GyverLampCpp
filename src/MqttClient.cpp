@@ -70,7 +70,7 @@ void sendState()
 void sendAvailability()
 {
     Serial.println(F("Sending availability"));
-    boolean success = client->publish(availabilityTopic.c_str(), PSTR("true"));
+    boolean success = client->publish_P(availabilityTopic.c_str(), PSTR("true"), false);
     Serial.printf_P(PSTR("Availability sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
 }
 
@@ -120,7 +120,7 @@ void reconnect()
                             availabilityTopic.c_str(),
                             0,
                             false,
-                            PSTR("false"))) {
+                            "false")) {
             Serial.println(F(" connected"));
 
             sendDiscovery();
