@@ -7,8 +7,8 @@ else {
 
 INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/include"
 INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/src"
-INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/Update/src"
 INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/lib/GyverButton"
+INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/Update/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/ESPmDNS/src"
 INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/.pio/libdeps/esp32dev/arduinoFFT_ID1651/src"
 INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/.pio/libdeps/esp32dev/NTPClient_ID551"
@@ -20,9 +20,10 @@ INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/li
 INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/.pio/libdeps/esp32dev/ESPReactWifiManager"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src"
 INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/.pio/libdeps/esp32dev/ESP Async WebServer/src"
-INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/FS/src"
 INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/.pio/libdeps/esp32dev/ArduinoJson_ID64/src"
+INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/FS/src"
 INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/.pio/libdeps/esp32dev/AsyncTCP_ID1826/src"
+INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/.pio/libdeps/esp32dev/PubSubClient_ID89/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/DNSServer/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/config"
@@ -83,8 +84,6 @@ INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/to
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/fb_gfx"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/cores/esp32"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/variants/doitESP32devkitV1"
-INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/.pio/libdeps/esp32dev/ESP Async WebServer@src-c92c95e3a862288cccf7459575ec0f6c/src"
-INCLUDEPATH += "$${HOMEDIR}/workplace/GyverLamp/firmware/GyverLampCpp/.pio/libdeps/esp32dev/ESPAsyncWiFiManager"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/ArduinoOTA/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif32/libraries/AzureIoT/src"
@@ -111,7 +110,7 @@ INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/toolchain-xtensa32/lib/gcc/xten
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/toolchain-xtensa32/lib/gcc/xtensa-esp32-elf/5.2.0/include-fixed"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/tool-unity"
 
-DEFINES += "PLATFORMIO=40100"
+DEFINES += "PLATFORMIO=40201"
 DEFINES += "ARDUINO_ESP32_DEV"
 DEFINES += "CORE_DEBUG_LEVEL=0"
 DEFINES += "ESP32"
@@ -135,6 +134,8 @@ HEADERS += src/LampWebServer.h
 SOURCES += src/LocalDNS.cpp
 HEADERS += src/LocalDNS.h
 SOURCES += src/main.cpp
+SOURCES += src/MqttClient.cpp
+HEADERS += src/MqttClient.h
 SOURCES += src/MyMatrix.cpp
 HEADERS += src/MyMatrix.h
 SOURCES += src/Settings.cpp
