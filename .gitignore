@@ -7,3 +7,5 @@
 
 data/*.gz
 data/*.ico
+
+platformio_override.ini
