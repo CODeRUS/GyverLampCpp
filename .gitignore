@@ -4,3 +4,6 @@
 .vscode
 
 *.user
+
+data/*.gz
+data/*.ico
