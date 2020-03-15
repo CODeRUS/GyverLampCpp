@@ -34,12 +34,6 @@ const uint8_t miniLedPin = 13;
 const uint8_t btnPin = D2;
 #endif
 
-#if defined(SONOFF)
-#define BTN_PULL GButton::PullTypeHigh
-#else
-#define BTN_PULL GButton::PullTypeLow
-#endif
-
 GButton *button = nullptr;
 
 int stepDirection = 1;
@@ -150,14 +144,6 @@ void setupSerial()
     Serial.flush();
 }
 
-#if defined(SONOFF)
-void updateSonoffPins()
-{
-    digitalWrite(relayPin, mySettings->generalSettings.working);
-    digitalWrite(miniLedPin, mySettings->generalSettings.working);
-}
-#endif
-
 }
 
 void setup() {
@@ -178,9 +164,10 @@ void setup() {
 #if defined(SONOFF)
     pinMode(relayPin, OUTPUT);
     pinMode(miniLedPin, OUTPUT);
+    button = new GButton(btnPin, GButton::PullTypeHigh, GButton::DefaultStateOpen);
+#else
+    button = new GButton(btnPin, GButton::PullTypeLow, GButton::DefaultStateOpen);
 #endif
-
-    button = new GButton(btnPin, BTN_PULL, GButton::DefaultStateOpen);
     button->setTickMode(false);
     button->setStepTimeout(20);
 
@@ -220,9 +207,6 @@ void setup() {
 //    }
 
         effectsManager->ActivateEffect(mySettings->generalSettings.activeEffect);
-#if defined(SONOFF)
-        updateSonoffPins();
-#endif
     });
     lampWebServer->AutoConnect();
 }
@@ -250,6 +234,10 @@ void loop() {
         return;
     }
     processButton();
+#if defined(SONOFF)
+    digitalWrite(relayPin, mySettings->generalSettings.working);
+    digitalWrite(miniLedPin, mySettings->generalSettings.working);
+#endif
 
 //    if (mySettings->generalSettings.soundControl) {
 //        mySpectrometer->process();
@@ -260,10 +248,6 @@ void loop() {
     } else {
         myMatrix->clear(true);
     }
-
-#if defined(SONOFF)
-    updateSonoffPins();
-#endif
 
     mySettings->Process();
 
