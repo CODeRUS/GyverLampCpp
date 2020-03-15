@@ -9,5 +9,6 @@ data/*.gz
 data/*.ico
 
 platformio_override.ini
+firmware.map
 
 /*.json
