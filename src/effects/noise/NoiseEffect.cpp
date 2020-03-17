@@ -7,18 +7,10 @@ NoiseEffect::NoiseEffect()
 void NoiseEffect::activate()
 {
     maxDimension = max(mySettings->matrixSettings.width, mySettings->matrixSettings.height);
-    if (mySettings->matrixSettings.width > mySettings->matrixSettings.height) {
-        noise = new uint8_t*[mySettings->matrixSettings.width]();
-        for (uint8_t i = 0; i < mySettings->matrixSettings.width; ++i) {
-            noise[i] = new uint8_t[mySettings->matrixSettings.height];
-        }
-    } else {
-        noise = new uint8_t*[mySettings->matrixSettings.height]();
-        for (uint8_t i = 0; i < mySettings->matrixSettings.height; ++i) {
-            noise[i] = new uint8_t[mySettings->matrixSettings.width];
-        }
+    noise = new uint8_t*[maxDimension]();
+    for (uint8_t i = 0; i < maxDimension; ++i) {
+        noise[i] = new uint8_t[maxDimension];
     }
-
     colorLoop = 0;
 }
 
@@ -39,9 +31,17 @@ void NoiseEffect::fillNoise8()
 {
     for (uint8_t i = 0; i < maxDimension; i++) {
         const uint16_t ioffset = settings.scale * i;
+        if (i % 3 == 0) {
+#if defined(ESP8266)
+            ESP.wdtFeed();
+#else
+            yield();
+#endif
+        }
         for (uint8_t j = 0; j < maxDimension; j++) {
             const uint16_t joffset = settings.scale * j;
-            noise[i][j] = inoise8(x + ioffset, y + joffset, z);
+            const uint8_t val = inoise8(x + ioffset, y + joffset, z);
+            noise[i][j] = val;
         }
     }
     z += settings.speed;
@@ -55,6 +55,13 @@ void NoiseEffect::fillNoiseLED()
     }
     for (uint8_t i = 0; i < maxDimension; i++) {
         uint16_t ioffset = settings.scale * i;
+        if (i % 3 == 0) {
+#if defined(ESP8266)
+            ESP.wdtFeed();
+#else
+            yield();
+#endif
+        }
         for (uint8_t j = 0; j < maxDimension; j++) {
             uint16_t joffset = settings.scale * j;
 
@@ -79,6 +86,13 @@ void NoiseEffect::fillNoiseLED()
     y -= settings.speed / 16;
 
     for (uint8_t i = 0; i < mySettings->matrixSettings.width; i++) {
+        if (i % 3 == 0) {
+#if defined(ESP8266)
+            ESP.wdtFeed();
+#else
+            yield();
+#endif
+        }
         for (uint8_t j = 0; j < mySettings->matrixSettings.height; j++) {
             uint8_t index = noise[j][i];
             uint8_t bri =   noise[i][j];
