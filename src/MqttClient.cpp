@@ -79,7 +79,7 @@ void sendDiscovery()
     DynamicJsonDocument doc(1024*5);
     doc[F("~")] = commonTopic;
     doc[F("name")] = mySettings->connectionSettings.mdns;
-    doc[F("unique_id")] = String(ESP.getChipId(), HEX);
+    doc[F("uniq_id")] = String(ESP.getChipId(), HEX);
     doc[F("cmd_t")] = F("~/set");
     doc[F("stat_t")] = F("~/state");
     doc[F("avty_t")] = F("~/available");
@@ -88,9 +88,9 @@ void sendDiscovery()
     doc[F("schema")] = F("json");
     doc[F("brightness")] = true;
     doc[F("effect")] = true;
-    doc[F("device")][F("ids")] = doc[F("unique_id")];
-    doc[F("device")][F("name")] = mySettings->connectionSettings.mdns;
-    doc[F("device")][F("model")] = mySettings->connectionSettings.apName;
+    doc[F("dev")][F("ids")] = doc[F("uniq_id")];
+    doc[F("dev")][F("name")] = mySettings->connectionSettings.mdns;
+    doc[F("dev")][F("mdl")] = mySettings->connectionSettings.apName;
 
     JsonArray effects = doc.createNestedArray(F("effect_list"));
     mySettings->WriteEffectsMqtt(effects);
