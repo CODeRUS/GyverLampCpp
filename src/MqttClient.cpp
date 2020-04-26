@@ -104,7 +104,7 @@ void sendDiscovery()
 
 void reconnect()
 {
-    if (client->connected()) {
+    if (!client || client->connected()) {
         return;
     }
 
@@ -186,6 +186,10 @@ void MqttClient::loop()
 
 void MqttClient::update()
 {
+    if (!client) {
+        return;
+    }
+
     sendState();
 }
 
