@@ -30,7 +30,7 @@ void subscribe()
     client->subscribe(setTopic.c_str());
 }
 
-bool sendJson(const char* topic, JsonDocument doc)
+bool sendJson(const char* topic, const DynamicJsonDocument &doc)
 {
     size_t len = measureJson(doc);
 
