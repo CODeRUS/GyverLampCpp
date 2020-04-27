@@ -161,7 +161,7 @@ void EffectsManager::ActivateEffect(uint8_t index)
 
 void EffectsManager::UpdateCurrentSettings(const JsonObject &json)
 {
-    activeEffect()->update(json);
+    activeEffect()->initialize(json);
     myMatrix->setBrightness(activeEffect()->settings.brightness);
 }
 
