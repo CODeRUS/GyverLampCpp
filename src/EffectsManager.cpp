@@ -30,6 +30,8 @@
 #include "effects/sound/SoundEffect.h"
 #include "effects/sound/SoundStereoEffect.h"
 
+#include "effects/basic/WaterfallEffect.h"
+
 #include <map>
 
 namespace  {
@@ -214,4 +216,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("StarfallEffect")] = new StarfallEffect();
     effectsMap[PSTR("DiagonalRainbowEffect")] = new DiagonalRainbowEffect();
     effectsMap[PSTR("SoundStereoEffect")] = new SoundStereoEffect();
+    effectsMap[PSTR("WaterfallEffect")] = new WaterfallEffect();
 }
