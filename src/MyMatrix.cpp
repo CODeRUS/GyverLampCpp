@@ -127,6 +127,13 @@ void MyMatrix::fadeToBlackBy(uint16_t index, uint8_t step)
     leds[index].fadeToBlackBy(step);
 }
 
+void MyMatrix::dimAll(uint8_t value)
+{
+    for (uint16_t i = 0; i < numLeds; i++) {
+        leds[i].nscale8(value);
+    }
+}
+
 void MyMatrix::matrixTest()
 {
     for (int16_t i = 0; i < 16; i++) {
