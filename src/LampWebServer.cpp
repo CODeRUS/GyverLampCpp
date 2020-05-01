@@ -378,6 +378,14 @@ void LampWebServer::configureHandlers()
         request->send(response);
     });
 
+    webServer->on(PSTR("/effectJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
+        PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024);
+        JsonObject root = response->getRoot();
+        mySettings->BuildJsonMqtt(root);
+        response->setLength();
+        request->send(response);
+    });
+
     webServer->on(PSTR("/update"), HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);
     webServer->on(PSTR("/updateSize"), HTTP_POST, updateSizeHandler);
 }
