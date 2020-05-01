@@ -211,6 +211,13 @@
       "brightness": 80
     },
     {
+      "id": "Matrix2Effect",
+      "name": "Matrix 2",
+      "speed": 100,
+      "scale": 20,
+      "brightness": 80
+    },
+    {
       "id": "SoundStereoEffect",
       "name": "Sound stereo spectrometer",
       "speed": 1,

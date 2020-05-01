@@ -160,6 +160,13 @@ void MyMatrix::fadePixel(uint8_t x, uint8_t y, uint8_t step)
     }
 }
 
+uint32_t MyMatrix::colorcode(const CRGB &color)
+{
+    return uint32_t{color.r} << 16 |
+           uint32_t{color.g} << 8 |
+           uint32_t{color.b};
+}
+
 void MyMatrix::matrixTest()
 {
     for (int16_t i = 0; i < 16; i++) {

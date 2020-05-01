@@ -35,6 +35,7 @@
 #include "effects/basic/PulseCirclesEffect.h"
 #include "effects/basic/AnimationEffect.h"
 #include "effects/basic/StormEffect.h"
+#include "effects/basic/Matrix2Effect.h"
 
 #include <map>
 
@@ -225,4 +226,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("PulseCirclesEffect")] = new PulseCirclesEffect();
     effectsMap[PSTR("AnimationEffect")] = new AnimationEffect();
     effectsMap[PSTR("StormEffect")] = new StormEffect();
+    effectsMap[PSTR("Matrix2Effect")] = new Matrix2Effect();
 }
