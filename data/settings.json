@@ -3,191 +3,191 @@
     {
       "id": "SparklesEffect",
       "name": "Sparkles",
-      "speed": 32,
-      "scale": 16,
+      "speed": 121,
+      "scale": 12,
       "brightness": 255
     },
     {
       "id": "FireEffect",
       "name": "Fire",
-      "speed": 0,
-      "scale": 0,
-      "brightness": 255
+      "speed": 37,
+      "scale": 1,
+      "brightness": 80
     },
     {
       "id": "VerticalRainbowEffect",
       "name": "Vertical rainbow",
-      "speed": 16,
-      "scale": 16,
-      "brightness": 255
+      "speed": 100,
+      "scale": 18,
+      "brightness": 80
     },
     {
       "id": "HorizontalRainbowEffect",
       "name": "Horizontal rainbow",
-      "speed": 16,
-      "scale": 16,
-      "brightness": 255
+      "speed": 100,
+      "scale": 18,
+      "brightness": 80
     },
     {
       "id": "ColorsEffect",
       "name": "Color change",
-      "speed": 64,
+      "speed": 112,
       "scale": 1,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "MadnessNoiseEffect",
       "name": "Madness 3D",
       "speed": 50,
       "scale": 100,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "CloudNoiseEffect",
       "name": "Clouds 3D",
       "speed": 1,
       "scale": 100,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "LavaNoiseEffect",
       "name": "Lava 3D",
       "speed": 1,
       "scale": 100,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "PlasmaNoiseEffect",
       "name": "Plasma 3D",
       "speed": 1,
       "scale": 100,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "RainbowNoiseEffect",
       "name": "Rainbow 3D",
       "speed": 1,
       "scale": 52,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "RainbowStripeNoiseEffect",
       "name": "Rainbow stripe 3D",
       "speed": 1,
       "scale": 47,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "ZebraNoiseEffect",
       "name": "Zebra 3D",
       "speed": 1,
-      "scale": 32,
-      "brightness": 255
+      "scale": 26,
+      "brightness": 80
     },
     {
       "id": "ForestNoiseEffect",
       "name": "Forest 3D",
       "speed": 1,
       "scale": 64,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "OceanNoiseEffect",
       "name": "Ocean 3D",
       "speed": 1,
       "scale": 24,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "ColorEffect",
       "name": "Single color",
       "speed": 10,
       "scale": 1,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "SnowEffect",
       "name": "Snow",
-      "speed": 64,
-      "scale": 50,
-      "brightness": 255
+      "speed": 255,
+      "scale": 33,
+      "brightness": 80
     },
     {
       "id": "MatrixEffect",
       "name": "Matrix",
-      "speed": 50,
-      "scale": 16,
-      "brightness": 255
+      "speed": 255,
+      "scale": 25,
+      "brightness": 80
     },
     {
       "id": "LightersEffect",
       "name": "Lighters",
-      "speed": 64,
-      "scale": 16,
-      "brightness": 255
+      "speed": 127,
+      "scale": 10,
+      "brightness": 80
     },
     {
       "id": "ClockEffect",
       "name": "Clock vertical",
-      "speed": 100,
+      "speed": 250,
       "scale": 1,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "ClockHorizontal1Effect",
       "name": "Clock horizontal colored",
       "speed": 250,
       "scale": 1,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "ClockHorizontal2Effect",
       "name": "Clock horizontal",
       "speed": 250,
       "scale": 1,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "ClockHorizontal3Effect",
       "name": "Clock horizontal single",
       "speed": 250,
       "scale": 1,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "SoundEffect",
       "name": "Sound spectrometer",
       "speed": 1,
       "scale": 50,
-      "brightness": 255
+      "brightness": 236
     },
     {
       "id": "StarfallEffect",
       "name": "Starfall",
       "speed": 80,
       "scale": 100,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "DiagonalRainbowEffect",
       "name": "DiagonalRainbow",
-      "speed": 16,
-      "scale": 16,
-      "brightness": 255
+      "speed": 100,
+      "scale": 20,
+      "brightness": 80
     },
     {
       "id": "WaterfallEffect",
       "name": "Waterfall",
-      "speed": 50,
+      "speed": 100,
       "scale": 20,
-      "brightness": 255
+      "brightness": 80
     },
     {
       "id": "SoundStereoEffect",
       "name": "Sound stereo spectrometer",
       "speed": 1,
       "scale": 50,
-      "brightness": 255
+      "brightness": 236
     }
   ],
   "activeEffect": 1,
@@ -197,19 +197,19 @@
     "segments": 1,
     "type": 15,
     "maxBrightness": 255,
-    "currentLimit": 3000,
-    "rotation": 2
+    "currentLimit": 1500,
+    "rotation": 3
   },
   "connection": {
-    "mdns": "bedlamp",
-    "apName": "Bed Lamp",
-    "ntpServer": "192.168.1.3",
+    "mdns": "firelamp",
+    "apName": "Fire Lamp",
+    "ntpServer": "europe.pool.ntp.org",
     "ntpOffset": 10800
   },
   "mqtt": {
-    "host": "192.168.1.3",
+    "host": "",
     "port": 1883,
-    "username": "mqtt",
-    "password": "MQTTPassword"
+    "username": "",
+    "password": ""
   }
 }
