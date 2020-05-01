@@ -31,6 +31,7 @@
 #include "effects/sound/SoundStereoEffect.h"
 
 #include "effects/basic/WaterfallEffect.h"
+#include "effects/basic/TwirlRainbowEffect.h"
 
 #include <map>
 
@@ -217,4 +218,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("DiagonalRainbowEffect")] = new DiagonalRainbowEffect();
     effectsMap[PSTR("SoundStereoEffect")] = new SoundStereoEffect();
     effectsMap[PSTR("WaterfallEffect")] = new WaterfallEffect();
+    effectsMap[PSTR("TwirlRainbowEffect")] = new TwirlRainbowEffect();
 }
