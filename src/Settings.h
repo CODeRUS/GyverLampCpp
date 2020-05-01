@@ -65,6 +65,8 @@ public:
     void ProcessConfig(const String &message);
     void ProcessCommandMqtt(const JsonObject &json);
 
+    String GetChipID();
+
     GeneralSettings generalSettings;
     MatrixSettings matrixSettings;
     ConenctionSettings connectionSettings;

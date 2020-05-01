@@ -186,6 +186,15 @@ void Settings::BuildJson(JsonObject &root)
     spectrometerObject[F("active")] = generalSettings.soundControl;
 }
 
+String Settings::GetChipID()
+{
+#if defined(ESP32)
+  return String((uint32_t)ESP.getEfuseMac(), HEX);
+#else
+  return String((uint32_t)ESP.getChipId(), HEX);
+#endif
+}
+
 void Settings::BuildJsonMqtt(JsonObject &root)
 {
     root[F("state")] = generalSettings.working ? F("ON") : F("OFF");

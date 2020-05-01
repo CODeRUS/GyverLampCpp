@@ -79,7 +79,7 @@ void sendDiscovery()
     DynamicJsonDocument doc(1024*5);
     doc[F("~")] = commonTopic;
     doc[F("name")] = mySettings->connectionSettings.mdns;
-    doc[F("uniq_id")] = String(ESP.getChipId(), HEX);
+    doc[F("uniq_id")] = mySettings->GetChipID();
     doc[F("cmd_t")] = F("~/set");
     doc[F("stat_t")] = F("~/state");
     doc[F("avty_t")] = F("~/available");
