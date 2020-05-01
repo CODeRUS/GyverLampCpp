@@ -36,10 +36,12 @@ public:
     };
 
     struct ConenctionSettings {
+        String uniqueId = GetUniqueID();
         String mdns = "firelamp";
         String apName = "Fire Lamp";
         String ntpServer = "europe.pool.ntp.org";
         uint32_t ntpOffset = 10800;
+        String manufacturer = "coderus";
     };
 
     struct MqttSettings {
@@ -51,6 +53,7 @@ public:
 
     static Settings *Instance();
     static void Initialize(uint32_t saveInterval = 3000);
+    static String GetUniqueID();
 
     void Process();
     void Reset();
@@ -64,8 +67,6 @@ public:
 
     void ProcessConfig(const String &message);
     void ProcessCommandMqtt(const JsonObject &json);
-
-    String GetChipID();
 
     GeneralSettings generalSettings;
     MatrixSettings matrixSettings;

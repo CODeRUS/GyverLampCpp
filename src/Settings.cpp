@@ -43,6 +43,15 @@ void Settings::Initialize(uint32_t saveInterval)
     instance = new Settings(saveInterval);
 }
 
+String Settings::GetUniqueID()
+{
+#if defined(ESP32)
+  return String((uint32_t)ESP.getEfuseMac(), HEX);
+#else
+  return String((uint32_t)ESP.getChipId(), HEX);
+#endif
+}
+
 void Settings::Process()
 {
     if (settingsChanged && (millis() - settingsSaveTimer) > settingsSaveInterval) {
@@ -171,6 +180,7 @@ void Settings::BuildJson(JsonObject &root)
     matrixObject[F("rotation")] = matrixSettings.rotation;
 
     JsonObject connectionObject = root.createNestedObject(F("connection"));
+    connectionObject[F("uniqueId")] = connectionSettings.uniqueId;
     connectionObject[F("mdns")] = connectionSettings.mdns;
     connectionObject[F("apName")] = connectionSettings.apName;
     connectionObject[F("ntpServer")] = connectionSettings.ntpServer;
@@ -184,15 +194,6 @@ void Settings::BuildJson(JsonObject &root)
 
     JsonObject spectrometerObject = root.createNestedObject(F("spectrometer"));
     spectrometerObject[F("active")] = generalSettings.soundControl;
-}
-
-String Settings::GetChipID()
-{
-#if defined(ESP32)
-  return String((uint32_t)ESP.getEfuseMac(), HEX);
-#else
-  return String((uint32_t)ESP.getChipId(), HEX);
-#endif
 }
 
 void Settings::BuildJsonMqtt(JsonObject &root)
@@ -260,6 +261,9 @@ Settings::Settings(uint32_t saveInterval)
 
     if (root.containsKey(F("connection"))) {
        JsonObject connectionObject = root[F("connection")];
+       if (connectionObject.containsKey(F("uniqueId"))) {
+           connectionSettings.uniqueId = connectionObject[F("uniqueId")].as<String>();
+       }
        if (connectionObject.containsKey(F("mdns"))) {
            connectionSettings.mdns = connectionObject[F("mdns")].as<String>();
        }
