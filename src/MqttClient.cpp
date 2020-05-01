@@ -70,7 +70,7 @@ void sendState()
 void sendAvailability()
 {
     Serial.println(F("Sending availability"));
-    boolean success = client->publish_P(availabilityTopic.c_str(), PSTR("true"), false);
+    boolean success = client->publish_P(availabilityTopic.c_str(), PSTR("true"), true);
     Serial.printf_P(PSTR("Availability sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
 }
 
@@ -79,7 +79,7 @@ void sendDiscovery()
     DynamicJsonDocument doc(1024*5);
     doc[F("~")] = commonTopic;
     doc[F("name")] = mySettings->connectionSettings.mdns;
-    doc[F("unique_id")] = mySettings->connectionSettings.mdns;
+    doc[F("uniq_id")] = mySettings->GetChipID();
     doc[F("cmd_t")] = F("~/set");
     doc[F("stat_t")] = F("~/state");
     doc[F("avty_t")] = F("~/available");
@@ -87,9 +87,10 @@ void sendDiscovery()
     doc[F("pl_not_avail")] = F("false");
     doc[F("schema")] = F("json");
     doc[F("brightness")] = true;
-//    doc[F("rgb")] = true;
     doc[F("effect")] = true;
-
+    doc[F("dev")][F("ids")] = doc[F("uniq_id")];
+    doc[F("dev")][F("name")] = mySettings->connectionSettings.mdns;
+    doc[F("dev")][F("mdl")] = mySettings->connectionSettings.apName;
 
     JsonArray effects = doc.createNestedArray(F("effect_list"));
     mySettings->WriteEffectsMqtt(effects);
@@ -118,8 +119,8 @@ void reconnect()
                             mySettings->mqttSettings.username.c_str(),
                             mySettings->mqttSettings.password.c_str(),
                             availabilityTopic.c_str(),
-                            0,
-                            false,
+                            1,
+                            true,
                             "false")) {
             Serial.println(F(" connected"));
 
