@@ -205,20 +205,17 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             } else {
                 Serial.println(F("Uploading FLASH started!"));
             }
+            if (updateSize == 0) {
+                updateSize = total;
+            }
 #if defined(ESP8266)
             Update.runAsync(true);
-            if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000, command)) {
-#elif defined(ESP32)
-            if (!Update.begin(UPDATE_SIZE_UNKNOWN, command)) {
 #endif
+            if (!Update.begin(updateSize, command)) {
                 Update.printError(Serial);
                 myMatrix->fill(CRGB::Red, true);
                 isUpdatingFlag = false;
                 return;
-            } else {
-                if (updateSize == 0) {
-                    updateSize = total;
-                }
             }
         }
         myMatrix->setBrightness(80);
