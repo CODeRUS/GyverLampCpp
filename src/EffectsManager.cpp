@@ -34,6 +34,7 @@
 #include "effects/basic/TwirlRainbowEffect.h"
 #include "effects/basic/PulseCirclesEffect.h"
 #include "effects/basic/AnimationEffect.h"
+#include "effects/basic/StormEffect.h"
 
 #include <map>
 
@@ -223,4 +224,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("TwirlRainbowEffect")] = new TwirlRainbowEffect();
     effectsMap[PSTR("PulseCirclesEffect")] = new PulseCirclesEffect();
     effectsMap[PSTR("AnimationEffect")] = new AnimationEffect();
+    effectsMap[PSTR("StormEffect")] = new StormEffect();
 }

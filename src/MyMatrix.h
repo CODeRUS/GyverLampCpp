@@ -30,7 +30,11 @@ public:
     void fillProgress(double progress);
     void setLed(uint16_t index, CRGB color);
     void fadeToBlackBy(uint16_t index, uint8_t step);
+
     void dimAll(uint8_t value);
+    uint8_t wrapX(int8_t x);
+    uint8_t wrapY(int8_t y);
+    void fadePixel(uint8_t x, uint8_t y, uint8_t step);
 
     uint16_t getPixelNumberXY(uint8_t x, uint8_t y);
 

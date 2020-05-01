@@ -204,6 +204,13 @@
       "brightness": 80
     },
     {
+      "id": "StormEffect",
+      "name": "Storm",
+      "speed": 100,
+      "scale": 20,
+      "brightness": 80
+    },
+    {
       "id": "SoundStereoEffect",
       "name": "Sound stereo spectrometer",
       "speed": 1,

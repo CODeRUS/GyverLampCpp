@@ -134,6 +134,32 @@ void MyMatrix::dimAll(uint8_t value)
     }
 }
 
+uint8_t MyMatrix::wrapX(int8_t x)
+{
+    return (x + width()) % width();
+}
+
+uint8_t MyMatrix::wrapY(int8_t y)
+{
+    return (y + height()) % height();
+}
+
+void MyMatrix::fadePixel(uint8_t x, uint8_t y, uint8_t step)
+{
+    uint16_t pixelNum = XY(x, y);
+    if (!getPixColor(pixelNum)) {
+        return;
+    }
+
+    if (leds[pixelNum].r >= 30U ||
+            leds[pixelNum].g >= 30U ||
+            leds[pixelNum].b >= 30U) {
+        leds[pixelNum].fadeToBlackBy(step);
+    } else {
+        leds[pixelNum] = 0U;
+    }
+}
+
 void MyMatrix::matrixTest()
 {
     for (int16_t i = 0; i < 16; i++) {
