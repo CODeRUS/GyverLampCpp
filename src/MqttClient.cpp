@@ -30,7 +30,7 @@ void subscribe()
     client->subscribe(setTopic.c_str());
 }
 
-bool sendJson(const char* topic, JsonDocument doc)
+bool sendJson(const char* topic, const DynamicJsonDocument &doc)
 {
     size_t len = measureJson(doc);
 
@@ -105,7 +105,7 @@ void sendDiscovery()
 
 void reconnect()
 {
-    if (client->connected()) {
+    if (!client || client->connected()) {
         return;
     }
 
@@ -187,6 +187,10 @@ void MqttClient::loop()
 
 void MqttClient::update()
 {
+    if (!client) {
+        return;
+    }
+
     sendState();
 }
 

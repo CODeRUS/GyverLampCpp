@@ -4,7 +4,7 @@
 namespace  {
 
 bool useSpectrometer = false;
-CRGB myColor = CRGB(255, 255, 255);
+uint32_t myColor = 0xffffff;
 
 } // namespace
 
@@ -27,7 +27,7 @@ void SnowEffect::tick()
         if (!myMatrix->getPixColorXY(x, mySettings->matrixSettings.height - 2) && (random(0, settings.scale) == 0)) {
             CRGB color = (mySettings->generalSettings.soundControl && useSpectrometer)
                     ? CHSV(mySpectrometer->asHue(), mySpectrometer->asHue(), 255)
-                    : myColor;
+                    : CRGB(myColor);
             myMatrix->drawPixelXY(x, mySettings->matrixSettings.height - 1, color);
         } else {
             myMatrix->drawPixelXY(x, mySettings->matrixSettings.height - 1, 0x000000);
@@ -42,14 +42,12 @@ void SnowEffect::initialize(const JsonObject &json)
         useSpectrometer = json[F("useSpectrometer")];
     }
     if (json.containsKey(F("color"))) {
-        uint32_t color = json[F("color")];
-        myColor = color;
+        myColor = json[F("color")];
     }
 }
 
 void SnowEffect::writeSettings(JsonObject &json)
 {
     json[F("useSpectrometer")] = useSpectrometer;
-    uint32_t color = myColor;
-    json[F("color")] = color;
+    json[F("color")] = myColor;
 }

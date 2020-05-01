@@ -30,6 +30,8 @@
 #include "effects/sound/SoundEffect.h"
 #include "effects/sound/SoundStereoEffect.h"
 
+#include "effects/basic/WaterfallEffect.h"
+
 #include <map>
 
 namespace  {
@@ -161,7 +163,7 @@ void EffectsManager::ActivateEffect(uint8_t index)
 
 void EffectsManager::UpdateCurrentSettings(const JsonObject &json)
 {
-    activeEffect()->update(json);
+    activeEffect()->initialize(json);
     myMatrix->setBrightness(activeEffect()->settings.brightness);
 }
 
@@ -214,4 +216,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("StarfallEffect")] = new StarfallEffect();
     effectsMap[PSTR("DiagonalRainbowEffect")] = new DiagonalRainbowEffect();
     effectsMap[PSTR("SoundStereoEffect")] = new SoundStereoEffect();
+    effectsMap[PSTR("WaterfallEffect")] = new WaterfallEffect();
 }

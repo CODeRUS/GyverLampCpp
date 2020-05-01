@@ -193,6 +193,7 @@ void Settings::BuildJsonMqtt(JsonObject &root)
     root[F("speed")] = effectsManager->activeEffect()->settings.speed;
     root[F("scale")] = effectsManager->activeEffect()->settings.scale;
     root[F("effect")] = effectsManager->activeEffect()->settings.name;
+    effectsManager->activeEffect()->writeSettings(root);
 }
 
 Settings::Settings(uint32_t saveInterval)
