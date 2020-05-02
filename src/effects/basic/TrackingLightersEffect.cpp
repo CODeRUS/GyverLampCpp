@@ -60,6 +60,8 @@ void TrackingLightersEffect::tick()
 {
     if (tails) {
         myMatrix->fader(tailStep);
+    } else {
+        myMatrix->clear();
     }
 
     for (uint8_t j = 0; j < amount; j++) {
