@@ -24,6 +24,7 @@ void TwirlRainbowEffect::activate()
 
 void TwirlRainbowEffect::tick()
 {
+    hue += hueStep;
     float factor = (twirlFactor / 100.0f) * (settings.scale / 100.0f);
     for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
         for (uint8_t y = 0; y < mySettings->matrixSettings.height; y++) {
