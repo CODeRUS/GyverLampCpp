@@ -36,6 +36,7 @@
 #include "effects/basic/AnimationEffect.h"
 #include "effects/basic/StormEffect.h"
 #include "effects/basic/Matrix2Effect.h"
+#include "effects/basic/TrackingLightersEffect.h"
 
 #include <map>
 
@@ -227,4 +228,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("AnimationEffect")] = new AnimationEffect();
     effectsMap[PSTR("StormEffect")] = new StormEffect();
     effectsMap[PSTR("Matrix2Effect")] = new Matrix2Effect();
+    effectsMap[PSTR("TrackingLightersEffect")] = new TrackingLightersEffect();
 }

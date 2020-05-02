@@ -144,6 +144,15 @@ uint8_t MyMatrix::wrapY(int8_t y)
     return (y + height()) % height();
 }
 
+void MyMatrix::fader(uint8_t step)
+{
+    for (uint8_t x = 0; x < width(); x++) {
+        for (uint8_t y = 0U; y < height(); y++) {
+            fadePixel(x, y, step);
+        }
+    }
+}
+
 void MyMatrix::fadePixel(uint8_t x, uint8_t y, uint8_t step)
 {
     uint16_t pixelNum = XY(x, y);
