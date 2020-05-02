@@ -54,6 +54,7 @@ public:
     static Settings *Instance();
     static void Initialize(uint32_t saveInterval = 3000);
     static String GetUniqueID();
+    static size_t JsonSerializeSize();
 
     void Process();
     void Reset();

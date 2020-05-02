@@ -52,6 +52,11 @@ String Settings::GetUniqueID()
 #endif
 }
 
+size_t Settings::JsonSerializeSize()
+{
+    return jsonSerializeSize;
+}
+
 void Settings::Process()
 {
     if (settingsChanged && (millis() - settingsSaveTimer) > settingsSaveInterval) {

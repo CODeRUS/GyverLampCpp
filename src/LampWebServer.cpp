@@ -371,7 +371,7 @@ void LampWebServer::configureHandlers()
         .setDefaultFile(PSTR("index.html"));
 
     webServer->on(PSTR("/prettyJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
-        PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024 * 6);
+        PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, mySettings->JsonSerializeSize());
         JsonObject root = response->getRoot();
         mySettings->BuildJson(root);
         response->setLength();
