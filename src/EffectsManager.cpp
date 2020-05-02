@@ -39,6 +39,7 @@
 #include "effects/basic/TrackingLightersEffect.h"
 #include "effects/basic/LightBallsEffect.h"
 #include "effects/basic/MovingCubeEffect.h"
+#include "effects/basic/WhiteColorEffect.h"
 
 #include <map>
 
@@ -233,4 +234,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("TrackingLightersEffect")] = new TrackingLightersEffect();
     effectsMap[PSTR("LightBallsEffect")] = new LightBallsEffect();
     effectsMap[PSTR("MovingCubeEffect")] = new MovingCubeEffect();
+    effectsMap[PSTR("WhiteColorEffect")] = new WhiteColorEffect();
 }
