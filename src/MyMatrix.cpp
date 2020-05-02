@@ -72,10 +72,30 @@ void MyMatrix::Initialize()
     instance->show();
 }
 
+uint16_t MyMatrix::GetNumLeds()
+{
+    return numLeds;
+}
+
 uint8_t MyMatrix::GetRotation()
 {
     uint8_t rotation = mySettings->matrixSettings.rotation;
     return rotation;
+}
+
+uint8_t MyMatrix::GetCenterX()
+{
+    return mySettings->matrixSettings.width / 2 - 1;
+}
+
+uint8_t MyMatrix::GetCenterY()
+{
+    return mySettings->matrixSettings.height / 2 - 1;
+}
+
+CRGB *MyMatrix::GetLeds()
+{
+    return leds;
 }
 
 void MyMatrix::setCurrentLimit(uint32_t maxCurrent)

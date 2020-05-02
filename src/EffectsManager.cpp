@@ -40,6 +40,7 @@
 #include "effects/basic/LightBallsEffect.h"
 #include "effects/basic/MovingCubeEffect.h"
 #include "effects/basic/WhiteColorEffect.h"
+#include "effects/fractional/PulsingCometEffect.h"
 
 #include <map>
 
@@ -235,4 +236,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("LightBallsEffect")] = new LightBallsEffect();
     effectsMap[PSTR("MovingCubeEffect")] = new MovingCubeEffect();
     effectsMap[PSTR("WhiteColorEffect")] = new WhiteColorEffect();
+    effectsMap[PSTR("PulsingCometEffect")] = new PulsingCometEffect();
 }

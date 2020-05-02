@@ -21,6 +21,12 @@ public:
 
     static uint8_t GetRotation();
 
+    uint16_t GetNumLeds();
+    uint8_t GetCenterX();
+    uint8_t GetCenterY();
+
+    CRGB *GetLeds();
+
     void setCurrentLimit(uint32_t maxCurrent);
 
     void matrixTest();
