@@ -43,6 +43,7 @@
 #include "effects/fractional/PulsingCometEffect.h"
 #include "effects/fractional/DoubleCometsEffect.h"
 #include "effects/fractional/TripleCometsEffect.h"
+#include "effects/fractional/RainbowCometEffect.h"
 
 #include <map>
 
@@ -241,4 +242,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("PulsingCometEffect")] = new PulsingCometEffect();
     effectsMap[PSTR("DoubleCometsEffect")] = new DoubleCometsEffect();
     effectsMap[PSTR("TripleCometsEffect")] = new TripleCometsEffect();
+    effectsMap[PSTR("RainbowCometEffect")] = new RainbowCometEffect();
 }
