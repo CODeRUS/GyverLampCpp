@@ -74,8 +74,8 @@ void MovingCubeEffect::activate()
 
 void MovingCubeEffect::deactivate()
 {
-    delete coordB;
-    delete vectorB;
+    delete[] coordB;
+    delete[] vectorB;
 }
 
 void MovingCubeEffect::initialize(const JsonObject &json)
