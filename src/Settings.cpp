@@ -75,7 +75,7 @@ void Settings::Save()
         return;
     }
 
-    DynamicJsonDocument json(1024 * 6);
+    DynamicJsonDocument json(jsonSerializeSize);
     JsonObject root = json.to<JsonObject>();
     BuildJson(root);
 
