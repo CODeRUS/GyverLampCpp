@@ -29,6 +29,12 @@ MyMatrix *instance = nullptr;
 
 } // namespace
 
+FASTLED_NAMESPACE_BEGIN
+uint16_t XY(uint8_t x, uint8_t y) {
+    return myMatrix->XY(x, y);
+}
+FASTLED_NAMESPACE_END
+
 MyMatrix *MyMatrix::Instance()
 {
     return instance;
@@ -173,7 +179,12 @@ uint32_t MyMatrix::colorcode(const CRGB &color)
 {
     return uint32_t{color.r} << 16 |
            uint32_t{color.g} << 8 |
-           uint32_t{color.b};
+uint32_t{color.b};
+}
+
+void MyMatrix::applyBlur2d(uint8_t amount)
+{
+    blur2d(leds, width(), height(), amount);
 }
 
 void MyMatrix::matrixTest()

@@ -37,6 +37,7 @@ public:
     void fader(uint8_t step);
     void fadePixel(uint8_t x, uint8_t y, uint8_t step);
     uint32_t colorcode(const CRGB &color);
+    void applyBlur2d(uint8_t amount);
 
     uint16_t getPixelNumberXY(uint8_t x, uint8_t y);
 
