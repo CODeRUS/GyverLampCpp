@@ -41,6 +41,8 @@
 #include "effects/basic/MovingCubeEffect.h"
 #include "effects/basic/WhiteColorEffect.h"
 #include "effects/fractional/PulsingCometEffect.h"
+#include "effects/fractional/DoubleCometsEffect.h"
+#include "effects/fractional/TripleCometsEffect.h"
 
 #include <map>
 
@@ -237,4 +239,6 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("MovingCubeEffect")] = new MovingCubeEffect();
     effectsMap[PSTR("WhiteColorEffect")] = new WhiteColorEffect();
     effectsMap[PSTR("PulsingCometEffect")] = new PulsingCometEffect();
+    effectsMap[PSTR("DoubleCometsEffect")] = new DoubleCometsEffect();
+    effectsMap[PSTR("TripleCometsEffect")] = new TripleCometsEffect();
 }

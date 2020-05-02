@@ -253,6 +253,20 @@
       "brightness": 80
     },
     {
+      "id": "DoubleCometsEffect",
+      "name": "Double Comet",
+      "speed": 100,
+      "scale": 20,
+      "brightness": 80
+    },
+    {
+      "id": "TripleCometsEffect",
+      "name": "Triple Comet",
+      "speed": 100,
+      "scale": 20,
+      "brightness": 80
+    },
+    {
       "id": "SoundStereoEffect",
       "name": "Sound stereo spectrometer",
       "speed": 1,
