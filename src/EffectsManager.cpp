@@ -38,6 +38,7 @@
 #include "effects/basic/Matrix2Effect.h"
 #include "effects/basic/TrackingLightersEffect.h"
 #include "effects/basic/LightBallsEffect.h"
+#include "effects/basic/MovingCubeEffect.h"
 
 #include <map>
 
@@ -231,4 +232,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("Matrix2Effect")] = new Matrix2Effect();
     effectsMap[PSTR("TrackingLightersEffect")] = new TrackingLightersEffect();
     effectsMap[PSTR("LightBallsEffect")] = new LightBallsEffect();
+    effectsMap[PSTR("MovingCubeEffect")] = new MovingCubeEffect();
 }
