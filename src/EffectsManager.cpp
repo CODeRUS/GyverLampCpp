@@ -46,6 +46,7 @@
 #include "effects/fractional/RainbowCometEffect.h"
 #include "effects/fractional/ColorCometEffect.h"
 #include "effects/fractional/MovingFlameEffect.h"
+#include "effects/fractional/FractorialFireEffect.h"
 
 #include <map>
 
@@ -247,4 +248,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("RainbowCometEffect")] = new RainbowCometEffect();
     effectsMap[PSTR("ColorCometEffect")] = new ColorCometEffect();
     effectsMap[PSTR("MovingFlameEffect")] = new MovingFlameEffect();
+    effectsMap[PSTR("FractorialFireEffect")] = new FractorialFireEffect();
 }
