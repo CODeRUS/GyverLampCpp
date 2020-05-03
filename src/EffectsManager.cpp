@@ -53,6 +53,7 @@
 #include "effects/basic/BouncingBallsEffect.h"
 #include "effects/basic/SpiralEffect.h"
 #include "effects/basic/MetaBallsEffect.h"
+#include "effects/basic/SinusoidEffect.h"
 
 #include <map>
 
@@ -259,4 +260,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("BouncingBallsEffect")] = new BouncingBallsEffect();
     effectsMap[PSTR("SpiralEffect")] = new SpiralEffect();
     effectsMap[PSTR("MetaBallsEffect")] = new MetaBallsEffect();
+    effectsMap[PSTR("SinusoidEffect")] = new SinusoidEffect();
 }
