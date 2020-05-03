@@ -1,10 +1,7 @@
 #include "FlockEffect.h"
+#include "Boid.h"
 
 namespace {
-
-Boid* boids = nullptr;
-
-uint8_t availableBoidCount = 20;
 
 Boid *predator = nullptr;
 PVector *wind = nullptr;
@@ -25,8 +22,9 @@ FlockEffect::FlockEffect()
 
 void FlockEffect::activate()
 {
+    AuroraEffect::activate();
+
     wind = new PVector;
-    boids = new Boid[availableBoidCount];
 
     for (int i = 0; i < boidCount; i++) {
         boids[i] = Boid(15, 15);
@@ -46,10 +44,11 @@ void FlockEffect::activate()
 void FlockEffect::deactivate()
 {
     delete wind;
-    delete[] boids;
     if (predator) {
         delete predator;
     }
+
+    AuroraEffect::deactivate();
 }
 
 void FlockEffect::tick()

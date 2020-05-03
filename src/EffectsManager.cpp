@@ -57,7 +57,9 @@
 #include "effects/basic/WaterfallPaletteEffect.h"
 #include "effects/basic/RainEffect.h"
 #include "effects/basic/PrismataEffect.h"
-#include "effects/basic/FlockEffect.h"
+
+#include "effects/aurora/FlockEffect.h"
+#include "effects/aurora/WhirlEffect.h"
 
 #include <map>
 
@@ -269,4 +271,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("RainEffect")] = new RainEffect();
     effectsMap[PSTR("PrismataEffect")] = new PrismataEffect();
     effectsMap[PSTR("FlockEffect")] = new FlockEffect();
+    effectsMap[PSTR("WhirlEffect")] = new WhirlEffect();
 }
