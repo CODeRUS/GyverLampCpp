@@ -40,6 +40,7 @@
 #include "effects/basic/LightBallsEffect.h"
 #include "effects/basic/MovingCubeEffect.h"
 #include "effects/basic/WhiteColorEffect.h"
+
 #include "effects/fractional/PulsingCometEffect.h"
 #include "effects/fractional/DoubleCometsEffect.h"
 #include "effects/fractional/TripleCometsEffect.h"
@@ -47,6 +48,7 @@
 #include "effects/fractional/ColorCometEffect.h"
 #include "effects/fractional/MovingFlameEffect.h"
 #include "effects/fractional/FractorialFireEffect.h"
+#include "effects/fractional/RainbowKiteEffect.h"
 
 #include <map>
 
@@ -249,4 +251,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("ColorCometEffect")] = new ColorCometEffect();
     effectsMap[PSTR("MovingFlameEffect")] = new MovingFlameEffect();
     effectsMap[PSTR("FractorialFireEffect")] = new FractorialFireEffect();
+    effectsMap[PSTR("RainbowKiteEffect")] = new RainbowKiteEffect();
 }
