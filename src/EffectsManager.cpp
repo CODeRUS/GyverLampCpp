@@ -60,6 +60,7 @@
 
 #include "effects/aurora/FlockEffect.h"
 #include "effects/aurora/WhirlEffect.h"
+#include "effects/aurora/WaveEffect.h"
 
 #include <map>
 
@@ -272,4 +273,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("PrismataEffect")] = new PrismataEffect();
     effectsMap[PSTR("FlockEffect")] = new FlockEffect();
     effectsMap[PSTR("WhirlEffect")] = new WhirlEffect();
+    effectsMap[PSTR("WaveEffect")] = new WaveEffect();
 }
