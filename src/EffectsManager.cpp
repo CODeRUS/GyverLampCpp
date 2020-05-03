@@ -55,6 +55,7 @@
 #include "effects/basic/MetaBallsEffect.h"
 #include "effects/basic/SinusoidEffect.h"
 #include "effects/basic/WaterfallPaletteEffect.h"
+#include "effects/basic/RainEffect.h"
 
 #include <map>
 
@@ -263,4 +264,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("MetaBallsEffect")] = new MetaBallsEffect();
     effectsMap[PSTR("SinusoidEffect")] = new SinusoidEffect();
     effectsMap[PSTR("WaterfallPaletteEffect")] = new WaterfallPaletteEffect();
+    effectsMap[PSTR("RainEffect")] = new RainEffect();
 }

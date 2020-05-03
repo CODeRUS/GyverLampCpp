@@ -285,6 +285,16 @@ CRGB MyMatrix::getPixColorXY(uint8_t x, uint8_t y)
     return getPixColor(getPixelNumberXY(x, y));
 }
 
+void MyMatrix::tintPixelXY(uint8_t x, uint8_t y, CRGB color)
+{
+    leds[myMatrix->getPixelNumberXY(x, y)] += color;
+}
+
+void MyMatrix::shadePixelXY(uint8_t x, uint8_t y, CRGB color)
+{
+    leds[myMatrix->getPixelNumberXY(x, y)] -= color;
+}
+
 void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color)
 {
     setPassThruColor(color);

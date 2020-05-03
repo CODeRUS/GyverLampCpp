@@ -55,6 +55,9 @@ public:
     CRGB getPixColor(uint16_t number);
     CRGB getPixColorXY(uint8_t x, uint8_t y);
 
+    void tintPixelXY(uint8_t x, uint8_t y, CRGB color);
+    void shadePixelXY(uint8_t x, uint8_t y, CRGB color);
+
     void fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color);
 
     void fadePixelXY(uint8_t x, uint8_t y, uint8_t step);
