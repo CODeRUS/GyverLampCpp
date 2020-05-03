@@ -52,6 +52,7 @@
 
 #include "effects/basic/BouncingBallsEffect.h"
 #include "effects/basic/SpiralEffect.h"
+#include "effects/basic/MetaBallsEffect.h"
 
 #include <map>
 
@@ -257,4 +258,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("RainbowKiteEffect")] = new RainbowKiteEffect();
     effectsMap[PSTR("BouncingBallsEffect")] = new BouncingBallsEffect();
     effectsMap[PSTR("SpiralEffect")] = new SpiralEffect();
+    effectsMap[PSTR("MetaBallsEffect")] = new MetaBallsEffect();
 }
