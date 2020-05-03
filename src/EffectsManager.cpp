@@ -50,6 +50,8 @@
 #include "effects/fractional/FractorialFireEffect.h"
 #include "effects/fractional/RainbowKiteEffect.h"
 
+#include "effects/basic/BouncingBallsEffect.h"
+
 #include <map>
 
 namespace  {
@@ -252,4 +254,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("MovingFlameEffect")] = new MovingFlameEffect();
     effectsMap[PSTR("FractorialFireEffect")] = new FractorialFireEffect();
     effectsMap[PSTR("RainbowKiteEffect")] = new RainbowKiteEffect();
+    effectsMap[PSTR("BouncingBallsEffect")] = new BouncingBallsEffect();
 }
