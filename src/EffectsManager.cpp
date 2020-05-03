@@ -51,6 +51,7 @@
 #include "effects/fractional/RainbowKiteEffect.h"
 
 #include "effects/basic/BouncingBallsEffect.h"
+#include "effects/basic/SpiralEffect.h"
 
 #include <map>
 
@@ -255,4 +256,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("FractorialFireEffect")] = new FractorialFireEffect();
     effectsMap[PSTR("RainbowKiteEffect")] = new RainbowKiteEffect();
     effectsMap[PSTR("BouncingBallsEffect")] = new BouncingBallsEffect();
+    effectsMap[PSTR("SpiralEffect")] = new SpiralEffect();
 }

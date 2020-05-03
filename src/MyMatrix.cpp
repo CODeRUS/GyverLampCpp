@@ -27,6 +27,25 @@ CRGB* leds = nullptr;
 
 MyMatrix *instance = nullptr;
 
+const TProgmemRGBPalette16 WaterfallColors_p FL_PROGMEM = {
+  0x000000, 0x060707, 0x101110, 0x151717,
+  0x1C1D22, 0x242A28, 0x363B3A, 0x313634,
+  0x505552, 0x6B6C70, 0x98A4A1, 0xC1C2C1,
+  0xCACECF, 0xCDDEDD, 0xDEDFE0, 0xB2BAB9
+};
+
+const TProgmemRGBPalette16 *palette_arr[] = {
+    &PartyColors_p,
+    &OceanColors_p,
+    &LavaColors_p,
+    &HeatColors_p,
+    &WaterfallColors_p,
+    &CloudColors_p,
+    &ForestColors_p,
+    &RainbowColors_p,
+    &RainbowStripeColors_p
+};
+
 } // namespace
 
 FASTLED_NAMESPACE_BEGIN
@@ -81,6 +100,11 @@ uint8_t MyMatrix::GetRotation()
 {
     uint8_t rotation = mySettings->matrixSettings.rotation;
     return rotation;
+}
+
+const TProgmemRGBPalette16 *MyMatrix::GetPalette(uint8_t pct)
+{
+    return palette_arr[(uint8_t)(pct / 100.0f * ((sizeof(palette_arr) / sizeof(TProgmemRGBPalette16 *)) - 0.01f))];
 }
 
 uint8_t MyMatrix::GetCenterX()

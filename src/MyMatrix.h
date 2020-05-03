@@ -21,6 +21,8 @@ public:
 
     static uint8_t GetRotation();
 
+    const TProgmemRGBPalette16 *GetPalette(uint8_t pct);
+
     uint16_t GetNumLeds();
     uint8_t GetCenterX();
     uint8_t GetCenterY();
