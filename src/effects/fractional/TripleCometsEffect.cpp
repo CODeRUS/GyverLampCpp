@@ -19,11 +19,11 @@ void TripleCometsEffect::tick()
     myMatrix->drawPixelXY(xx, yy, CRGB(0xFF0000));
     myMatrix->drawPixelXY(myMatrix->GetCenterX(), myMatrix->GetCenterY(), CRGB(0xFFFF00));
 
-    e_x[0] += 3000;
-    e_y[0] += 3000;
-    e_z[0] += 3000;
-    e_scaleX[0] = 8000;
-    e_scaleY[0] = 8000;
+    effectX[0] += 3000;
+    effectY[0] += 3000;
+    effectZ[0] += 3000;
+    effectScaleX[0] = 8000;
+    effectScaleY[0] = 8000;
     FillNoise(0);
     MoveFractionalNoiseX(2);
     MoveFractionalNoiseY(2, 0.33f);

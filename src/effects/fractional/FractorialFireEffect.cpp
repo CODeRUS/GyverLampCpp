@@ -14,11 +14,11 @@ void FractorialFireEffect::tick()
         myMatrix->drawPixelXY(i, mySettings->matrixSettings.width - 1, CHSV(i * 2, 255, 255));
     }
     // Noise
-    e_x[0] += 3000;
-    e_y[0] += 3000;
-    e_z[0] += 3000;
-    e_scaleX[0] = 8000;
-    e_scaleY[0] = 8000;
+    effectX[0] += 3000;
+    effectY[0] += 3000;
+    effectZ[0] += 3000;
+    effectScaleX[0] = 8000;
+    effectScaleY[0] = 8000;
     FillNoise(0);
     //MoveX(1);
     //MoveY(1);

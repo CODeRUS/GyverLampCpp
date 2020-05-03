@@ -9,7 +9,6 @@ public:
     void deactivate() override;
 
 protected:
-    void eNs_setup();
     void FillNoise(int8_t layer);
     void MoveX(int8_t delta);
     void MoveY(int8_t delta);
@@ -23,11 +22,11 @@ protected:
     uint8_t numLayers = 1;
 
     // The coordinates for 3 16-bit noise spaces.
-    uint32_t* e_x = nullptr;
-    uint32_t* e_y = nullptr;
-    uint32_t* e_z = nullptr;
-    uint32_t* e_scaleX = nullptr;
-    uint32_t* e_scaleY = nullptr;
+    uint32_t* effectX = nullptr;
+    uint32_t* effectY = nullptr;
+    uint32_t* effectZ = nullptr;
+    uint32_t* effectScaleX = nullptr;
+    uint32_t* effectScaleY = nullptr;
     uint8_t*** noise3d = nullptr;
 
     uint8_t eNs_noisesmooth = 0;

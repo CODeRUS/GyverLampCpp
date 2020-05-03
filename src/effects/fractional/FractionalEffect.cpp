@@ -8,11 +8,11 @@ FractionalEffect::FractionalEffect(uint8_t layers)
 
 void FractionalEffect::activate()
 {
-    e_x = new uint32_t[numLayers];
-    e_y = new uint32_t[numLayers];
-    e_z = new uint32_t[numLayers];
-    e_scaleX = new uint32_t[numLayers];
-    e_scaleY = new uint32_t[numLayers];
+    effectX = new uint32_t[numLayers];
+    effectY = new uint32_t[numLayers];
+    effectZ = new uint32_t[numLayers];
+    effectScaleX = new uint32_t[numLayers];
+    effectScaleY = new uint32_t[numLayers];
 
     noise3d = new uint8_t**[numLayers]();
     for (uint8_t i = 0; i < numLayers; ++i) {
@@ -27,11 +27,11 @@ void FractionalEffect::activate()
 
 void FractionalEffect::deactivate()
 {
-    delete[] e_x;
-    delete[] e_y;
-    delete[] e_z;
-    delete[] e_scaleX;
-    delete[] e_scaleY;
+    delete[] effectX;
+    delete[] effectY;
+    delete[] effectZ;
+    delete[] effectScaleX;
+    delete[] effectScaleY;
 
     for (uint8_t i = 0; i < numLayers; ++i) {
         for (uint8_t j = 0; j < mySettings->matrixSettings.width; j++) {
@@ -44,30 +44,17 @@ void FractionalEffect::deactivate()
     delete[] ledsbuff;
 }
 
-void FractionalEffect::eNs_setup()
-{
-    eNs_noisesmooth = 200;
-    for (int i = 0; i < numLayers; i++) {
-      e_x[i] = random16();
-      e_y[i] = random16();
-      e_z[i] = random16();
-      e_scaleX[i] = 6000;
-      e_scaleY[i] = 6000;
-    }
-    eNs_isSetupped = true;
-}
-
 void FractionalEffect::FillNoise(int8_t layer)
 {
     for (int8_t i = 0; i < mySettings->matrixSettings.width; i++) {
-        int32_t ioffset = e_scaleX[layer] * (i - myMatrix->GetCenterX());
+        int32_t ioffset = effectScaleX[layer] * (i - myMatrix->GetCenterX());
         for (int8_t j = 0; j < mySettings->matrixSettings.height; j++) {
-            int32_t joffset = e_scaleY[layer] * (j - myMatrix->GetCenterY());
-            int8_t data = inoise16(e_x[layer] + ioffset,
-                                   e_y[layer] + joffset,
-                                   e_z[layer]) >> 8;
+            int32_t joffset = effectScaleY[layer] * (j - myMatrix->GetCenterY());
+            int8_t data = inoise16(effectX[layer] + ioffset,
+                                   effectY[layer] + joffset,
+                                   effectZ[layer]) >> 8;
             int8_t olddata = noise3d[layer][i][j];
-            int8_t newdata = scale8( olddata, eNs_noisesmooth ) + scale8(data, 255 - eNs_noisesmooth);
+            int8_t newdata = scale8(olddata, 0) + scale8(data, 255);
             data = newdata;
             noise3d[layer][i][j] = data;
         }
