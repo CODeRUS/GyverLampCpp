@@ -21,7 +21,8 @@ public:
 
     static uint8_t GetRotation();
 
-    const TProgmemRGBPalette16 *GetPalette(uint8_t pct);
+    const TProgmemRGBPalette16 *GetColorPalette(uint8_t pct);
+    const CRGBPalette16 *GetFirePalette(uint8_t pct);
 
     uint16_t GetNumLeds();
     uint8_t GetCenterX();
@@ -57,6 +58,7 @@ public:
 
     void tintPixelXY(uint8_t x, uint8_t y, CRGB color);
     void shadePixelXY(uint8_t x, uint8_t y, CRGB color);
+    void blendPixelXY(uint8_t x, uint8_t y, const CRGB &color, uint8_t amount);
 
     void fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color);
 

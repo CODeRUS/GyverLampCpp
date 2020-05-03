@@ -65,12 +65,12 @@ void WaveEffect::tick()
             n = quadwave8(x * 2 + waveTheta) / waveScale;
             myMatrix->drawPixelXY(x,
                                   n,
-                                  ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                  ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                    hue + x));
             if (waveCount != 1)
                 myMatrix->drawPixelXY(x,
                                       mySettings->matrixSettings.height - 1 - n,
-                                      ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                      ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                        hue + x));
         }
         break;
@@ -80,12 +80,12 @@ void WaveEffect::tick()
             n = quadwave8(y * 2 + waveTheta) / waveScale;
             myMatrix->drawPixelXY(n,
                                   y,
-                                  ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                  ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                    hue + y));
             if (waveCount != 1)
                 myMatrix->drawPixelXY(mySettings->matrixSettings.width - 1 - n,
                                       y,
-                                      ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                      ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                        hue + y));
         }
         break;
@@ -95,12 +95,12 @@ void WaveEffect::tick()
             n = quadwave8(x * 2 - waveTheta) / waveScale;
             myMatrix->drawPixelXY(x,
                                   n,
-                                  ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                  ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                    hue + x));
             if (waveCount != 1)
                 myMatrix->drawPixelXY(x,
                                       mySettings->matrixSettings.height - 1 - n,
-                                      ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                      ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                        hue + x));
         }
         break;
@@ -110,12 +110,12 @@ void WaveEffect::tick()
             n = quadwave8(y * 2 - waveTheta) / waveScale;
             myMatrix->drawPixelXY(n,
                                   y,
-                                  ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                  ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                    hue + y));
             if (waveCount != 1)
                 myMatrix->drawPixelXY(mySettings->matrixSettings.width - 1 - n,
                                       y,
-                                      ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                      ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                        hue + y));
         }
         break;

@@ -56,6 +56,6 @@ void PrismataEffect::tick()
     for (int x = 0; x < mySettings->matrixSettings.width; x++) {
         uint8_t beat = (GET_MILLIS() * (accum88(x + 1)) * 28 * settings.speed) >> 17;
         uint8_t y = scale8(sin8(beat), mySettings->matrixSettings.height - 1);
-        myMatrix->drawPixelXY(x, y, ColorFromPalette(*myMatrix->GetPalette(settings.scale), x * 7 + hue));
+        myMatrix->drawPixelXY(x, y, ColorFromPalette(*myMatrix->GetColorPalette(settings.scale), x * 7 + hue));
     }
 }

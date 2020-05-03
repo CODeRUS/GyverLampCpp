@@ -34,7 +34,7 @@ const TProgmemRGBPalette16 WaterfallColors_p FL_PROGMEM = {
   0xCACECF, 0xCDDEDD, 0xDEDFE0, 0xB2BAB9
 };
 
-const TProgmemRGBPalette16 *palette_arr[] = {
+const TProgmemRGBPalette16 *colorPallettes[] = {
     &PartyColors_p,
     &OceanColors_p,
     &LavaColors_p,
@@ -44,6 +44,47 @@ const TProgmemRGBPalette16 *palette_arr[] = {
     &ForestColors_p,
     &RainbowColors_p,
     &RainbowStripeColors_p
+};
+
+const CRGBPalette16 WoodFireColors_p = {
+    CRGB::Black, CRGB::OrangeRed, CRGB::Orange, CRGB::Gold
+};
+const CRGBPalette16 NormalFire_p = {
+    CRGB::Black, CRGB::Red, 0xff3c00, 0xff7800
+};
+const CRGBPalette16 NormalFire2_p = {
+    CRGB::Black, CRGB::FireBrick, 0xff3c00, 0xff7800
+};
+const CRGBPalette16 SodiumFireColors_p = {
+    CRGB::Black, CRGB::Orange, CRGB::Gold, CRGB::Goldenrod
+};
+const CRGBPalette16 CopperFireColors_p = {
+    CRGB::Black, CRGB::Green, CRGB::GreenYellow, CRGB::LimeGreen
+};
+const CRGBPalette16 AlcoholFireColors_p = {
+    CRGB::Black, CRGB::Blue, CRGB::DeepSkyBlue, CRGB::LightSkyBlue
+};
+const CRGBPalette16 RubidiumFireColors_p = {
+    CRGB::Black, CRGB::Indigo, CRGB::Indigo, CRGB::DarkBlue
+};
+const CRGBPalette16 PotassiumFireColors_p = {
+    CRGB::Indigo, CRGB::MediumPurple, CRGB::DeepPink
+};
+const CRGBPalette16 LithiumFireColors_p = {
+    CRGB::Black, CRGB::FireBrick, CRGB::Pink, CRGB::DeepPink
+};
+const CRGBPalette16 HeatColors_x = HeatColors_p;
+const CRGBPalette16 *firePalettes[] = {
+  &HeatColors_x,
+  &WoodFireColors_p,
+  &NormalFire_p,
+  &NormalFire2_p,
+  &LithiumFireColors_p,
+  &SodiumFireColors_p,
+  &CopperFireColors_p,
+  &AlcoholFireColors_p,
+  &RubidiumFireColors_p,
+  &PotassiumFireColors_p
 };
 
 } // namespace
@@ -102,9 +143,14 @@ uint8_t MyMatrix::GetRotation()
     return rotation;
 }
 
-const TProgmemRGBPalette16 *MyMatrix::GetPalette(uint8_t pct)
+const TProgmemRGBPalette16 *MyMatrix::GetColorPalette(uint8_t pct)
 {
-    return palette_arr[(uint8_t)(pct / 100.0f * ((sizeof(palette_arr) / sizeof(TProgmemRGBPalette16 *)) - 0.01f))];
+    return colorPallettes[(uint8_t)(pct / 100.0f * ((sizeof(colorPallettes) / sizeof(TProgmemRGBPalette16 *)) - 0.01f))];
+}
+
+const CRGBPalette16 *MyMatrix::GetFirePalette(uint8_t pct)
+{
+    return firePalettes[(uint8_t)(pct / 100.0f * ((sizeof(firePalettes) / sizeof(CRGBPalette16 *)) - 0.01f))];
 }
 
 uint8_t MyMatrix::GetCenterX()
@@ -293,6 +339,11 @@ void MyMatrix::tintPixelXY(uint8_t x, uint8_t y, CRGB color)
 void MyMatrix::shadePixelXY(uint8_t x, uint8_t y, CRGB color)
 {
     leds[myMatrix->getPixelNumberXY(x, y)] -= color;
+}
+
+void MyMatrix::blendPixelXY(uint8_t x, uint8_t y, const CRGB &color, uint8_t amount)
+{
+    nblend(leds[myMatrix->getPixelNumberXY(x, y)], color, amount);
 }
 
 void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color)

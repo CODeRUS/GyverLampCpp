@@ -62,6 +62,8 @@
 #include "effects/aurora/WhirlEffect.h"
 #include "effects/aurora/WaveEffect.h"
 
+#include "effects/basic/Fire12Effect.h"
+
 #include <map>
 
 namespace  {
@@ -274,4 +276,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("FlockEffect")] = new FlockEffect();
     effectsMap[PSTR("WhirlEffect")] = new WhirlEffect();
     effectsMap[PSTR("WaveEffect")] = new WaveEffect();
+    effectsMap[PSTR("Fire12Effect")] = new Fire12Effect();
 }

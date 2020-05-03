@@ -61,7 +61,7 @@ void WhirlEffect::tick()
         } else {
             myMatrix->drawPixelXY(boid->location.x,
                                   boid->location.y,
-                                  ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                  ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                    angle + hue));
         }
 

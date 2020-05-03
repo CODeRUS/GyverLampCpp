@@ -62,7 +62,7 @@ void FlockEffect::tick()
         wind->y = Boid::randomf() * 0.015f * settings.speed / 127.0f + 0.015f / 2;
     }
 
-    CRGB color = ColorFromPalette(*myMatrix->GetPalette(settings.scale), hue);
+    CRGB color = ColorFromPalette(*myMatrix->GetColorPalette(settings.scale), hue);
 
 
     for (int i = 0; i < boidCount; i++) {
@@ -90,7 +90,7 @@ void FlockEffect::tick()
     if (predatorPresent) {
         predator->run(boids, boidCount);
         predator->wrapAroundBorders();
-        color = ColorFromPalette(*myMatrix->GetPalette(settings.scale), hue + 128);
+        color = ColorFromPalette(*myMatrix->GetColorPalette(settings.scale), hue + 128);
         PVector location = predator->location;
         // PVector velocity = predator.velocity;
         // backgroundLayer.drawLine(location.x, location.y, location.x - velocity.x, location.y - velocity.y, color);

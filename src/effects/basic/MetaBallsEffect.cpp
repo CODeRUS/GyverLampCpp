@@ -48,7 +48,7 @@ void MetaBallsEffect::tick()
                 } else {
                     myMatrix->drawPixelXY(x,
                                           y,
-                                          ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                          ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                                                 color * 9));
                 }
             } else {
@@ -57,7 +57,7 @@ void MetaBallsEffect::tick()
                 } else {
                     myMatrix->drawPixelXY(x,
                                           y,
-                                          ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                          ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                                                 0));
                 }
             }

@@ -106,7 +106,7 @@ void SpiralEffect::tick()
         if (x2 < mySettings->matrixSettings.width && y2 < mySettings->matrixSettings.height) {
             myMatrix->drawPixelXY(x2,
                                   y2,
-                                  ColorFromPalette(*myMatrix->GetPalette(settings.scale),
+                                  ColorFromPalette(*myMatrix->GetColorPalette(settings.scale),
                                                                         hue + i * spirooffset));
         }
 
