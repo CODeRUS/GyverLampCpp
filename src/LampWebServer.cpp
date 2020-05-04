@@ -2,6 +2,7 @@
 #include "LampWebServer.h"
 #include "MyMatrix.h"
 #include "Settings.h"
+#include "effects/Effect.h"
 
 #if defined(ESP32)
 #include <Update.h>
@@ -332,6 +333,18 @@ void LampWebServer::Process()
     }
 }
 
+void SendJsonToWs(const DynamicJsonDocument &json, AsyncWebSocketClient *client = nullptr)
+{
+    serializeJson(json, Serial);
+    String buffer;
+    serializeJson(json, buffer);
+    if (client) {
+        client->text(buffer);
+    } else {
+        socket->textAll(buffer);
+    }
+}
+
 void LampWebServer::SendConfig(AsyncWebSocket *server, AsyncWebSocketClient *client)
 {
     if (!socket) {
@@ -342,7 +355,11 @@ void LampWebServer::SendConfig(AsyncWebSocket *server, AsyncWebSocketClient *cli
         return;
     }
 
-    mySettings->WriteConfigTo(server, client);
+    DynamicJsonDocument json(512);
+    JsonObject root = json.to<JsonObject>();
+    root[F("activeEffect")] = effectsManager->ActiveEffectIndex();
+    root[F("working")] = mySettings->generalSettings.working;
+    SendJsonToWs(json, client);
 }
 
 bool LampWebServer::isUpdating()

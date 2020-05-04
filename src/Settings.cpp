@@ -93,25 +93,6 @@ void Settings::Save()
     }
 }
 
-void Settings::WriteConfigTo(AsyncWebSocket *socket, AsyncWebSocketClient *client)
-{
-    DynamicJsonDocument json(jsonSerializeSize);
-    JsonObject root = json.to<JsonObject>();
-    BuildJson(root);
-
-    size_t configSize = measureJson(json);
-    AsyncWebSocketMessageBuffer *buffer = socket->makeBuffer(configSize);
-    if (!buffer) {
-        return;
-    }
-    serializeJson(json, (char *)buffer->get(), configSize + 1);
-    if (client) {
-        client->text(buffer);
-    } else {
-        socket->textAll(buffer);
-    }
-}
-
 void Settings::WriteEffectsMqtt(JsonArray &array)
 {
     for (Effect *effect : effectsManager->effects) {
