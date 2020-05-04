@@ -16,7 +16,7 @@
 
 namespace {
 
-const size_t jsonSerializeSize = 512 * 20;
+const size_t jsonSerializeSize = 512 * 22;
 
 Settings *instance = nullptr;
 
