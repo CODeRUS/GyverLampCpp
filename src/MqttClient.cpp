@@ -106,34 +106,38 @@ void sendDiscovery()
 
 void reconnect()
 {
-    if (!client || client->connected()) {
+    static bool connecting = false;
+
+    if (!client || client->connected() || connecting) {
         return;
     }
 
+    connecting = true;
     Serial.print(F("Attempting MQTT connection "));
-    uint8_t tries = 0;
+    clientId = String(F("FireLampClient-")) + mySettings->connectionSettings.mdns;
+    if (client->connect(clientId.c_str(),
+                        mySettings->mqttSettings.username.c_str(),
+                        mySettings->mqttSettings.password.c_str(),
+                        availabilityTopic.c_str(),
+                        1,
+                        true,
+                        "false")) {
+        connecting = false;
+        Serial.println(F("succeeded"));
 
-    while (!client->connected() && tries < 10) {
-        clientId = String(F("FireLampClient-")) + String(random(0xffff), HEX);
+        sendDiscovery();
+        sendState();
+        sendAvailability();
+        subscribe();
+    } else {
+        connecting = false;
+        Serial.println(F("failed"));
 
-        if (client->connect(clientId.c_str(),
-                            mySettings->mqttSettings.username.c_str(),
-                            mySettings->mqttSettings.password.c_str(),
-                            availabilityTopic.c_str(),
-                            1,
-                            true,
-                            "false")) {
-            Serial.println(F(" connected"));
-
-            sendDiscovery();
-            sendState();
-            sendAvailability();
-            subscribe();
-        } else {
-            Serial.print('.');
-            delay(1000);
-            ++tries;
-        }
+#if defined(ESP8266)
+        ESP.wdtFeed();
+#else
+        yield();
+#endif
     }
 }
 
@@ -179,11 +183,11 @@ void MqttClient::loop()
         return;
     }
 
-    if (!client->connected()) {
+    if (client->connected()) {
+        client->loop();
+    } else {
         reconnect();
     }
-
-    client->loop();
 }
 
 void MqttClient::update()
