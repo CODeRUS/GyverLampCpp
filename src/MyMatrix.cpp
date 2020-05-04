@@ -346,6 +346,11 @@ void MyMatrix::blendPixelXY(uint8_t x, uint8_t y, const CRGB &color, uint8_t amo
     nblend(leds[myMatrix->getPixelNumberXY(x, y)], color, amount);
 }
 
+void MyMatrix::dimPixelXY(uint8_t x, uint8_t y, uint8_t value)
+{
+    leds[myMatrix->getPixelNumberXY(x, y)].nscale8(value);
+}
+
 void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color)
 {
     setPassThruColor(color);

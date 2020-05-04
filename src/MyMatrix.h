@@ -59,6 +59,7 @@ public:
     void tintPixelXY(uint8_t x, uint8_t y, CRGB color);
     void shadePixelXY(uint8_t x, uint8_t y, CRGB color);
     void blendPixelXY(uint8_t x, uint8_t y, const CRGB &color, uint8_t amount);
+    void dimPixelXY(uint8_t x, uint8_t y, uint8_t value);
 
     void fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color);
 

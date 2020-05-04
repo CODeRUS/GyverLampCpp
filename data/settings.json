@@ -379,6 +379,13 @@
       "brightness": 80
     },
     {
+      "id": "Fire18Effect",
+      "name": "Fire18",
+      "speed": 100,
+      "scale": 20,
+      "brightness": 80
+    },
+    {
       "id": "SoundStereoEffect",
       "name": "Sound stereo spectrometer",
       "speed": 1,
