@@ -64,6 +64,7 @@
 
 #include "effects/basic/Fire12Effect.h"
 #include "effects/basic/Fire18Effect.h"
+#include "effects/basic/RainNeoEffect.h"
 
 #include <map>
 
@@ -279,4 +280,5 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("WaveEffect")] = new WaveEffect();
     effectsMap[PSTR("Fire12Effect")] = new Fire12Effect();
     effectsMap[PSTR("Fire18Effect")] = new Fire18Effect();
+    effectsMap[PSTR("RainNeoEffect")] = new RainNeoEffect();
 }

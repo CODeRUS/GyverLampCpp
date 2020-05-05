@@ -39,6 +39,7 @@ public:
     void fillProgress(double progress);
     void setLed(uint16_t index, CRGB color);
     void fadeToBlackBy(uint16_t index, uint8_t step);
+    void fadeToBlackBy(uint8_t step);
 
     void dimAll(uint8_t value);
     uint8_t wrapX(int8_t x);

@@ -386,6 +386,13 @@
       "brightness": 80
     },
     {
+      "id": "RainNeoEffect",
+      "name": "Rain Neo",
+      "speed": 100,
+      "scale": 20,
+      "brightness": 80
+    },
+    {
       "id": "SoundStereoEffect",
       "name": "Sound stereo spectrometer",
       "speed": 1,
