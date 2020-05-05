@@ -62,8 +62,8 @@ public:
     void Save();
 
     void BuildJson(JsonObject &root);
+    void BuildEffectsJson(JsonObject &root);
     void BuildJsonMqtt(JsonObject &root);
-    void WriteConfigTo(AsyncWebSocket *socket, AsyncWebSocketClient *client);
     void WriteEffectsMqtt(JsonArray &array);
 
     void ProcessConfig(const String &message);

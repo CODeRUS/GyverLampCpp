@@ -182,6 +182,20 @@ void Settings::BuildJson(JsonObject &root)
     spectrometerObject[F("active")] = generalSettings.soundControl;
 }
 
+void Settings::BuildEffectsJson(JsonObject &root)
+{
+    JsonArray effects = root.createNestedArray(F("effects"));
+    for (Effect *effect : effectsManager->effects) {
+        JsonObject effectObject = effects.createNestedObject();
+        effectObject[F("id")] = effect->settings.id;
+        effectObject[F("name")] = effect->settings.name;
+        effectObject[F("speed")] = effect->settings.speed;
+        effectObject[F("scale")] = effect->settings.scale;
+        effectObject[F("brightness")] = effect->settings.brightness;
+        effect->writeSettings(effectObject);
+    }
+}
+
 void Settings::BuildJsonMqtt(JsonObject &root)
 {
     root[F("state")] = generalSettings.working ? F("ON") : F("OFF");

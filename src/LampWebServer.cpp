@@ -395,6 +395,14 @@ void LampWebServer::configureHandlers()
         request->send(response);
     });
 
+    webServer->on(PSTR("/effects"), HTTP_GET, [](AsyncWebServerRequest *request) {
+        AsyncJsonResponse *response = new AsyncJsonResponse(false, mySettings->JsonSerializeSize());
+        JsonObject root = response->getRoot();
+        mySettings->BuildEffectsJson(root);
+        response->setLength();
+        request->send(response);
+    });
+
     webServer->on(PSTR("/effectJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
         PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024);
         JsonObject root = response->getRoot();
