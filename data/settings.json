@@ -393,6 +393,13 @@
       "brightness": 80
     },
     {
+      "id": "TwinklesEffect",
+      "name": "Twinkles",
+      "speed": 100,
+      "scale": 20,
+      "brightness": 80
+    },
+    {
       "id": "SoundStereoEffect",
       "name": "Sound stereo spectrometer",
       "speed": 1,

@@ -335,7 +335,6 @@ void LampWebServer::Process()
 
 void SendJsonToWs(const DynamicJsonDocument &json, AsyncWebSocketClient *client = nullptr)
 {
-    serializeJson(json, Serial);
     String buffer;
     serializeJson(json, buffer);
     if (client) {
