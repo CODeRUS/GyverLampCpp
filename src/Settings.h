@@ -11,8 +11,8 @@ class Settings
 {
 public:
     struct EffectSettings {
-        String id = "";
-        String name = "";
+        String id;
+        String name;
         uint8_t speed = 1;
         uint8_t scale = 100;
         uint8_t brightness = 80;
@@ -37,18 +37,18 @@ public:
 
     struct ConenctionSettings {
         String uniqueId = GetUniqueID();
-        String mdns = "firelamp";
-        String apName = "Fire Lamp";
-        String ntpServer = "europe.pool.ntp.org";
+        String mdns;
+        String apName;
+        String ntpServer;
         uint32_t ntpOffset = 10800;
-        String manufacturer = "coderus";
+        String manufacturer;
     };
 
     struct MqttSettings {
-        String host = "";
+        String host;
         uint16_t port = 1883;
-        String username = "";
-        String password = "";
+        String username;
+        String password;
     };
 
     static Settings *Instance();

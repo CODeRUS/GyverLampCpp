@@ -210,6 +210,11 @@ Settings::Settings(uint32_t saveInterval)
 {
     settingsSaveInterval = saveInterval;
 
+    connectionSettings.mdns = F("firelamp");
+    connectionSettings.apName = F("Fire Lamp");
+    connectionSettings.ntpServer = F("europe.pool.ntp.org");
+    connectionSettings.manufacturer = F("coderus");
+
     bool settingsExists = SPIFFS.exists(settingsFileName);
     Serial.printf_P(PSTR("SPIFFS Settings file exists: %s\n"), settingsExists ? PSTR("true") : PSTR("false"));
     if (!settingsExists) {
