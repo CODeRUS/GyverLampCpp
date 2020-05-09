@@ -116,12 +116,12 @@ void PulseCirclesEffect::activate()
 void PulseCirclesEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("mode"))) {
-        mode = json[F("mode")];
+    if (json.containsKey(F("m"))) {
+        mode = json[F("m")];
     }
 }
 
 void PulseCirclesEffect::writeSettings(JsonObject &json)
 {
-    json[F("mode")] = mode;
+    json[F("m")] = mode;
 }

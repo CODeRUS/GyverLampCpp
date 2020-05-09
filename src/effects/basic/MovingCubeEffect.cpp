@@ -81,12 +81,12 @@ void MovingCubeEffect::deactivate()
 void MovingCubeEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("randomColor"))) {
-        randomColor = json[F("randomColor")];
+    if (json.containsKey(F("rnd"))) {
+        randomColor = json[F("rnd")];
     }
 }
 
 void MovingCubeEffect::writeSettings(JsonObject &json)
 {
-    json[F("randomColor")] = randomColor;
+    json[F("rnd")] = randomColor;
 }

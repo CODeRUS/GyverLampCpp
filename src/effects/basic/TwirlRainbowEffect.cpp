@@ -37,16 +37,16 @@ void TwirlRainbowEffect::tick()
 void TwirlRainbowEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("hueStep"))) {
-        hueStep = json[F("hueStep")];
+    if (json.containsKey(F("step"))) {
+        hueStep = json[F("step")];
     }
-    if (json.containsKey(F("twirlFactor"))) {
-        twirlFactor = json[F("twirlFactor")];
+    if (json.containsKey(F("twirl"))) {
+        twirlFactor = json[F("twirl")];
     }
 }
 
 void TwirlRainbowEffect::writeSettings(JsonObject &json)
 {
-    json[F("hueStep")] = hueStep;
-    json[F("twirlFactor")] = twirlFactor;
+    json[F("step")] = hueStep;
+    json[F("twirl")] = twirlFactor;
 }

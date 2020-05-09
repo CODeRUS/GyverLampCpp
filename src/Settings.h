@@ -59,15 +59,19 @@ public:
     void Process();
     void Reset();
     void SaveLater();
-    void Save();
+    void SaveSettings();
+    void SaveEffects();
 
-    void BuildJson(JsonObject &root);
-    void BuildEffectsJson(JsonObject &root);
+    void BuildSettingsJson(JsonObject &root);
+    void BuildEffectsJson(JsonArray &effects);
     void BuildJsonMqtt(JsonObject &root);
     void WriteEffectsMqtt(JsonArray &array);
 
     void ProcessConfig(const String &message);
     void ProcessCommandMqtt(const JsonObject &json);
+
+    void ReadSettings();
+    void ReadEffects();
 
     GeneralSettings generalSettings;
     MatrixSettings matrixSettings;

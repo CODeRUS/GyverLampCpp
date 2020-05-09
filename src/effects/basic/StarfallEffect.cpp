@@ -60,20 +60,20 @@ void StarfallEffect::tick()
 void StarfallEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("useSpectrometer"))) {
-        useSpectrometer = json[F("useSpectrometer")];
+//    if (json.containsKey(F("useSpectrometer"))) {
+//        useSpectrometer = json[F("useSpectrometer")];
+//    }
+    if (json.containsKey(F("step"))) {
+        tailStep = json[F("step")];
     }
-    if (json.containsKey(F("tailStep"))) {
-        tailStep = json[F("tailStep")];
-    }
-    if (json.containsKey(F("saturation"))) {
-        saturation = json[F("saturation")];
+    if (json.containsKey(F("sat"))) {
+        saturation = json[F("sat")];
     }
 }
 
 void StarfallEffect::writeSettings(JsonObject &json)
 {
-    json[F("useSpectrometer")] = useSpectrometer;
-    json[F("tailStep")] = tailStep;
-    json[F("saturation")] = saturation;
+//    json[F("useSpectrometer")] = useSpectrometer;
+    json[F("step")] = tailStep;
+    json[F("sat")] = saturation;
 }

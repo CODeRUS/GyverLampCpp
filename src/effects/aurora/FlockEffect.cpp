@@ -110,12 +110,12 @@ void FlockEffect::tick()
 void FlockEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("havePredator"))) {
-        havePredator = json[F("havePredator")];
+    if (json.containsKey(F("predator"))) {
+        havePredator = json[F("predator")];
     }
 }
 
 void FlockEffect::writeSettings(JsonObject &json)
 {
-    json[F("havePredator")] = havePredator;
+    json[F("predator")] = havePredator;
 }

@@ -60,16 +60,16 @@ void ClockEffect::deactivate()
 void ClockEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("hoursColor"))) {
-        hoursColor = json[F("hoursColor")];
+    if (json.containsKey(F("hColor"))) {
+        hoursColor = json[F("hColor")];
     }
-    if (json.containsKey(F("minutesColor"))) {
-        minutesColor = json[F("minutesColor")];
+    if (json.containsKey(F("mColor"))) {
+        minutesColor = json[F("mColor")];
     }
 }
 
 void ClockEffect::writeSettings(JsonObject &json)
 {
-    json[F("hoursColor")] = hoursColor;
-    json[F("minutesColor")] = minutesColor;
+    json[F("hColor")] = hoursColor;
+    json[F("mColor")] = minutesColor;
 }

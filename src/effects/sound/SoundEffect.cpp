@@ -143,15 +143,15 @@ void SoundEffect::initialize(const JsonObject &json)
     if (json.containsKey(F("color"))) {
         color = json[F("color")];
     }
-    if (json.containsKey(F("heatColor"))) {
-        heatColor = json[F("heatColor")];
+    if (json.containsKey(F("hColor"))) {
+        heatColor = json[F("hColor")];
     }
 }
 
 void SoundEffect::writeSettings(JsonObject &json)
 {
     json[F("color")] = color;
-    json[F("heatColor")] = heatColor;
+    json[F("hColor")] = heatColor;
 }
 
 void SoundEffect::displayBand(int band, int dsize)

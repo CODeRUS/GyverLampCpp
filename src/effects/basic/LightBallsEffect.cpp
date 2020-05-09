@@ -51,12 +51,12 @@ void LightBallsEffect::tick()
 void LightBallsEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("thickness"))) {
-        thickness = json[F("thickness")];
+    if (json.containsKey(F("size"))) {
+        thickness = json[F("size")];
     }
 }
 
 void LightBallsEffect::writeSettings(JsonObject &json)
 {
-    json[F("thickness")] = thickness;
+    json[F("size")] = thickness;
 }

@@ -68,14 +68,14 @@ void FireEffect::tick()
 void FireEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("useSpectrometer"))) {
-        useSpectrometer = json[F("useSpectrometer")];
-    }
+//    if (json.containsKey(F("useSpectrometer"))) {
+//        useSpectrometer = json[F("useSpectrometer")];
+//    }
 }
 
 void FireEffect::writeSettings(JsonObject &json)
 {
-    json[F("useSpectrometer")] = useSpectrometer;
+//    json[F("useSpectrometer")] = useSpectrometer;
 }
 
 void FireEffect::generateLine()

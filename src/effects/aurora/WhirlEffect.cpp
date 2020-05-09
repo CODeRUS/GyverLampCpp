@@ -86,20 +86,20 @@ void WhirlEffect::tick()
 void WhirlEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("oneColor"))) {
-        oneColor = json[F("oneColor")];
+    if (json.containsKey(F("color"))) {
+        oneColor = json[F("color")];
     }
-    if (json.containsKey(F("ff_speed"))) {
-        ff_speed = json[F("ff_speed")];
+    if (json.containsKey(F("speed"))) {
+        ff_speed = json[F("speed")];
     }
-    if (json.containsKey(F("ff_scale"))) {
-        ff_scale = json[F("ff_scale")];
+    if (json.containsKey(F("scale"))) {
+        ff_scale = json[F("scale")];
     }
 }
 
 void WhirlEffect::writeSettings(JsonObject &json)
 {
-    json[F("oneColor")] = oneColor;
-    json[F("ff_speed")] = ff_speed;
-    json[F("ff_scale")] = ff_scale;
+    json[F("color")] = oneColor;
+    json[F("speed")] = ff_speed;
+    json[F("scale")] = ff_scale;
 }

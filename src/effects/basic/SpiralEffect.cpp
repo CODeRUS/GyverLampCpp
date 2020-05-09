@@ -157,12 +157,12 @@ void SpiralEffect::tick()
 void SpiralEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("spirocount"))) {
-        spirocount = json[F("spirocount")];
+    if (json.containsKey(F("count"))) {
+        spirocount = json[F("count")];
     }
 }
 
 void SpiralEffect::writeSettings(JsonObject &json)
 {
-    json[F("spirocount")] = spirocount;
+    json[F("count")] = spirocount;
 }

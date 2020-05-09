@@ -27,9 +27,9 @@ void ColorEffect::tick()
 void ColorEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("useSpectrometer"))) {
-        useSpectrometer = json[F("useSpectrometer")];
-    }
+//    if (json.containsKey(F("useSpectrometer"))) {
+//        useSpectrometer = json[F("useSpectrometer")];
+//    }
     if (json.containsKey(F("color"))) {
         myColor = json[F("color")];
     }
@@ -37,6 +37,6 @@ void ColorEffect::initialize(const JsonObject &json)
 
 void ColorEffect::writeSettings(JsonObject &json)
 {
-    json[F("useSpectrometer")] = useSpectrometer;
+//    json[F("useSpectrometer")] = useSpectrometer;
     json[F("color")] = myColor;
 }

@@ -38,9 +38,9 @@ void SnowEffect::tick()
 void SnowEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("useSpectrometer"))) {
-        useSpectrometer = json[F("useSpectrometer")];
-    }
+//    if (json.containsKey(F("useSpectrometer"))) {
+//        useSpectrometer = json[F("useSpectrometer")];
+//    }
     if (json.containsKey(F("color"))) {
         myColor = json[F("color")];
     }
@@ -48,6 +48,6 @@ void SnowEffect::initialize(const JsonObject &json)
 
 void SnowEffect::writeSettings(JsonObject &json)
 {
-    json[F("useSpectrometer")] = useSpectrometer;
+//    json[F("useSpectrometer")] = useSpectrometer;
     json[F("color")] = myColor;
 }

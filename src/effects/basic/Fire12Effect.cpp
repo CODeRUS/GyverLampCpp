@@ -77,8 +77,8 @@ void Fire12Effect::initialize(const JsonObject &json)
     if (json.containsKey(F("sparking"))) {
         sparking = json[F("sparking")];
     }
-    if (json.containsKey(F("fireSmoothing"))) {
-        fireSmoothing = json[F("fireSmoothing")];
+    if (json.containsKey(F("smoothing"))) {
+        fireSmoothing = json[F("smoothing")];
     }
 }
 
@@ -86,5 +86,5 @@ void Fire12Effect::writeSettings(JsonObject &json)
 {
     json[F("cooling")] = cooling;
     json[F("sparking")] = sparking;
-    json[F("fireSmoothing")] = fireSmoothing;
+    json[F("smoothing")] = fireSmoothing;
 }

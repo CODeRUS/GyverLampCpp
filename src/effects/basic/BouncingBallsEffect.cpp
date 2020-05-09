@@ -114,12 +114,12 @@ void BouncingBallsEffect::tick()
 void BouncingBallsEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("isColored"))) {
-        isColored = json[F("isColored")];
+    if (json.containsKey(F("colored"))) {
+        isColored = json[F("colored")];
     }
 }
 
 void BouncingBallsEffect::writeSettings(JsonObject &json)
 {
-    json[F("isColored")] = isColored;
+    json[F("colored")] = isColored;
 }

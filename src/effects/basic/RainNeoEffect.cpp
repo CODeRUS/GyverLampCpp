@@ -172,23 +172,23 @@ void RainNeoEffect::tick()
 void RainNeoEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("rainColor"))) {
-        rainColor = json[F("rainColor")];
+    if (json.containsKey(F("rColor"))) {
+        rainColor = json[F("rColor")];
     }
-    if (json.containsKey(F("lightningColor"))) {
-        lightningColor = json[F("lightningColor")];
+    if (json.containsKey(F("lColor"))) {
+        lightningColor = json[F("lColor")];
     }
-    if (json.containsKey(F("backgroundDepth"))) {
-        backgroundDepth = json[F("backgroundDepth")];
+    if (json.containsKey(F("bDpth"))) {
+        backgroundDepth = json[F("bDpth")];
     }
-    if (json.containsKey(F("maxBrightness"))) {
-        maxBrightness = json[F("maxBrightness")];
+    if (json.containsKey(F("mBri"))) {
+        maxBrightness = json[F("mBri")];
     }
-    if (json.containsKey(F("spawnFreq"))) {
-        spawnFreq = json[F("spawnFreq")];
+    if (json.containsKey(F("freq"))) {
+        spawnFreq = json[F("freq")];
     }
-    if (json.containsKey(F("tailLength"))) {
-        tailLength = json[F("tailLength")];
+    if (json.containsKey(F("length"))) {
+        tailLength = json[F("length")];
     }
     if (json.containsKey(F("splashes"))) {
         splashes = json[F("splashes")];
@@ -203,12 +203,12 @@ void RainNeoEffect::initialize(const JsonObject &json)
 
 void RainNeoEffect::writeSettings(JsonObject &json)
 {
-    json[F("rainColor")] = rainColor;
-    json[F("lightningColor")] = lightningColor;
-    json[F("backgroundDepth")] = backgroundDepth;
-    json[F("maxBrightness")] = maxBrightness;
-    json[F("spawnFreq")] = spawnFreq;
-    json[F("tailLength")] = tailLength;
+    json[F("rColor")] = rainColor;
+    json[F("lColor")] = lightningColor;
+    json[F("bDpth")] = backgroundDepth;
+    json[F("mBri")] = maxBrightness;
+    json[F("freq")] = spawnFreq;
+    json[F("length")] = tailLength;
     json[F("splashes")] = splashes;
     json[F("clouds")] = clouds;
     json[F("storm")] = storm;

@@ -53,17 +53,17 @@ void StormEffect::tick()
 
 void StormEffect::writeSettings(JsonObject &json)
 {
-    json[F("isColored")] = isColored;
-    json[F("snowDensity")] = snowDensity;
+    json[F("colored")] = isColored;
+    json[F("density")] = snowDensity;
 }
 
 void StormEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("isColored"))) {
-        isColored = json[F("isColored")];
+    if (json.containsKey(F("colored"))) {
+        isColored = json[F("colored")];
     }
-    if (json.containsKey(F("snowDensity"))) {
-        snowDensity = json[F("snowDensity")];
+    if (json.containsKey(F("density"))) {
+        snowDensity = json[F("density")];
     }
 }
