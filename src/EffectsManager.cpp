@@ -283,4 +283,7 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("Fire18")] = new Fire18Effect();
     effectsMap[PSTR("RainNeo")] = new RainNeoEffect();
     effectsMap[PSTR("Twinkles")] = new TwinklesEffect();
+    // Uncomment to use
+    // effectsMap[PSTR("Sound")] = new SoundEffect();
+    // effectsMap[PSTR("Stereo")] = new SoundStereoEffect();
 }
