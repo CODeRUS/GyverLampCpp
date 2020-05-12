@@ -856,9 +856,9 @@ const uint8_t aquariumGIF[25][32][32] PROGMEM =
   }
 };
 
-uint8_t GIFframe = 0U;
-uint8_t GIFshiftx = 0U;
-uint8_t GIFshifty = 0U;
+uint8_t GIFframe = 0;
+uint8_t GIFshiftx = 0;
+uint8_t GIFshifty = 0;
 
 uint8_t causticBr = 100;
 
@@ -871,30 +871,28 @@ AnimationEffect::AnimationEffect()
 
 void AnimationEffect::tick()
 {
-    if (settings.speed != 255U)  {
-        if (GIFframe > 24U) {
-            GIFframe = 0U;
+    if (settings.speed != 255)  {
+        if (GIFframe > 24) {
+            GIFframe = 0;
         }
-        if (GIFframe > 0U && GIFframe < 3U) {
-            if (random(2U) == 0U) {
+        if (GIFframe > 0 && GIFframe < 3) {
+            if (random(2) == 0) {
                 GIFshiftx++;
-                if (GIFshiftx > 31U) GIFshiftx = 0U;
+                if (GIFshiftx > 31) GIFshiftx = 0;
             }
         }
-        if (GIFframe > 11U && GIFframe < 14U) {
-            if (random(2U) == 0U) {
+        if (GIFframe > 11 && GIFframe < 14) {
+            if (random(2) == 0) {
                 GIFshifty++;
-                if (GIFshifty > 31U) {
-                    GIFshifty = 0U;
+                if (GIFshifty > 31) {
+                    GIFshifty = 0;
                 }
             }
         }
 
-        for (uint8_t x = 0U; x < mySettings->matrixSettings.width ; x++) {
-            for (uint8_t y = 0U; y < mySettings->matrixSettings.height; y++) {
-                myMatrix->drawPixelXY(x, y, CHSV(settings.scale * 2.55, 255U - pgm_read_byte(&aquariumGIF[GIFframe][(y + GIFshifty) % 32U][(x + GIFshiftx) % 32U]) * causticBr / 100U, 255U));
-                // control lights
-                // myMatrix->drawPixelXY(x, y, CHSV(158U, 255U - pgm_read_byte(&aquariumGIF[GIFframe][(y+GIFshifty)%32U][(x+GIFshiftx)%32U]) * modes[currentMode].Scale / 100U, 255U));
+        for (uint8_t x = 0; x < mySettings->matrixSettings.width ; x++) {
+            for (uint8_t y = 0; y < mySettings->matrixSettings.height; y++) {
+                myMatrix->drawPixelXY(x, y, CHSV(settings.scale * 2.55, 255 - pgm_read_byte(&aquariumGIF[GIFframe][(y + GIFshifty) % 32][(x + GIFshiftx) % 32]) * causticBr / 100, 255));
             }
         }
         GIFframe++;
@@ -903,5 +901,5 @@ void AnimationEffect::tick()
 
 void AnimationEffect::activate()
 {
-    myMatrix->fill(CHSV(settings.scale * 2.55, 255U, 255U), true);
+    myMatrix->fill(CHSV(settings.scale * 2.55, 255, 255), true);
 }

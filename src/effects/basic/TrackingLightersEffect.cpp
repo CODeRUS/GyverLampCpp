@@ -38,7 +38,6 @@ void TrackingLightersEffect::activate()
         lightersPos[1][j] = mySettings->matrixSettings.height / 2 * 10;
         random(0, 2) ? sign = 1 : sign = -1;
         lightersSpeed[1][j] = random(4, 15) * sign;
-        //ballColors[j] = CHSV(random(0, 9) * 28, 255U, 255U);
         lightersColor[j] = CHSV((settings.scale * (j + 1)) % 256, 255, 255);
     }
 }

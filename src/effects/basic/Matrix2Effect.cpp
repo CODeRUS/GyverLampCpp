@@ -13,7 +13,7 @@ void Matrix2Effect::tick()
             CRGB upperColor = myMatrix->getPixColorXY(x, y + 1);
             if (myMatrix->colorcode(upperColor) >= 0x900000 && random(7 * mySettings->matrixSettings.height) != 0)
                 myMatrix->drawPixelXY(x, y, upperColor);
-            else if (!thisColor && random((100 - settings.scale) * mySettings->matrixSettings.height) == 0U)
+            else if (!thisColor && random((100 - settings.scale) * mySettings->matrixSettings.height) == 0)
          // else if (!thisColor && random((100 - settings.scale) * mySettings->matrixSettings.height*3) == 0)
                 myMatrix->drawPixelXY(x, y, CRGB(0x9bf800));
             else if (myMatrix->colorcode(thisColor) <= 0x050800) {

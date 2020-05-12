@@ -15,7 +15,7 @@ void RainEffect::tick()
                 if (settings.scale <= 1) {
                     myMatrix->drawPixelXY(x,
                                           mySettings->matrixSettings.height - 1,
-                                          CHSV(random(0, 9) * 28, 255U, 255U));
+                                          CHSV(random(0, 9) * 28, 255, 255));
                 } else if (settings.scale == 100) {
                     myMatrix->drawPixelXY(x,
                                           mySettings->matrixSettings.height - 1,
@@ -33,10 +33,8 @@ void RainEffect::tick()
         }
     }
     // сдвигаем всё вниз
-    for (uint8_t x = 0U; x < mySettings->matrixSettings.width; x++)
-    {
-        for (uint8_t y = 0U; y < mySettings->matrixSettings.height - 1; y++)
-        {
+    for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
+        for (uint8_t y = 0; y < mySettings->matrixSettings.height - 1; y++) {
             myMatrix->drawPixelXY(x, y, myMatrix->getPixColorXY(x, y + 1));
         }
     }

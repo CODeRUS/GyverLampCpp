@@ -95,7 +95,7 @@ void BouncingBallsEffect::tick()
         if (bballsShift[i] && (bballsPos[i] == mySettings->matrixSettings.height - 1)) {
             bballsShift[i] = false;
             if (bballsCOLOR[i] % 2 == 0) {
-                if (bballsX[i] == 0U) bballsX[i] = mySettings->matrixSettings.width - 1;
+                if (bballsX[i] == 0) bballsX[i] = mySettings->matrixSettings.width - 1;
                 else --bballsX[i];
             } else {
                 if (bballsX[i] == mySettings->matrixSettings.width - 1) {

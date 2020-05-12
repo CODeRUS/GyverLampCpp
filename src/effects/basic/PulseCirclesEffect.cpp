@@ -3,7 +3,7 @@
 namespace {
 
 CRGBPalette16 palette = RainbowColors_p;
-const uint8_t limitSteps = 6U;
+const uint8_t limitSteps = 6;
 const float fadeRate = 0.8f;
 uint8_t step = 0;
 uint8_t deltaHue, deltaHue2 = 0;
@@ -51,45 +51,45 @@ PulseCirclesEffect::PulseCirclesEffect()
 
 void PulseCirclesEffect::tick()
 {
-    myMatrix->dimAll(248u);
+    myMatrix->dimAll(248);
     uint8_t _sat;
     if (step <= currentRadius) {
         for (uint8_t i = 0; i < step; i++ ) {
-            uint8_t _dark = qmul8( 2U, cos8 (128U / (step + 1U) * (i + 1U)));
+            uint8_t _dark = qmul8(2, cos8 (128 / (step + 1) * (i + 1)));
             CRGB _pulse_color;
             switch (mode) {
-            case 1U: // random circles
-                _pulse_color = CHSV(hue, 255U, _dark);
+            case 1: // random circles
+                _pulse_color = CHSV(hue, 255, _dark);
                 break;
-            case 2U: // changing colored circles
+            case 2: // changing colored circles
                 deltaHue2 = settings.scale;
-                _pulse_color = CHSV(hue2, 255U, _dark);
+                _pulse_color = CHSV(hue2, 255, _dark);
                 break;
-            case 3U:  // manual colored circles
+            case 3:  // manual colored circles
                 deltaHue = settings.scale * 2.55;
-                _pulse_color = CHSV(deltaHue, 255U, _dark);
+                _pulse_color = CHSV(deltaHue, 255, _dark);
                 break;
-            case 4U: // rainbow colored circles
+            case 4: // rainbow colored circles
                 deltaHue += settings.scale;
-                _pulse_color = CHSV(deltaHue, 255U, _dark);
+                _pulse_color = CHSV(deltaHue, 255, _dark);
                 break;
-            case 5U: // manual rainbow colored circles
-                _sat =  qsub8( 255U, cos8 (128U / (step + 1U) * (i + 1U))) ;
+            case 5: // manual rainbow colored circles
+                _sat =  qsub8(255, cos8 (128 / (step + 1) * (i + 1))) ;
                 deltaHue += settings.scale;
                 _pulse_color = CHSV(deltaHue, _sat, _dark);
                 break;
-            case 6U: // manual colored bubbles
-                _sat =  qsub8( 255U, cos8 (128U / (step + 1U) * (i + 1U))) ;
+            case 6: // manual colored bubbles
+                _sat =  qsub8(255, cos8 (128 / (step + 1) * (i + 1))) ;
                 deltaHue = settings.scale * 2.55;
                 _pulse_color = CHSV(deltaHue, _sat, _dark);
                 break;
-            case 7U: // changing colored bubbles
-                _sat =  qsub8( 255U, cos8 (128U / (step + 1U) * (i + 1U))) ;
+            case 7: // changing colored bubbles
+                _sat =  qsub8(255, cos8 (128 / (step + 1) * (i + 1))) ;
                 deltaHue2 = settings.scale;
                 _pulse_color = CHSV(hue2, _sat, _dark);
                 break;
-            case 8U: // random bubbles
-                _sat =  qsub8( 255U, cos8 (128U / (step + 1U) * (i + 1U))) ;
+            case 8: // random bubbles
+                _sat =  qsub8(255, cos8 (128 / (step + 1) * (i + 1))) ;
                 deltaHue = hue;
                 _pulse_color = CHSV(deltaHue, _sat, _dark);
                 break;
@@ -97,11 +97,11 @@ void PulseCirclesEffect::tick()
             _drawCircle(pulse_centerX, pulse_centerY, i, _pulse_color);
         }
     } else {
-        pulse_centerX = random8(mySettings->matrixSettings.width - 5U) + 3U;
-        pulse_centerY = random8(mySettings->matrixSettings.height - 5U) + 3U;
+        pulse_centerX = random8(mySettings->matrixSettings.width - 5) + 3;
+        pulse_centerY = random8(mySettings->matrixSettings.height - 5) + 3;
         hue2 += deltaHue2;
-        hue = random8(0U, 255U);
-        currentRadius = random8(3U, 9U);
+        hue = random8(0, 255);
+        currentRadius = random8(3, 9);
         step = 0;
     }
     step++;
@@ -109,8 +109,8 @@ void PulseCirclesEffect::tick()
 
 void PulseCirclesEffect::activate()
 {
-    pulse_centerX = random8(mySettings->matrixSettings.width - 5U) + 3U;
-    pulse_centerY = random8(mySettings->matrixSettings.height - 5U) + 3U;
+    pulse_centerX = random8(mySettings->matrixSettings.width - 5) + 3;
+    pulse_centerY = random8(mySettings->matrixSettings.height - 5) + 3;
 }
 
 void PulseCirclesEffect::initialize(const JsonObject &json)

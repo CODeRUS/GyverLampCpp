@@ -75,8 +75,8 @@ void WaterfallEffect::tick()
                 myMatrix->drawPixelXY(x,
                                       mySettings->matrixSettings.height - 1 - j,
                                       ColorFromPalette(CRGBPalette16(CRGB::Black,
-                                                                     CHSV(settings.scale * 2.57, 255U, 255U),
-                                                                     CHSV(settings.scale * 2.57, 128U, 255U),
+                                                                     CHSV(settings.scale * 2.57, 255, 255),
+                                                                     CHSV(settings.scale * 2.57, 128, 255),
                                                                      CRGB::White),
                                                        colorindex));// 2.57 вместо 2.55, потому что 100 для белого цвета
             //leds[XY(x, (HEIGHT - 1) - j)] = ColorFromPalette(fire_water ? HeatColors_p : OceanColors_p, colorindex);

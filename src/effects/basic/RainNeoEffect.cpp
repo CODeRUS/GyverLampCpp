@@ -12,6 +12,12 @@ CRGBPalette16 rainClouds_p( CRGB::Black, CRGB(15,24,24), CRGB(9,15,15), CRGB::Bl
 
 uint8_t hue = 0;
 
+uint8_t* lightning = nullptr;
+uint8_t* noise = nullptr;
+
+uint16_t noiseScale = 250;  // A value of 1 will be so zoomed in, you'll mostly see solid colors. A value of 4011 will be very zoomed out and shimmery
+uint8_t cloudHeight = 2;
+
 // settigns
 uint32_t rainColor = 0x3c505a;
 uint32_t lightningColor = 0x484850;
@@ -29,6 +35,18 @@ void rain()
     CRGBPalette16 rain_p( CRGB::Black, CRGB(rainColor) );
 
     myMatrix->fadeToBlackBy(255 - tailLength);
+
+    if (!lightning && storm) {
+        lightning = new uint8_t[myMatrix->GetNumLeds()];
+    } else if (lightning && !storm) {
+        delete[] lightning;
+    }
+
+    if (!noise && clouds) {
+        noise = new uint8_t[mySettings->matrixSettings.width * cloudHeight];
+    } else if (noise && !clouds) {
+        delete[] noise;
+    }
 
     // Loop for each column individually
     for (int x = 0; x < mySettings->matrixSettings.width; x++) {
@@ -73,11 +91,12 @@ void rain()
 
         // Step 5. Add lightning if called for
         if (storm) {
-            //uint8_t lightning[WIDTH][HEIGHT];
-            // ESP32 does not like static arrays  https://github.com/espressif/arduino-esp32/issues/2567
-            uint8_t *lightning = (uint8_t *) malloc(mySettings->matrixSettings.width * mySettings->matrixSettings.height);
-            while (lightning == NULL) { Serial.println("lightning malloc failed"); }
-
+            if (!lightning) {
+                Serial.println("lightning malloc failed");
+                return;
+            } else {
+                memset(lightning, 0, myMatrix->GetNumLeds() * sizeof(*lightning));
+            }
 
             if (random16() < 72) {    // Odds of a lightning bolt
                 lightning[scale8(random8(), mySettings->matrixSettings.width - 1) + (mySettings->matrixSettings.height - 1) * mySettings->matrixSettings.width] = 255;  // Random starting location
@@ -110,20 +129,16 @@ void rain()
                     }
                 }
             }
-            free(lightning);
         }
 
         // Step 6. Add clouds if called for
         if (clouds) {
-            uint16_t noiseScale = 250;  // A value of 1 will be so zoomed in, you'll mostly see solid colors. A value of 4011 will be very zoomed out and shimmery
-            //const uint16_t cloudHeight = (HEIGHT*0.2)+1;
-            const uint8_t cloudHeight = mySettings->matrixSettings.height * 0.4 + 1; // это уже 40% c лишеним, но на высоких матрицах будет чуть меньше
-
-            // This is the array that we keep our computed noise values in
-            //static uint8_t noise[WIDTH][cloudHeight];
-            static uint8_t *noise = (uint8_t *) malloc(mySettings->matrixSettings.width * cloudHeight);
-
-            while (noise == NULL) { Serial.println("noise malloc failed"); }
+            if (!noise) {
+                Serial.println("noise malloc failed");
+                return;
+            } else {
+                memset(noise, 0, mySettings->matrixSettings.width * cloudHeight * sizeof(*noise));
+            }
             int xoffset = noiseScale * x + hue;
 
             for(uint8_t z = 0; z < cloudHeight; z++) {
@@ -131,7 +146,7 @@ void rain()
                 uint8_t dataSmoothing = 192;
                 uint8_t noiseData = qsub8(inoise8(noiseX + xoffset,noiseY + yoffset,noiseZ),16);
                 noiseData = qadd8(noiseData,scale8(noiseData,39));
-                noise[x * cloudHeight + z] = scale8( noise[x * cloudHeight + z], dataSmoothing) + scale8( noiseData, 256 - dataSmoothing);
+                noise[x * cloudHeight + z] = scale8(noise[x * cloudHeight + z], dataSmoothing) + scale8(noiseData, 256 - dataSmoothing);
                 myMatrix->blendPixelXY(x, mySettings->matrixSettings.height - z - 1, ColorFromPalette(rainClouds_p, noise[x * cloudHeight + z]), (cloudHeight-z)*(250/cloudHeight));
             }
             noiseZ ++;
@@ -153,6 +168,7 @@ void RainNeoEffect::activate()
         tempMatrix[i] = new uint8_t[mySettings->matrixSettings.height];
     }
     splashArray = new uint8_t[mySettings->matrixSettings.width]();
+    cloudHeight = mySettings->matrixSettings.height * 0.4 + 1;
 }
 
 void RainNeoEffect::deactivate()
@@ -162,6 +178,12 @@ void RainNeoEffect::deactivate()
     }
     delete[] tempMatrix;
     delete[] splashArray;
+    if (noise) {
+        delete[] noise;
+    }
+    if (lightning) {
+        delete[] lightning;
+    }
 }
 
 void RainNeoEffect::tick()

@@ -36,16 +36,16 @@ void LightBallsEffect::tick()
     uint32_t ms = millis() / (settings.scale / 4 + 1);
     myMatrix->drawPixelXY(highByte(i * paintWidth) + thickness,
                           highByte(j * paintHeight) + thickness,
-                          CHSV(ms / 29, 200U, 255U));
+                          CHSV(ms / 29, 200, 255));
     myMatrix->drawPixelXY(highByte(j * paintWidth) + thickness,
                           highByte(k * paintHeight) + thickness,
-                          CHSV(ms / 41, 200U, 255U));
+                          CHSV(ms / 41, 200, 255));
     myMatrix->drawPixelXY(highByte(k * paintWidth) + thickness,
                           highByte(m * paintHeight) + thickness,
-                          CHSV(ms / 37, 200U, 255U));
+                          CHSV(ms / 37, 200, 255));
     myMatrix->drawPixelXY(highByte(m * paintWidth) + thickness,
                           highByte(i * paintHeight) + thickness,
-                          CHSV(ms / 53, 200U, 255U));
+                          CHSV(ms / 53, 200, 255));
 }
 
 void LightBallsEffect::initialize(const JsonObject &json)

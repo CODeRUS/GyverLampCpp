@@ -28,7 +28,7 @@ const uint8_t ESPAsyncE131::ART_ID[8]  = { 0x41, 0x72, 0x74, 0x2d, 0x4e, 0x65, 0
 
 // Constructor
 ESPAsyncE131::ESPAsyncE131(e131_packet_callback_function callback) {
-  _callback = callback;
+    _callback = callback;
 }
 
 /////////////////////////////////////////////////////////
@@ -41,10 +41,10 @@ bool ESPAsyncE131::begin(bool multicast, uint16_t port, uint16_t universe, uint8
     bool success = false;
 
     if (multicast) {
-		success = initMulticast(port, universe, n);
-	} else {
+        success = initMulticast(port, universe, n);
+    } else {
         success = initUnicast(port);
-	}
+    }
 
     return success;
 }
@@ -60,7 +60,7 @@ bool ESPAsyncE131::initUnicast(uint16_t port) {
 
     if (udp.listen(port)) {
         udp.onPacket(std::bind(&ESPAsyncE131::parsePacket, this,
-                std::placeholders::_1));
+                               std::placeholders::_1));
         success = true;
     }
     return success;
@@ -70,7 +70,7 @@ bool ESPAsyncE131::initMulticast(uint16_t port, uint16_t universe, uint8_t n) {
     bool success = false;
 
     IPAddress address = IPAddress(239, 255, ((universe >> 8) & 0xff),
-        ((universe >> 0) & 0xff));
+                                  ((universe >> 0) & 0xff));
 
     if (udp.listenMulticast(address, port)) {
         ip4_addr_t ifaddr;
@@ -78,14 +78,19 @@ bool ESPAsyncE131::initMulticast(uint16_t port, uint16_t universe, uint8_t n) {
 
         ifaddr.addr = static_cast<uint32_t>(WiFi.localIP());
         for (uint8_t i = 1; i < n; i++) {
-            multicast_addr.addr = static_cast<uint32_t>(IPAddress(239, 255,
-                    (((universe + i) >> 8) & 0xff), (((universe + i) >> 0)
-                    & 0xff)));
+            multicast_addr.addr =
+                static_cast<uint32_t>(IPAddress(
+                239,
+                255,
+                (((universe + i) >> 8) & 0xff),
+                (((universe + i) >> 0) & 0xff)
+            ));
             igmp_joingroup(&ifaddr, &multicast_addr);
         }
 
-        udp.onPacket(std::bind(&ESPAsyncE131::parsePacket, this,
-                std::placeholders::_1));
+        udp.onPacket(std::bind(&ESPAsyncE131::parsePacket,
+                               this,
+                               std::placeholders::_1));
 
         success = true;
     }
@@ -102,28 +107,28 @@ void ESPAsyncE131::parsePacket(AsyncUDPPacket _packet) {
     bool error = false, isArtnet = false;
 
     sbuff = reinterpret_cast<e131_packet_t *>(_packet.data());
-	
-	//E1.31 packet identifier ("ACS-E1.17")
+
+    //E1.31 packet identifier ("ACS-E1.17")
     if (memcmp(sbuff->acn_id, ESPAsyncE131::ACN_ID, sizeof(sbuff->acn_id)))
         isArtnet = true; //not E1.31
-	
-	if (isArtnet) {
-		if (memcmp(sbuff->art_id, ESPAsyncE131::ART_ID, sizeof(sbuff->art_id)))
-			error = true; //not "Art-Net"
-		if (sbuff->art_opcode != ARTNET_OPCODE_OPDMX)
-			error = true; //not a DMX packet
-	} else { //E1.31 error handling
-		if (htonl(sbuff->root_vector) != ESPAsyncE131::VECTOR_ROOT)
-			error = true;
-		if (htonl(sbuff->frame_vector) != ESPAsyncE131::VECTOR_FRAME)
-			error = true;
-		if (sbuff->dmp_vector != ESPAsyncE131::VECTOR_DMP)
-			error = true;
-		if (sbuff->property_values[0] != 0)
-			error = true;
-	}
+
+    if (isArtnet) {
+        if (memcmp(sbuff->art_id, ESPAsyncE131::ART_ID, sizeof(sbuff->art_id)))
+            error = true; //not "Art-Net"
+        if (sbuff->art_opcode != ARTNET_OPCODE_OPDMX)
+            error = true; //not a DMX packet
+    } else { //E1.31 error handling
+        if (htonl(sbuff->root_vector) != ESPAsyncE131::VECTOR_ROOT)
+            error = true;
+        if (htonl(sbuff->frame_vector) != ESPAsyncE131::VECTOR_FRAME)
+            error = true;
+        if (sbuff->dmp_vector != ESPAsyncE131::VECTOR_DMP)
+            error = true;
+        if (sbuff->property_values[0] != 0)
+            error = true;
+    }
 
     if (!error) {
-      _callback(sbuff, _packet.remoteIP(), isArtnet);
+        _callback(sbuff, _packet.remoteIP(), isArtnet);
     }
 }

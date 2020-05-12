@@ -57,7 +57,7 @@ void WhirlEffect::tick()
         if (oneColor) {
             myMatrix->drawPixelXY(boid->location.x,
                                   boid->location.y,
-                                  CHSV(settings.scale * 2.55, (settings.scale == 100) ? 0U : 255U, 255U)); // цвет белый для .Scale=100
+                                  CHSV(settings.scale * 2.55, (settings.scale == 100) ? 0 : 255, 255));
         } else {
             myMatrix->drawPixelXY(boid->location.x,
                                   boid->location.y,
