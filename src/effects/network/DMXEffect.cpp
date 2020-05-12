@@ -72,6 +72,9 @@ void handleE131Packet(e131_packet_t* p, const IPAddress &clientIP, bool isArtnet
     if (previousUniverses == 0) {
         // first universe of this fixture
         possibleLEDsInCurrentUniverse = (dmxChannels - DMXAddress + 1) / 3;
+        if (fixUniverse) {
+            possibleLEDsInCurrentUniverse = possibleLEDsInCurrentUniverse / myMatrix->GetDimension() * myMatrix->GetDimension();
+        }
         for (uint16_t i = 0; i < myMatrix->GetNumLeds(); i++) {
             if (i >= possibleLEDsInCurrentUniverse) {
                 break;  // more LEDs will follow in next universe(s)
