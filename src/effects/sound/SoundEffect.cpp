@@ -5,6 +5,7 @@
 #include <driver/adc.h>
 #endif
 #include <arduinoFFT.h>
+#include <limits.h>
 
 namespace  {
 

@@ -27,6 +27,7 @@ public:
     uint16_t GetNumLeds();
     uint8_t GetCenterX();
     uint8_t GetCenterY();
+    uint8_t GetDimension();
 
     CRGB *GetLeds();
 

@@ -163,6 +163,15 @@ uint8_t MyMatrix::GetCenterY()
     return mySettings->matrixSettings.height / 2 - 1;
 }
 
+uint8_t MyMatrix::GetDimension()
+{
+    if (type & NEO_MATRIX_ROWS) {
+        return width();
+    } else {
+        return height();
+    }
+}
+
 CRGB *MyMatrix::GetLeds()
 {
     return leds;

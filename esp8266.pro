@@ -6,6 +6,7 @@ else {
 }
 
 INCLUDEPATH += "$${PWD}/lib/GyverButton"
+INCLUDEPATH += "$${PWD}/lib/ESPAsyncE131-wled"
 INCLUDEPATH += "$${PWD}/.pio/libdeps/nodemcu/Adafruit GFX Library_ID13"
 INCLUDEPATH += "$${PWD}/.pio/libdeps/nodemcu/ArduinoJson_ID64/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif8266/libraries/DNSServer/src"
@@ -16,6 +17,7 @@ INCLUDEPATH += "$${PWD}/.pio/libdeps/nodemcu/ESP Async WebServer/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif8266/libraries/Hash/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif8266/libraries/SPI"
 INCLUDEPATH += "$${PWD}/.pio/libdeps/nodemcu/ESPAsyncTCP_ID305/src"
+INCLUDEPATH += "$${PWD}/.pio/libdeps/nodemcu/ESPAsyncUDP_ID359/src"
 INCLUDEPATH += "$${PWD}/.pio/libdeps/nodemcu/ESPReactWifiManager"
 INCLUDEPATH += "$${PWD}/.pio/libdeps/nodemcu/FastLED NeoMatrix"
 INCLUDEPATH += "$${PWD}/.pio/libdeps/nodemcu/FastLED_ID126"
@@ -84,11 +86,13 @@ DEFINES += "LWIP_IPV6=0"
 
 OTHER_FILES += platformio.ini
 
-HEADERS += src/LampWebServer.h
+HEADERS += src/LampWebServer.h \
+    src/effects/network/DMXEffect.h
 HEADERS += src/Spectrometer.h
 HEADERS += src/LocalDNS.h
 HEADERS += src/MqttClient.h
-SOURCES += src/LocalDNS.cpp
+SOURCES += src/LocalDNS.cpp \
+    src/effects/network/DMXEffect.cpp
 HEADERS += src/Settings.h
 SOURCES += src/MqttClient.cpp
 SOURCES += src/Settings.cpp

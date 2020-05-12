@@ -67,6 +67,8 @@
 #include "effects/basic/RainNeoEffect.h"
 #include "effects/basic/TwinklesEffect.h"
 
+#include "effects/network/DMXEffect.h"
+
 #include <map>
 
 namespace  {
@@ -247,10 +249,8 @@ EffectsManager::EffectsManager()
     effectsMap[PSTR("ClockHorizontal1")] = new ClockHorizontal1Effect();
     effectsMap[PSTR("ClockHorizontal2")] = new ClockHorizontal2Effect();
     effectsMap[PSTR("ClockHorizontal3")] = new ClockHorizontal3Effect();
-    effectsMap[PSTR("Sound")] = new SoundEffect();
     effectsMap[PSTR("Starfall")] = new StarfallEffect();
     effectsMap[PSTR("DiagonalRainbow")] = new DiagonalRainbowEffect();
-    effectsMap[PSTR("SoundStereo")] = new SoundStereoEffect();
     effectsMap[PSTR("Waterfall")] = new WaterfallEffect();
     effectsMap[PSTR("TwirlRainbow")] = new TwirlRainbowEffect();
     effectsMap[PSTR("PulseCircles")] = new PulseCirclesEffect();
@@ -286,4 +286,5 @@ EffectsManager::EffectsManager()
     // Uncomment to use
     // effectsMap[PSTR("Sound")] = new SoundEffect();
     // effectsMap[PSTR("Stereo")] = new SoundStereoEffect();
+    effectsMap[PSTR("DMX")] = new DMXEffect();
 }
