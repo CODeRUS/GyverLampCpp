@@ -183,21 +183,31 @@ void updateRequestHandler(AsyncWebServerRequest *request)
 
 void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool final)
 {
-    static File settings;
+    static File json;
     if (index == 0) {
         isUpdatingFlag = true;
         Serial.println(F("Update started!"));
         FastLED.clear();
         if (data[0] == '{') {
-            if (settings) {
-                settings.close();
+            if (json) {
+                json.close();
             }
-            settings = SPIFFS.open("/settings.json", "w");
-            if (!settings) {
+            json = SPIFFS.open("/settings.json", "w");
+            if (!json) {
                 Serial.println(F("SPIFFS Error opening settings file for write"));
                 return;
             }
             Serial.println(F("Uploading settings started!"));
+        } else if (data[0] == '[') {
+            if (json) {
+                json.close();
+            }
+            json = SPIFFS.open("/effects.json", "w");
+            if (!json) {
+                Serial.println(F("SPIFFS Error opening effects file for write"));
+                return;
+            }
+            Serial.println(F("Uploading effects started!"));
         } else {
             int command = U_FLASH;
             if (data[0] == 0) {
@@ -224,8 +234,8 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
         myMatrix->setTextWrap(false);
     }
     drawProgress(index + len);
-    if (settings) {
-        settings.write(data, len);
+    if (json) {
+        json.write(data, len);
     } else if (Update.write(data, len) != len) {
         Update.printError(Serial);
         myMatrix->fill(CRGB::Red, true);
@@ -233,8 +243,8 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
         return;
     }
     if (final) {
-        if (settings) {
-            settings.close();
+        if (json) {
+            json.close();
         } else if (!Update.end(true)) {
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
