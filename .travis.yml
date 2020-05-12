@@ -38,7 +38,7 @@ script:
   - popd
   - for f in $(find led-lamp-webui/gzipped/static -name "*.js.gz" -o -name "*.css.gz"); do cp -f $f data; done
   - cp -f led-lamp-webui/gzipped/index.html.gz data
-  - cp -f led-lamp-webui/build/favicon.ico data
+  - cp -f led-lamp-webui/gzipped/favicon.ico.gz data
   - for f in $(find wifimanager-react-page/gzipped/static -name "*.js.gz" -o -name "*.css.gz"); do cp -f $f data; done
   - cp -f wifimanager-react-page/gzipped/index.html.gz data/wifi.html.gz
   - zip -r data.zip data
