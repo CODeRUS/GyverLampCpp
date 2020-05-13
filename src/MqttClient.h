@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #define ARDUINOJSON_ENABLE_PROGMEM 1
 #include <ArduinoJson.h>
-#include <PubSubClient.h>
+#include <AsyncMqttClient.h>
 
 #define mqtt MqttClient::Instance()
 
@@ -12,7 +12,6 @@ public:
     static MqttClient *Instance();
     static void Initialize();
 
-    void loop();
     void update();
 
 protected:

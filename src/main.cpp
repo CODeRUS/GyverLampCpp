@@ -229,7 +229,6 @@ void loop() {
     LocalDNS::Process();
     if (lampWebServer->IsConnected()) {
         GyverTimer::Process();
-        mqtt->loop();
     } else if (setupMode) {
         return;
     }

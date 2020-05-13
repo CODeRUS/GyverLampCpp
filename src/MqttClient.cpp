@@ -5,6 +5,7 @@
 #else
 #include <WiFi.h>
 #endif
+#include <Ticker.h>
 
 #include "Settings.h"
 
@@ -14,7 +15,7 @@ namespace
 MqttClient *instance = nullptr;
 
 WiFiClient wifiClient;
-PubSubClient *client = nullptr;
+AsyncMqttClient *client = nullptr;
 
 String commonTopic;
 
@@ -25,29 +26,22 @@ String stateTopic;
 
 String clientId;
 
+Ticker wifiReconnectTimer;
+Ticker mqttReconnectTimer;
+
 void subscribe()
 {
-    client->subscribe(setTopic.c_str());
+    client->subscribe(setTopic.c_str(), 2);
 }
 
 bool sendJson(const char* topic, const DynamicJsonDocument &doc)
 {
-    size_t len = measureJson(doc);
-
-    if (!client->beginPublish(topic, len, true)) {
-        Serial.println(F("beginPublish failed!"));
-        return false;
-    }
-
-    if (serializeJson(doc, *client) != len) {
+    String buffer;
+    if (!serializeJson(doc, buffer)) {
         Serial.println(F("writing payload: wrong size!"));
         return false;
     }
-
-    if (!client->endPublish()) {
-        Serial.println(F("endPublish failed!"));
-        return false;
-    }
+    client->publish(topic, 2, false, buffer.c_str(), buffer.length());
 
     return true;
 }
@@ -70,7 +64,7 @@ void sendState()
 void sendAvailability()
 {
     Serial.println(F("Sending availability"));
-    boolean success = client->publish_P(availabilityTopic.c_str(), PSTR("true"), true);
+    boolean success = client->publish(availabilityTopic.c_str(), 2, true, "true", 4);
     Serial.printf_P(PSTR("Availability sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
 }
 
@@ -104,44 +98,13 @@ void sendDiscovery()
     Serial.printf_P(PSTR("Discovery sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
 }
 
-void reconnect()
-{
-    static bool connecting = false;
-
-    if (!client || client->connected() || connecting) {
-        return;
-    }
-
-    connecting = true;
-    Serial.print(F("Attempting MQTT connection "));
-    clientId = String(F("FireLampClient-")) + mySettings->connectionSettings.mdns;
-    if (client->connect(clientId.c_str(),
-                        mySettings->mqttSettings.username.c_str(),
-                        mySettings->mqttSettings.password.c_str(),
-                        availabilityTopic.c_str(),
-                        1,
-                        true,
-                        "false")) {
-        connecting = false;
-        Serial.println(F("succeeded"));
-
-        sendDiscovery();
-        sendState();
-        sendAvailability();
-        subscribe();
-    } else {
-        connecting = false;
-        Serial.println(F("failed"));
-
-#if defined(ESP8266)
-        ESP.wdtFeed();
-#else
-        yield();
-#endif
-    }
+void connectToMqtt() {
+    Serial.println(F("Connecting to MQTT..."));
+    client->connect();
 }
 
-void callback(char* topic, byte* payload, unsigned int length)
+//void callback(char* topic, byte* payload, unsigned int length)
+void callback(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t length, size_t index, size_t total)
 {
     Serial.println(topic);
 
@@ -160,6 +123,56 @@ void callback(char* topic, byte* payload, unsigned int length)
     sendState();
 }
 
+void onMqttConnect(bool sessionPresent)
+{
+    Serial.println(F("Connected to MQTT."));
+    Serial.print(F("Session present: "));
+    Serial.println(sessionPresent);
+
+    sendDiscovery();
+    sendState();
+    sendAvailability();
+    subscribe();
+}
+
+
+void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
+{
+    Serial.print(F("MQTT disconnect reason: "));
+    switch (reason) {
+    case AsyncMqttClientDisconnectReason::TCP_DISCONNECTED:
+        Serial.println(F("TCP_DISCONNECTED"));
+        break;
+    case AsyncMqttClientDisconnectReason::MQTT_UNACCEPTABLE_PROTOCOL_VERSION:
+        Serial.println(F("MQTT_UNACCEPTABLE_PROTOCOL_VERSION"));
+        break;
+    case AsyncMqttClientDisconnectReason::MQTT_IDENTIFIER_REJECTED:
+        Serial.println(F("MQTT_IDENTIFIER_REJECTED"));
+        break;
+    case AsyncMqttClientDisconnectReason::MQTT_SERVER_UNAVAILABLE:
+        Serial.println(F("MQTT_SERVER_UNAVAILABLE"));
+        break;
+    case AsyncMqttClientDisconnectReason::MQTT_MALFORMED_CREDENTIALS:
+        Serial.println(F("MQTT_MALFORMED_CREDENTIALS"));
+        break;
+    case AsyncMqttClientDisconnectReason::MQTT_NOT_AUTHORIZED:
+        Serial.println(F("MQTT_NOT_AUTHORIZED"));
+        break;
+    case AsyncMqttClientDisconnectReason::ESP8266_NOT_ENOUGH_SPACE:
+        Serial.println(F("ESP8266_NOT_ENOUGH_SPACE"));
+        break;
+    case AsyncMqttClientDisconnectReason::TLS_BAD_FINGERPRINT:
+        Serial.println(F("TLS_BAD_FINGERPRINT"));
+        break;
+    default:
+        Serial.printf_P(PSTR("unknown %d\n"), reason);
+    }
+
+    if (WiFi.isConnected()) {
+        mqttReconnectTimer.once(2, connectToMqtt);
+    }
+}
+
 }
 
 MqttClient *MqttClient::Instance()
@@ -175,19 +188,6 @@ void MqttClient::Initialize()
 
     Serial.println(F("Initializing MqttClient"));
     instance = new MqttClient();
-}
-
-void MqttClient::loop()
-{
-    if (!client) {
-        return;
-    }
-
-    if (client->connected()) {
-        client->loop();
-    } else {
-        reconnect();
-    }
 }
 
 void MqttClient::update()
@@ -212,8 +212,21 @@ MqttClient::MqttClient()
     configTopic = commonTopic + String(F("/config"));
     availabilityTopic = commonTopic + String(F("/available"));
 
-    client = new PubSubClient(wifiClient);
+    client = new AsyncMqttClient;
     client->setServer(mySettings->mqttSettings.host.c_str(),
                       mySettings->mqttSettings.port);
-    client->setCallback(callback);
+    client->onConnect(onMqttConnect);
+    client->onDisconnect(onMqttDisconnect);
+    client->onMessage(callback);
+
+    clientId = String(F("FireLampClient-")) + mySettings->connectionSettings.mdns;
+    client->setClientId(clientId.c_str());
+    client->setWill(availabilityTopic.c_str(),
+                    1,
+                    true,
+                    "false",
+                    5);
+    client->setCredentials(mySettings->mqttSettings.username.c_str(),
+                           mySettings->mqttSettings.password.c_str());
+    connectToMqtt();
 }
