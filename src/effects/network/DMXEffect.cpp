@@ -1,5 +1,7 @@
 #include "DMXEffect.h"
 #include "MyMatrix.h"
+#include "Settings.h"
+#include "LampWebServer.h"
 #include <ESPAsyncE131.h>
 
 namespace {
@@ -14,8 +16,8 @@ uint8_t* e131LastSequenceNumber = nullptr;       // to detect packet loss (9)
 uint16_t e131Universe = 1;                       // settings for E1.31 (sACN) protocol (only DMX_MODE_MULTIPLE_* can span over consequtive universes)
 uint16_t e131Port = 6454;                        // DMX in port. E1.31 default is 5568, Art-Net is 6454
 uint16_t DMXAddress = 1;                         // DMX start address of fixture, a.k.a. first Channel [for E1.31 (sACN) protocol]
-uint8_t e131Multicast = true;                    // multicast or unicast
-uint8_t e131SkipOutOfSequence = true;            // freeze instead of flickering
+bool e131Multicast = true;                    // multicast or unicast
+bool e131SkipOutOfSequence = true;            // freeze instead of flickering
 bool fixUniverse = true;                         // round number of leds in one universe to rows/columns
 
 void setRealtimePixel(uint16_t i, uint8_t r, uint8_t g, uint8_t b, uint8_t)
@@ -28,6 +30,10 @@ void setRealtimePixel(uint16_t i, uint8_t r, uint8_t g, uint8_t b, uint8_t)
 void handleE131Packet(e131_packet_t* p, const IPAddress &clientIP, bool isArtnet)
 {
     //E1.31 protocol support
+
+    if (!mySettings->generalSettings.working || lampWebServer->isUpdating()) {
+        return;
+    }
 
     uint16_t uni = 0, dmxChannels = 0;
     uint8_t* e131_data = nullptr;
@@ -103,9 +109,9 @@ void handleE131Packet(e131_packet_t* p, const IPAddress &clientIP, bool isArtnet
             }
             setRealtimePixel(
                 i,
-                e131_data[j * 3 + 1],
-                e131_data[j * 3 + 2],
-                e131_data[j * 3 + 3],
+                e131_data[DMXAddress + j * 3 + 0],
+                e131_data[DMXAddress + j * 3 + 1],
+                e131_data[DMXAddress + j * 3 + 2],
                 0);
         }
     }
