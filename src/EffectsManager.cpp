@@ -204,6 +204,25 @@ void EffectsManager::UpdateCurrentSettings(const JsonObject &json)
     myMatrix->setBrightness(activeEffect()->settings.brightness);
 }
 
+void EffectsManager::UpdateSettingsById(const String &id, const JsonObject &json)
+{
+    for (size_t index = 0; index < effects.size(); index++) {
+        Effect *effect = effects[index];
+        if (effect->settings.id == id) {
+            if (effect != effects[activeIndex]) {
+                activeEffect()->deactivate();
+                myMatrix->clear();
+                activeIndex = index;
+                ActivateEffect(activeIndex);
+            }
+            effect->initialize(json);
+            break;
+        }
+    }
+    myMatrix->setBrightness(activeEffect()->settings.brightness);
+    mySettings->SaveLater();
+}
+
 uint8_t EffectsManager::Count()
 {
     return static_cast<uint8_t>(effects.size());

@@ -139,7 +139,12 @@ void Settings::ProcessConfig(const String &message)
         effectsManager->ChangeEffect(static_cast<uint8_t>(index));
     } else if (event == F("EFFECTS_CHANGED")) {
         const JsonObject effect = doc[F("data")];
-        effectsManager->UpdateCurrentSettings(effect);
+        const String id = effect[F("i")];
+        if (id == effectsManager->activeEffect()->settings.id) {
+            effectsManager->UpdateCurrentSettings(effect);
+        } else {
+            effectsManager->UpdateSettingsById(id, effect);
+        }
         SaveLater();
     } else if (event == F("ALARMS_CHANGED")) {
 

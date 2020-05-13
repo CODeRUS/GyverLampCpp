@@ -23,6 +23,7 @@ public:
     void ActivateEffect(uint8_t index);
 
     void UpdateCurrentSettings(const JsonObject &json);
+    void UpdateSettingsById(const String &id, const JsonObject &json);
 
     uint8_t Count();
 
