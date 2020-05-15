@@ -381,7 +381,4 @@ Settings::Settings(uint32_t saveInterval)
     connectionSettings.apName = F("Fire Lamp");
     connectionSettings.ntpServer = F("europe.pool.ntp.org");
     connectionSettings.manufacturer = F("coderus");
-
-    ReadSettings();
-    ReadEffects();
 }
