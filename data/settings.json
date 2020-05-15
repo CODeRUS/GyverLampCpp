@@ -1,5 +1,6 @@
 {
   "activeEffect": 0,
+  "logInterval": 0,
   "matrix": {
     "width": 16,
     "height": 16,
@@ -20,5 +21,10 @@
     "port": 1883,
     "username": "",
     "password": ""
+  },
+  "button": {
+    "pin": 0,
+    "type": 0,
+    "state": 0
   }
 }

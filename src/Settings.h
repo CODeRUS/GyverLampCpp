@@ -22,6 +22,7 @@ public:
         uint8_t activeEffect = 0;
         bool working = true;
         bool soundControl = false;
+        uint32_t logInterval = 0;
     };
 
     struct MatrixSettings {
@@ -51,6 +52,12 @@ public:
         String password;
     };
 
+    struct ButttonSettings {
+        uint8_t pin = 0;
+        uint8_t type = 1;
+        uint8_t state = 0;
+    };
+
     static Settings *Instance();
     static void Initialize(uint32_t saveInterval = 3000);
     static String GetUniqueID();
@@ -77,6 +84,7 @@ public:
     MatrixSettings matrixSettings;
     ConenctionSettings connectionSettings;
     MqttSettings mqttSettings;
+    ButttonSettings buttonSettings;
 
 protected:
     Settings(uint32_t saveInterval = 3000);

@@ -26,13 +26,17 @@ uint16_t webServerPort = 80;
 
 #if defined(ESP32)
 const uint8_t btnPin = 15;
+const GButton::PullType btnType = GButton::PullTypeLow;
 #elif defined(SONOFF)
 const uint8_t btnPin = 0;
+const GButton::PullType btnType = GButton::PullTypeHigh;
 const uint8_t relayPin = 12;
 const uint8_t miniLedPin = 13;
 #else
 const uint8_t btnPin = D2;
+const GButton::PullType btnType = GButton::PullTypeLow;
 #endif
+const GButton::DefaultState btnState = GButton::DefaultStateOpen;
 
 GButton *button = nullptr;
 
@@ -40,7 +44,6 @@ int stepDirection = 1;
 bool isHolding = false;
 
 uint32_t logTimer = 0;
-uint32_t logInterval = 10 * 1000;
 
 bool setupMode = false;
 bool connectFinished = false;
@@ -161,19 +164,24 @@ void setup() {
         return;
     }
 
+    EffectsManager::Initialize();
+// default values for button
+    mySettings->buttonSettings.pin = btnPin;
+    mySettings->buttonSettings.type = btnType;
+    mySettings->buttonSettings.state = btnState;
+    Settings::Initialize();
+    MyMatrix::Initialize();
+
 #if defined(SONOFF)
     pinMode(relayPin, OUTPUT);
     pinMode(miniLedPin, OUTPUT);
-    button = new GButton(btnPin, GButton::PullTypeHigh, GButton::DefaultStateOpen);
-#else
-    button = new GButton(btnPin, GButton::PullTypeLow, GButton::DefaultStateOpen);
 #endif
+
+    button = new GButton(mySettings->buttonSettings.pin,
+                         mySettings->buttonSettings.type,
+                         mySettings->buttonSettings.state);
     button->setTickMode(false);
     button->setStepTimeout(20);
-
-    EffectsManager::Initialize();
-    Settings::Initialize();
-    MyMatrix::Initialize();
 
     LampWebServer::Initialize(webServerPort);
 
@@ -250,8 +258,8 @@ void loop() {
 
     mySettings->Process();
 
-//    if (millis() - logTimer > logInterval) {
-//        printFreeHeap();
-//        logTimer = millis();
-//    }
+    if (mySettings->generalSettings.logInterval > 0 && millis() - logTimer > mySettings->generalSettings.logInterval) {
+        printFreeHeap();
+        logTimer = millis();
+    }
 }

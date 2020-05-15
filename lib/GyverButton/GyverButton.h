@@ -52,10 +52,6 @@ public:
         DefaultStateOpen = 0,
         DefaultStateClose
     };
-    enum ModeType {
-        ModeTypeManual = 0,
-        ModeTypeAuto
-    };
 
     GButton(uint8_t pin);								// класс кнопки, принимает пин
 
