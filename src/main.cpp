@@ -96,6 +96,7 @@ void processButton()
     if (button->isSingle()) {
         Serial.println(F("Single button"));
         mySettings->generalSettings.working = !mySettings->generalSettings.working;
+        mySettings->SaveLater();
     }
     if (!mySettings->generalSettings.working) {
         return;
@@ -132,6 +133,7 @@ void processButton()
         Serial.printf_P(PSTR("Step button %d. brightness: %u\n"), stepDirection, brightness);
         effectsManager->activeEffect()->settings.brightness = brightness;
         myMatrix->setBrightness(brightness);
+        mySettings->SaveLater();
     }
     if (button->isRelease() && isHolding) {
         Serial.println(F("Release button"));
@@ -165,11 +167,13 @@ void setup() {
     }
 
     EffectsManager::Initialize();
+    Settings::Initialize();
 // default values for button
     mySettings->buttonSettings.pin = btnPin;
     mySettings->buttonSettings.type = btnType;
     mySettings->buttonSettings.state = btnState;
-    Settings::Initialize();
+    mySettings->ReadSettings();
+    mySettings->ReadEffects();
     MyMatrix::Initialize();
 
 #if defined(SONOFF)
