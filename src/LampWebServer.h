@@ -13,7 +13,7 @@ public:
     bool IsConnected();
     void AutoConnect();
     void Process();
-    void SendConfig(AsyncWebSocket *server, AsyncWebSocketClient *client = nullptr);
+    void SendConfig();
     bool isUpdating();
     void onConnected(void (*func)(bool));
     void Update();

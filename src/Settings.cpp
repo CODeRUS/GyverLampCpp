@@ -70,6 +70,7 @@ void Settings::Process()
 
 void Settings::SaveLater()
 {
+    lampWebServer->Update();
     settingsChanged = true;
     settingsSaveTimer = millis();
 }
@@ -131,7 +132,6 @@ void Settings::ProcessConfig(const String &message)
     const String event = doc[F("event")];
     if (event == F("WORKING")) {
         const bool working = doc[F("data")];
-
         Serial.printf_P(PSTR("working: %s\n"), working ? PSTR("true") : PSTR("false"));
         mySettings->generalSettings.working = working;
     } else if (event == F("ACTIVE_EFFECT")) {
