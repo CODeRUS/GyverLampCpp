@@ -1,5 +1,6 @@
 #include "EffectsManager.h"
 #include "Settings.h"
+#include "MqttClient.h"
 
 #include "effects/basic/SparklesEffect.h"
 #include "effects/basic/FireEffect.h"
@@ -73,33 +74,32 @@
 
 namespace  {
 
-EffectsManager *instance = nullptr;
+EffectsManager *object = nullptr;
 
 std::map<String, Effect*> effectsMap;
 
 uint32_t effectTimer = 0;
 
 uint8_t activeIndex = 0;
-bool working = true;
 
 } // namespace
 
-EffectsManager *EffectsManager::Instance()
+EffectsManager *EffectsManager::instance()
 {
-    return instance;
+    return object;
 }
 
 void EffectsManager::Initialize()
 {
-    if (instance) {
+    if (object) {
         return;
     }
 
     Serial.println(F("Initializing EffectsManager"));
-    instance = new EffectsManager();
+    object = new EffectsManager();
 }
 
-void EffectsManager::ProcessEffectSettings(const JsonObject &json)
+void EffectsManager::processEffectSettings(const JsonObject &json)
 {
     const char* effectId = json[F("i")];
 
@@ -114,7 +114,7 @@ void EffectsManager::ProcessEffectSettings(const JsonObject &json)
     effect->initialize(json);
 }
 
-void EffectsManager::Process()
+void EffectsManager::loop()
 {
     if (activeIndex >= effects.size()) {
         return;
@@ -128,7 +128,7 @@ void EffectsManager::Process()
     activeEffect()->Process();
 }
 
-void EffectsManager::Next()
+void EffectsManager::next()
 {
     activeEffect()->deactivate();
     myMatrix->clear();
@@ -137,10 +137,10 @@ void EffectsManager::Next()
     } else {
         ++activeIndex;
     }
-    ActivateEffect(activeIndex);
+    activateEffect(activeIndex);
 }
 
-void EffectsManager::Previous()
+void EffectsManager::previous()
 {
     activeEffect()->deactivate();
     myMatrix->clear();
@@ -149,10 +149,10 @@ void EffectsManager::Previous()
     } else {
         --activeIndex;
     }
-    ActivateEffect(activeIndex);
+    activateEffect(activeIndex);
 }
 
-void EffectsManager::ChangeEffect(uint8_t index)
+void EffectsManager::changeEffect(uint8_t index)
 {
     if (index >= effects.size()) {
         return;
@@ -165,11 +165,11 @@ void EffectsManager::ChangeEffect(uint8_t index)
     activeEffect()->deactivate();
     myMatrix->clear();
     activeIndex = index;
-    ActivateEffect(activeIndex);
-    mySettings->SaveLater();
+    activateEffect(activeIndex);
+    mySettings->saveLater();
 }
 
-void EffectsManager::ChangeEffectByName(const String &name)
+void EffectsManager::changeEffectByName(const String &name)
 {
     for (size_t index = 0; index < effects.size(); index++) {
         Effect *effect = effects[index];
@@ -177,15 +177,15 @@ void EffectsManager::ChangeEffectByName(const String &name)
             activeEffect()->deactivate();
             myMatrix->clear();
             activeIndex = index;
-            ActivateEffect(activeIndex);
-            mySettings->SaveLater();
+            activateEffect(activeIndex);
+            mySettings->saveLater();
 
             break;
         }
     }
 }
 
-void EffectsManager::ActivateEffect(uint8_t index)
+void EffectsManager::activateEffect(uint8_t index)
 {
     if (index >= effects.size()) {
         index = 0;
@@ -195,16 +195,18 @@ void EffectsManager::ActivateEffect(uint8_t index)
     }
     Effect *effect = effects[index];
     myMatrix->setBrightness(effect->settings.brightness);
+    Serial.printf_P(PSTR("Activating effect[%u]: %s\n"), index, effect->settings.name.c_str());
     effect->activate();
+    mqtt->update();
 }
 
-void EffectsManager::UpdateCurrentSettings(const JsonObject &json)
+void EffectsManager::updateCurrentSettings(const JsonObject &json)
 {
     activeEffect()->initialize(json);
     myMatrix->setBrightness(activeEffect()->settings.brightness);
 }
 
-void EffectsManager::UpdateSettingsById(const String &id, const JsonObject &json)
+void EffectsManager::updateSettingsById(const String &id, const JsonObject &json)
 {
     for (size_t index = 0; index < effects.size(); index++) {
         Effect *effect = effects[index];
@@ -213,17 +215,17 @@ void EffectsManager::UpdateSettingsById(const String &id, const JsonObject &json
                 activeEffect()->deactivate();
                 myMatrix->clear();
                 activeIndex = index;
-                ActivateEffect(activeIndex);
+                activateEffect(activeIndex);
             }
             effect->initialize(json);
             break;
         }
     }
     myMatrix->setBrightness(activeEffect()->settings.brightness);
-    mySettings->SaveLater();
+    mySettings->saveLater();
 }
 
-uint8_t EffectsManager::Count()
+uint8_t EffectsManager::count()
 {
     return static_cast<uint8_t>(effects.size());
 }
@@ -231,13 +233,13 @@ uint8_t EffectsManager::Count()
 Effect *EffectsManager::activeEffect()
 {
     if (effects.size() > activeIndex) {
-        return  effects[activeIndex];
+        return effects[activeIndex];
     }
 
     return nullptr;
 }
 
-uint8_t EffectsManager::ActiveEffectIndex()
+uint8_t EffectsManager::activeEffectIndex()
 {
     return activeIndex;
 }

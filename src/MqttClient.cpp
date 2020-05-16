@@ -17,7 +17,7 @@
 namespace
 {
 
-MqttClient *instance = nullptr;
+MqttClient *object = nullptr;
 #if defined(ESP8266)
 AsyncMqttClient *client = nullptr;
 #else
@@ -74,7 +74,7 @@ void sendState()
     DynamicJsonDocument doc(1024);
     JsonObject json = doc.to<JsonObject>();
 
-    mySettings->BuildJsonMqtt(json);
+    mySettings->buildJsonMqtt(json);
 
     Serial.println(F("Sending state"));
     serializeJsonPretty(doc, Serial);
@@ -115,7 +115,7 @@ void sendDiscovery()
     doc[F("dev")][F("mdl")] = mySettings->connectionSettings.apName;
 
     JsonArray effects = doc.createNestedArray(F("effect_list"));
-    mySettings->WriteEffectsMqtt(effects);
+    mySettings->writeEffectsMqtt(effects);
 
     Serial.println(F("Sending discovery"));
     serializeJsonPretty(doc, Serial);
@@ -143,7 +143,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     serializeJsonPretty(doc, Serial);
     Serial.println();
 
-    mySettings->ProcessCommandMqtt(json);
+    mySettings->processCommandMqtt(json);
 
     sendState();
 }
@@ -216,24 +216,25 @@ bool connectToMqtt() {
     if (client->connected()) {
         onMqttConnect(true);
     }
+    return client->connected();
 #endif
 }
 
 }
 
-MqttClient *MqttClient::Instance()
+MqttClient *MqttClient::instance()
 {
-    return instance;
+    return object;
 }
 
 void MqttClient::Initialize()
 {
-    if (instance) {
+    if (object) {
         return;
     }
 
     Serial.println(F("Initializing MqttClient"));
-    instance = new MqttClient();
+    object = new MqttClient();
 }
 
 void MqttClient::loop()

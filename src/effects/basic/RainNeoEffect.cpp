@@ -37,15 +37,17 @@ void rain()
     myMatrix->fadeToBlackBy(255 - tailLength);
 
     if (!lightning && storm) {
-        lightning = new uint8_t[myMatrix->GetNumLeds()];
+        lightning = new uint8_t[myMatrix->getNumLeds()];
     } else if (lightning && !storm) {
         delete[] lightning;
+        lightning = nullptr;
     }
 
     if (!noise && clouds) {
         noise = new uint8_t[mySettings->matrixSettings.width * cloudHeight];
     } else if (noise && !clouds) {
         delete[] noise;
+        noise = nullptr;
     }
 
     // Loop for each column individually
@@ -95,7 +97,7 @@ void rain()
                 Serial.println("lightning malloc failed");
                 return;
             } else {
-                memset(lightning, 0, myMatrix->GetNumLeds() * sizeof(*lightning));
+                memset(lightning, 0, myMatrix->getNumLeds() * sizeof(*lightning));
             }
 
             if (random16() < 72) {    // Odds of a lightning bolt

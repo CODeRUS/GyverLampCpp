@@ -1,5 +1,5 @@
 #include "ClockHorizontal1Effect.h"
-#include "GyverTimer.h"
+#include "TimeClient.h"
 
 namespace  {
 
@@ -11,7 +11,7 @@ uint16_t minutesColor = myMatrix->Color(30, 60, 30);
 
 String getClockTime()
 {
-    return GyverTimer::Hours() + ":" + GyverTimer::Minutes() + " ";
+    return timeClient->hours() + ":" + timeClient->minutes() + " ";
 }
 
 } // namespace
@@ -89,12 +89,12 @@ void ClockHorizontal1Effect::tick()
 
 void ClockHorizontal1Effect::activate()
 {
-    GyverTimer::SetInterval(1 * 60 * 1000); // 1 min
+    timeClient->setInterval(1 * 60 * 1000); // 1 min
 
     myMatrix->setTextWrap(false);
     myMatrix->setTextColor(hoursColor);
 
-    uint8_t matrixRotation = myMatrix->GetRotation();
+    uint8_t matrixRotation = myMatrix->getRotation();
     int horizontalRotation = matrixRotation - 3;
     if (horizontalRotation < 0) {
         horizontalRotation = horizontalRotation + 4;
@@ -107,8 +107,8 @@ void ClockHorizontal1Effect::activate()
 
 void ClockHorizontal1Effect::deactivate()
 {
-    GyverTimer::SetInterval(0);
-    uint8_t matrixRotation = myMatrix->GetRotation();
+    timeClient->setInterval(0);
+    uint8_t matrixRotation = myMatrix->getRotation();
     if (myMatrix->getRotation() != matrixRotation) {
         myMatrix->setRotation(matrixRotation);
     }

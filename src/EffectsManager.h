@@ -3,32 +3,32 @@
 #define ARDUINOJSON_ENABLE_PROGMEM 1
 #include <ArduinoJson.h>
 
-#define effectsManager EffectsManager::Instance()
+#define effectsManager EffectsManager::instance()
 
 class Effect;
 class EffectsManager
 {
 public:
-    static EffectsManager *Instance();
+    static EffectsManager *instance();
     static void Initialize();
 
-    void Process();
+    void loop();
 
-    void ProcessEffectSettings(const JsonObject &json);
+    void processEffectSettings(const JsonObject &json);
 
-    void Next();
-    void Previous();
-    void ChangeEffect(uint8_t index);
-    void ChangeEffectByName(const String &name);
-    void ActivateEffect(uint8_t index);
+    void next();
+    void previous();
+    void changeEffect(uint8_t index);
+    void changeEffectByName(const String &name);
+    void activateEffect(uint8_t index);
 
-    void UpdateCurrentSettings(const JsonObject &json);
-    void UpdateSettingsById(const String &id, const JsonObject &json);
+    void updateCurrentSettings(const JsonObject &json);
+    void updateSettingsById(const String &id, const JsonObject &json);
 
-    uint8_t Count();
+    uint8_t count();
 
     Effect *activeEffect();
-    uint8_t ActiveEffectIndex();
+    uint8_t activeEffectIndex();
 
     std::vector<Effect*> effects = {};
 

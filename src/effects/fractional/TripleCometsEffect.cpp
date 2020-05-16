@@ -17,7 +17,7 @@ void TripleCometsEffect::tick()
     xx = 4 + sin8(millis() / 10) / 32;
     yy = 4 + cos8(millis() / 7) / 32;
     myMatrix->drawPixelXY(xx, yy, CRGB(0xFF0000));
-    myMatrix->drawPixelXY(myMatrix->GetCenterX(), myMatrix->GetCenterY(), CRGB(0xFFFF00));
+    myMatrix->drawPixelXY(myMatrix->getCenterX(), myMatrix->getCenterY(), CRGB(0xFFFF00));
 
     effectX[0] += 3000;
     effectY[0] += 3000;

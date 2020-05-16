@@ -10,7 +10,7 @@
 #include "MyMatrix.h"
 #include "EffectsManager.h"
 #include "Settings.h"
-#include "GyverTimer.h"
+#include "TimeClient.h"
 
 #include "GyverButton.h"
 #include "LampWebServer.h"
@@ -96,20 +96,20 @@ void processButton()
     if (button->isSingle()) {
         Serial.println(F("Single button"));
         mySettings->generalSettings.working = !mySettings->generalSettings.working;
-        mySettings->SaveLater();
+        mySettings->saveLater();
     }
     if (!mySettings->generalSettings.working) {
         return;
     }
     if (button->isDouble()) {
         Serial.println(F("Double button"));
-        effectsManager->Next();
-        mySettings->SaveLater();
+        effectsManager->next();
+        mySettings->saveLater();
     }
     if (button->isTriple()) {
         Serial.println(F("Triple button"));
-        effectsManager->Previous();
-        mySettings->SaveLater();
+        effectsManager->previous();
+        mySettings->saveLater();
     }
     if (button->isHolded()) {
         Serial.println(F("Holded button"));
@@ -133,11 +133,11 @@ void processButton()
         Serial.printf_P(PSTR("Step button %d. brightness: %u\n"), stepDirection, brightness);
         effectsManager->activeEffect()->settings.brightness = brightness;
         myMatrix->setBrightness(brightness);
-        mySettings->SaveLater();
+        mySettings->saveLater();
     }
     if (button->isRelease() && isHolding) {
         Serial.println(F("Release button"));
-        mySettings->SaveLater();
+        mySettings->saveLater();
         isHolding = false;
     }
 }
@@ -172,8 +172,8 @@ void setup() {
     mySettings->buttonSettings.pin = btnPin;
     mySettings->buttonSettings.type = btnType;
     mySettings->buttonSettings.state = btnState;
-    mySettings->ReadSettings();
-    mySettings->ReadEffects();
+    mySettings->readSettings();
+    mySettings->readEffects();
     MyMatrix::Initialize();
 
 #if defined(SONOFF)
@@ -193,14 +193,15 @@ void setup() {
     lampWebServer->onConnected([](bool isConnected) {
         connectFinished = true;
         Serial.println(F("AutoConnect finished"));
-        if (LocalDNS::Begin()) {
-            LocalDNS::AddService(F("http"), F("tcp"), webServerPort);
+        LocalDNS::Initialize();
+        if (localDNS->begin()) {
+            localDNS->addService(F("http"), F("tcp"), webServerPort);
         } else {
             Serial.println(F("An Error has occurred while initializing mDNS"));
         }
         myMatrix->matrixTest();
         if (isConnected) {
-            GyverTimer::Initialize();
+            TimeClient::Initialize();
             MqttClient::Initialize();
         } else {
             button->tick();
@@ -218,9 +219,9 @@ void setup() {
 //        Spectrometer::Initialize();
 //    }
 
-        effectsManager->ActivateEffect(mySettings->generalSettings.activeEffect);
+        effectsManager->activateEffect(mySettings->generalSettings.activeEffect);
     });
-    lampWebServer->AutoConnect();
+    lampWebServer->autoConnect();
 }
 
 void loop() {
@@ -228,7 +229,7 @@ void loop() {
     ESP.wdtFeed();
 #endif
 
-    lampWebServer->Process();
+    lampWebServer->loop();
 
     if (!connectFinished) {
         return;
@@ -238,9 +239,9 @@ void loop() {
         return;
     }
 
-    LocalDNS::Process();
-    if (lampWebServer->IsConnected()) {
-        GyverTimer::Process();
+    localDNS->loop();
+    if (lampWebServer->isConnected()) {
+        timeClient->loop();
 #if defined(ESP32)
         mqtt->loop();
 #endif
@@ -254,16 +255,16 @@ void loop() {
 #endif
 
 //    if (mySettings->generalSettings.soundControl) {
-//        mySpectrometer->process();
+//        mySpectrometer->loop();
 //    }
 
     if (mySettings->generalSettings.working) {
-        effectsManager->Process();
+        effectsManager->loop();
     } else {
         myMatrix->clear(true);
     }
 
-    mySettings->Process();
+    mySettings->loop();
 
     if (mySettings->generalSettings.logInterval > 0 && millis() - logTimer > mySettings->generalSettings.logInterval) {
         printFreeHeap();

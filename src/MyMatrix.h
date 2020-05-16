@@ -6,30 +6,31 @@
 //#define FASTLED_ALLOW_INTERRUPTS 0
 #endif
 
+#define FASTLED_INTERNAL
+
 #include <Arduino.h>
 #include <FastLED.h>
-#include <Adafruit_GFX.h>
 #include <FastLED_NeoMatrix.h>
 
-#define myMatrix MyMatrix::Instance()
+#define myMatrix MyMatrix::instance()
 
 class MyMatrix : public FastLED_NeoMatrix
 {
 public:
-    static MyMatrix *Instance();
+    static MyMatrix *instance();
     static void Initialize();
 
-    static uint8_t GetRotation();
+    uint8_t getRotation();
 
     const TProgmemRGBPalette16 *GetColorPalette(uint8_t pct);
     const CRGBPalette16 *GetFirePalette(uint8_t pct);
 
-    uint16_t GetNumLeds();
-    uint8_t GetCenterX();
-    uint8_t GetCenterY();
-    uint8_t GetDimension();
+    uint16_t getNumLeds();
+    uint8_t getCenterX();
+    uint8_t getCenterY();
+    uint8_t getDimension();
 
-    CRGB *GetLeds();
+    CRGB *getLeds();
 
     void setCurrentLimit(uint32_t maxCurrent);
 

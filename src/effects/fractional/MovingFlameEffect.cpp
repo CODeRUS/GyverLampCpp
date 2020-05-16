@@ -11,7 +11,7 @@ void MovingFlameEffect::tick()
     //myMatrix->dimAll(160);
     myMatrix->dimAll(255 - settings.scale * 2);
     for (uint8_t i = 1; i < mySettings->matrixSettings.width; i += 3) {
-        myMatrix->drawPixelXY(i, myMatrix->GetCenterY(), CHSV(i * 2 , 255, 255));
+        myMatrix->drawPixelXY(i, myMatrix->getCenterY(), CHSV(i * 2 , 255, 255));
     }
     // Noise
     effectX[0] += 3000;

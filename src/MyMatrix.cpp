@@ -3,16 +3,6 @@
 
 namespace  {
 
-uint8_t defaultWidth = 16;
-uint8_t defaultHeight = 16;
-uint8_t defaultType = NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
-                      NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG;
-
-uint8_t defaultMaxBrightness = 80;
-uint32_t defaultCurrentLimit = 1000;
-
-uint8_t defaultRoatation = 3;
-
 #if defined(SONOFF)
 const uint8_t ledPin = 14;
 #elif defined(ESP32)
@@ -25,7 +15,7 @@ uint16_t numLeds = 0;
 
 CRGB* leds = nullptr;
 
-MyMatrix *instance = nullptr;
+MyMatrix *object = nullptr;
 
 const TProgmemRGBPalette16 WaterfallColors_p FL_PROGMEM = {
   0x000000, 0x060707, 0x101110, 0x151717,
@@ -91,20 +81,22 @@ const CRGBPalette16 *firePalettes[] = {
 
 FASTLED_NAMESPACE_BEGIN
 uint16_t XY(uint8_t x, uint8_t y) {
-    return myMatrix->XY(x, y);
+    return object->XY(x, y);
 }
 FASTLED_NAMESPACE_END
 
-MyMatrix *MyMatrix::Instance()
+MyMatrix *MyMatrix::instance()
 {
-    return instance;
+    return object;
 }
 
 void MyMatrix::Initialize()
 {
-    if (instance) {
+    if (object) {
         return;
     }
+
+    Serial.println(F("Initializing MyMatrix"));
 
     uint8_t sizeWidth = mySettings->matrixSettings.width;
     uint8_t sizeHeight = mySettings->matrixSettings.height;
@@ -122,25 +114,24 @@ void MyMatrix::Initialize()
     Serial.printf_P(PSTR("Set current limit to: %u\n"), currentLimit);
     FastLED.setMaxPowerInVoltsAndMilliamps(5, currentLimit);
 
-    instance = new MyMatrix(leds, sizeWidth, sizeHeight, matrixType);
-    uint8_t rotation = GetRotation();
+    object = new MyMatrix(leds, sizeWidth, sizeHeight, matrixType);
+    uint8_t rotation = mySettings->matrixSettings.rotation;
     Serial.printf_P(PSTR("Set rotation to: %u\n"), rotation);
-    instance->setRotation(rotation);
+    object->setRotation(rotation);
 
-    instance->begin();
-    instance->clear();
-    instance->show();
+    object->begin();
+    object->clear();
+    object->show();
 }
 
-uint16_t MyMatrix::GetNumLeds()
+uint8_t MyMatrix::getRotation()
+{
+    return rotation;
+}
+
+uint16_t MyMatrix::getNumLeds()
 {
     return numLeds;
-}
-
-uint8_t MyMatrix::GetRotation()
-{
-    uint8_t rotation = mySettings->matrixSettings.rotation;
-    return rotation;
 }
 
 const TProgmemRGBPalette16 *MyMatrix::GetColorPalette(uint8_t pct)
@@ -153,17 +144,17 @@ const CRGBPalette16 *MyMatrix::GetFirePalette(uint8_t pct)
     return firePalettes[(uint8_t)(pct / 100.0f * ((sizeof(firePalettes) / sizeof(CRGBPalette16 *)) - 0.01f))];
 }
 
-uint8_t MyMatrix::GetCenterX()
+uint8_t MyMatrix::getCenterX()
 {
     return mySettings->matrixSettings.width / 2 - 1;
 }
 
-uint8_t MyMatrix::GetCenterY()
+uint8_t MyMatrix::getCenterY()
 {
     return mySettings->matrixSettings.height / 2 - 1;
 }
 
-uint8_t MyMatrix::GetDimension()
+uint8_t MyMatrix::getDimension()
 {
     if (type & NEO_MATRIX_ROWS) {
         return width();
@@ -172,7 +163,7 @@ uint8_t MyMatrix::GetDimension()
     }
 }
 
-CRGB *MyMatrix::GetLeds()
+CRGB *MyMatrix::getLeds()
 {
     return leds;
 }

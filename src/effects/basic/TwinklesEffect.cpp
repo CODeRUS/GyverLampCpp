@@ -19,8 +19,8 @@ TwinklesEffect::TwinklesEffect()
 void TwinklesEffect::activate()
 {
     hue = 0;
-    ledsbuff = new CRGB[myMatrix->GetNumLeds()];
-    for (uint32_t idx=0; idx < myMatrix->GetNumLeds(); idx++) {
+    ledsbuff = new CRGB[myMatrix->getNumLeds()];
+    for (uint32_t idx=0; idx < myMatrix->getNumLeds(); idx++) {
         if (random8(settings.scale % 11) == 0) {
             ledsbuff[idx].r = random8();
             ledsbuff[idx].g = random8(1, speed * 2 +1);
@@ -38,7 +38,7 @@ void TwinklesEffect::deactivate()
 
 void TwinklesEffect::tick()
 {
-    for (uint16_t idx=0; idx < myMatrix->GetNumLeds(); idx++) {
+    for (uint16_t idx=0; idx < myMatrix->getNumLeds(); idx++) {
         if (ledsbuff[idx].b == 0){
             if (random8(settings.scale % 11) == 0 && hue > 0) {
                 ledsbuff[idx].r = random8();

@@ -11,7 +11,7 @@ void PulsingCometEffect::tick()
     myMatrix->dimAll(255 - settings.scale * 2);
 
     CRGB _eNs_color = CHSV(millis(), 255, 255);
-    myMatrix->drawPixelXY(myMatrix->GetCenterX(), myMatrix->GetCenterY(), _eNs_color);
+    myMatrix->drawPixelXY(myMatrix->getCenterX(), myMatrix->getCenterY(), _eNs_color);
     // Noise
     effectX[0] += 2000;
     effectY[0] += 2000;

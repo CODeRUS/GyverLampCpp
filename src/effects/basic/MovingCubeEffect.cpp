@@ -49,7 +49,7 @@ void MovingCubeEffect::tick()
         }
         //vectorB[1] += random(0, 6) - 3;
     }
-    FastLED.clear();
+    myMatrix->clear();
     for (uint8_t i = 0; i < ballSize; i++) {
         for (uint8_t j = 0; j < ballSize; j++) {
             myMatrix->drawPixelXY(coordB[0] / 10 + i,

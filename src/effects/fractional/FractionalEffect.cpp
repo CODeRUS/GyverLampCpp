@@ -22,7 +22,7 @@ void FractionalEffect::activate()
         }
     }
 
-    ledsbuff = new CRGB[myMatrix->GetNumLeds()];
+    ledsbuff = new CRGB[myMatrix->getNumLeds()];
 }
 
 void FractionalEffect::deactivate()
@@ -47,9 +47,9 @@ void FractionalEffect::deactivate()
 void FractionalEffect::FillNoise(int8_t layer)
 {
     for (int8_t i = 0; i < mySettings->matrixSettings.width; i++) {
-        int32_t ioffset = effectScaleX[layer] * (i - myMatrix->GetCenterX());
+        int32_t ioffset = effectScaleX[layer] * (i - myMatrix->getCenterX());
         for (int8_t j = 0; j < mySettings->matrixSettings.height; j++) {
-            int32_t joffset = effectScaleY[layer] * (j - myMatrix->GetCenterY());
+            int32_t joffset = effectScaleY[layer] * (j - myMatrix->getCenterY());
             int8_t data = inoise16(effectX[layer] + ioffset,
                                    effectY[layer] + joffset,
                                    effectZ[layer]) >> 8;
@@ -65,26 +65,26 @@ void FractionalEffect::MoveX(int8_t delta)
 {
     for (uint8_t y = 0; y < mySettings->matrixSettings.height; y++) {
         for (uint8_t x = 0; x < mySettings->matrixSettings.width - delta; x++) {
-            ledsbuff[myMatrix->XY(x, y)] = myMatrix->GetLeds()[myMatrix->XY(x + delta, y)];
+            ledsbuff[myMatrix->XY(x, y)] = myMatrix->getLeds()[myMatrix->XY(x + delta, y)];
         }
         for (uint8_t x = mySettings->matrixSettings.width - delta; x < mySettings->matrixSettings.width; x++) {
-            ledsbuff[myMatrix->XY(x, y)] = myMatrix->GetLeds()[myMatrix->XY(x + delta - mySettings->matrixSettings.width, y)];
+            ledsbuff[myMatrix->XY(x, y)] = myMatrix->getLeds()[myMatrix->XY(x + delta - mySettings->matrixSettings.width, y)];
         }
     }
-    memcpy(myMatrix->GetLeds(), ledsbuff, sizeof(CRGB) * myMatrix->GetNumLeds());
+    memcpy(myMatrix->getLeds(), ledsbuff, sizeof(CRGB) * myMatrix->getNumLeds());
 }
 
 void FractionalEffect::MoveY(int8_t delta)
 {
     for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
         for (uint8_t y = 0; y < mySettings->matrixSettings.height - delta; y++) {
-            ledsbuff[myMatrix->XY(x, y)] = myMatrix->GetLeds()[myMatrix->XY(x, y + delta)];
+            ledsbuff[myMatrix->XY(x, y)] = myMatrix->getLeds()[myMatrix->XY(x, y + delta)];
         }
         for (uint8_t y = mySettings->matrixSettings.height - delta; y < mySettings->matrixSettings.height; y++) {
-            ledsbuff[myMatrix->XY(x, y)] = myMatrix->GetLeds()[myMatrix->XY(x, y + delta - mySettings->matrixSettings.height)];
+            ledsbuff[myMatrix->XY(x, y)] = myMatrix->getLeds()[myMatrix->XY(x, y + delta - mySettings->matrixSettings.height)];
         }
     }
-    memcpy(myMatrix->GetLeds(), ledsbuff, sizeof(CRGB) * myMatrix->GetNumLeds());
+    memcpy(myMatrix->getLeds(), ledsbuff, sizeof(CRGB) * myMatrix->getNumLeds());
 }
 
 void FractionalEffect::MoveFractionalNoiseX(int8_t amplitude, float shift)
@@ -101,17 +101,17 @@ void FractionalEffect::MoveFractionalNoiseX(int8_t amplitude, float shift)
             }
             CRGB PixelA = CRGB::Black  ;
             if ((zD >= 0) && (zD < mySettings->matrixSettings.width)) {
-                PixelA = myMatrix->GetLeds()[myMatrix->XY(zD, y)];
+                PixelA = myMatrix->getLeds()[myMatrix->XY(zD, y)];
             }
             CRGB PixelB = CRGB::Black ;
             if ((zF >= 0) && (zF < mySettings->matrixSettings.width)) {
-                PixelB = myMatrix->GetLeds()[myMatrix->XY(zF, y)];
+                PixelB = myMatrix->getLeds()[myMatrix->XY(zF, y)];
             }
             ledsbuff[myMatrix->XY(x, y)] = (PixelA.nscale8(ease8InOutApprox(255 - fraction)))
                                          + (PixelB.nscale8(ease8InOutApprox(fraction)));   // lerp8by8(PixelA, PixelB, fraction );
         }
     }
-    memcpy(myMatrix->GetLeds(), ledsbuff, sizeof(CRGB) * myMatrix->GetNumLeds());
+    memcpy(myMatrix->getLeds(), ledsbuff, sizeof(CRGB) * myMatrix->getNumLeds());
 }
 
 void FractionalEffect::MoveFractionalNoiseY(int8_t amplitude, float shift)
@@ -128,15 +128,15 @@ void FractionalEffect::MoveFractionalNoiseY(int8_t amplitude, float shift)
             }
             CRGB PixelA = CRGB::Black ;
             if ((zD >= 0) && (zD < mySettings->matrixSettings.width)) {
-                PixelA = myMatrix->GetLeds()[myMatrix->XY(x, zD)];
+                PixelA = myMatrix->getLeds()[myMatrix->XY(x, zD)];
             }
             CRGB PixelB = CRGB::Black ;
             if ((zF >= 0) && (zF < mySettings->matrixSettings.width)) {
-                PixelB = myMatrix->GetLeds()[myMatrix->XY(x, zF)];
+                PixelB = myMatrix->getLeds()[myMatrix->XY(x, zF)];
             }
             ledsbuff[myMatrix->XY(x, y)] = (PixelA.nscale8(ease8InOutApprox(255 - fraction)))
                                + (PixelB.nscale8(ease8InOutApprox(fraction)));
         }
     }
-    memcpy(myMatrix->GetLeds(), ledsbuff, sizeof(CRGB) * myMatrix->GetNumLeds());
+    memcpy(myMatrix->getLeds(), ledsbuff, sizeof(CRGB) * myMatrix->getNumLeds());
 }

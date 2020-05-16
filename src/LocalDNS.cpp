@@ -10,11 +10,13 @@
 
 namespace  {
 
+LocalDNS *object = nullptr;
+
 bool started = false;
 
 } // namespace
 
-bool LocalDNS::Begin()
+bool LocalDNS::begin()
 {
     started = MDNS.begin(mySettings->connectionSettings.mdns.c_str());
     if (started) {
@@ -23,7 +25,7 @@ bool LocalDNS::Begin()
     return started;
 }
 
-void LocalDNS::AddService(String serviceName, String serviceProtocol, uint16_t servicePort)
+void LocalDNS::addService(String serviceName, String serviceProtocol, uint16_t servicePort)
 {
     if (!started) {
         Serial.println(F("Trying to call LocalDNS::AddService, but MDNS is not started!"));
@@ -33,9 +35,29 @@ void LocalDNS::AddService(String serviceName, String serviceProtocol, uint16_t s
     MDNS.addService(serviceName, serviceProtocol, servicePort);
 }
 
-void LocalDNS::Process()
+void LocalDNS::loop()
 {
 #if defined(ESP8266)
     MDNS.update();
 #endif
+}
+
+LocalDNS::LocalDNS()
+{
+
+}
+
+LocalDNS *LocalDNS::instance()
+{
+    return object;
+}
+
+void LocalDNS::Initialize()
+{
+    if (object) {
+        return;
+    }
+
+    Serial.println(F("Initializing LocalDNS"));
+    object = new LocalDNS;
 }

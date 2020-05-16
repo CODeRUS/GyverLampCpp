@@ -165,7 +165,7 @@ void SoundStereoEffect::displayLBand(int band)
 {
     int dsize = laudiospectrum[band].curval;
     int dmax = mySettings->matrixSettings.height;
-    int ssize = dsize;
+//    int ssize = dsize;
     int fsize = dsize / laudiospectrum[band].amplitude;
     double factor = settings.scale / 100.0;
     dsize = fsize * factor;
@@ -187,7 +187,7 @@ void SoundStereoEffect::displayRBand(int band)
 {
     int dsize = raudiospectrum[band].curval;
     int dmax = mySettings->matrixSettings.height - 1;
-    int ssize = dsize;
+//    int ssize = dsize;
     int fsize = dsize / raudiospectrum[band].amplitude;
     double factor = settings.scale / 100.0;
     dsize = fsize * factor;

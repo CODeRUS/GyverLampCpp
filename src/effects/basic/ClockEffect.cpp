@@ -1,17 +1,17 @@
 #include "ClockEffect.h"
-#include "GyverTimer.h"
+#include "TimeClient.h"
 
 namespace  {
 
 uint8_t delayer = 0;
-bool hours = true;
+bool hoursNum = true;
 
 uint16_t hoursColor = myMatrix->Color(40, 40, 40);
 uint16_t minutesColor = myMatrix->Color(30, 60, 30);
 
 String getClockTime()
 {
-    return GyverTimer::Hours() + F(":") + GyverTimer::Minutes();
+    return timeClient->hours() + F(":") + timeClient->minutes();
 }
 
 } // namespace
@@ -30,7 +30,7 @@ void ClockEffect::tick()
     myMatrix->clear();
     delay(1);
 
-    if (hours) {
+    if (hoursNum) {
         myMatrix->setTextColor(hoursColor);
         myMatrix->setCursor(0, 5);
     } else {
@@ -41,13 +41,13 @@ void ClockEffect::tick()
     myMatrix->show();
     delay(10);
 
-    hours = !hours;
+    hoursNum = !hoursNum;
     delayer = 0;
 }
 
 void ClockEffect::activate()
 {
-    GyverTimer::SetInterval(1 * 60 * 1000); // 1 min
+    timeClient->setInterval(1 * 60 * 1000); // 1 min
 
     myMatrix->setTextWrap(false);
     myMatrix->setTextColor(hoursColor);

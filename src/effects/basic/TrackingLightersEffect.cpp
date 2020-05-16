@@ -3,7 +3,6 @@
 namespace {
 
 uint8_t amount = 3;
-uint8_t clearPath = true;
 uint8_t tails = true;
 uint8_t tailStep = 70;
 

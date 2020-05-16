@@ -3,7 +3,7 @@
 #define ARDUINOJSON_ENABLE_PROGMEM 1
 #include <ArduinoJson.h>
 
-#define mySettings Settings::Instance()
+#define mySettings Settings::instance()
 
 class AsyncWebSocket;
 class AsyncWebSocketClient;
@@ -37,7 +37,7 @@ public:
     };
 
     struct ConenctionSettings {
-        String uniqueId = GetUniqueID();
+        String uniqueId;
         String mdns;
         String apName;
         String ntpServer;
@@ -58,27 +58,27 @@ public:
         uint8_t state = 0;
     };
 
-    static Settings *Instance();
+    static Settings *instance();
     static void Initialize(uint32_t saveInterval = 3000);
-    static String GetUniqueID();
-    static size_t JsonSerializeSize();
 
-    void Process();
-    void Reset();
-    void SaveLater();
-    void SaveSettings();
-    void SaveEffects();
+    size_t jsonSerializeSize();
 
-    void BuildSettingsJson(JsonObject &root);
-    void BuildEffectsJson(JsonArray &effects);
-    void BuildJsonMqtt(JsonObject &root);
-    void WriteEffectsMqtt(JsonArray &array);
+    void loop();
+    void reset();
+    void saveLater();
+    void saveSettings();
+    void saveEffects();
 
-    void ProcessConfig(const String &message);
-    void ProcessCommandMqtt(const JsonObject &json);
+    void buildSettingsJson(JsonObject &root);
+    void buildEffectsJson(JsonArray &effects);
+    void buildJsonMqtt(JsonObject &root);
+    void writeEffectsMqtt(JsonArray &array);
 
-    void ReadSettings();
-    void ReadEffects();
+    void processConfig(const String &message);
+    void processCommandMqtt(const JsonObject &json);
+
+    void readSettings();
+    void readEffects();
 
     GeneralSettings generalSettings;
     MatrixSettings matrixSettings;

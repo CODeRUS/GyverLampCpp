@@ -12,10 +12,10 @@ void ColorCometEffect::tick()
     if (settings.scale < 100) {
         _eNs_color = CHSV(settings.scale * 2.57, 255, 255);
     }
-    myMatrix->drawPixelXY(myMatrix->GetCenterX(), myMatrix->GetCenterY(), _eNs_color);
-    myMatrix->drawPixelXY(myMatrix->GetCenterX() + 1, myMatrix->GetCenterY(), _eNs_color);
-    myMatrix->drawPixelXY(myMatrix->GetCenterX(), myMatrix->GetCenterY() + 1, _eNs_color);
-    myMatrix->drawPixelXY(myMatrix->GetCenterX() + 1, myMatrix->GetCenterY() + 1, _eNs_color);
+    myMatrix->drawPixelXY(myMatrix->getCenterX(), myMatrix->getCenterY(), _eNs_color);
+    myMatrix->drawPixelXY(myMatrix->getCenterX() + 1, myMatrix->getCenterY(), _eNs_color);
+    myMatrix->drawPixelXY(myMatrix->getCenterX(), myMatrix->getCenterY() + 1, _eNs_color);
+    myMatrix->drawPixelXY(myMatrix->getCenterX() + 1, myMatrix->getCenterY() + 1, _eNs_color);
 
     // Noise
     effectX[0] += 1500;

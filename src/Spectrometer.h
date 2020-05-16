@@ -1,12 +1,12 @@
 #pragma once
 #include <Arduino.h>
 
-#define mySpectrometer Spectrometer::Instance()
+#define mySpectrometer Spectrometer::instance()
 
 class Spectrometer
 {
 public:
-    static Spectrometer *Instance();
+    static Spectrometer *instance();
     static void Initialize();
 
     struct eqBand {
@@ -19,14 +19,10 @@ public:
         uint32_t lastmeasured;
     };
 
-    void process();
+    void loop();
     eqBand band(uint8_t i);
 
     uint8_t asHue();
-
-private:
-    uint8_t getBand(uint16_t i);
-    void setBandwidth();
 
 protected:
     Spectrometer();

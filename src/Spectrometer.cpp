@@ -8,7 +8,7 @@
 
 namespace {
 
-Spectrometer *instance = nullptr;
+Spectrometer *object = nullptr;
 uint32_t timer = 0;
 uint32_t timeout = 1;
 
@@ -61,23 +61,43 @@ int bandWidth[EQBANDS] = {
 
 uint8_t hue = 0;
 
+
+uint8_t GetBand(uint16_t i)
+{
+    for (uint8_t j = 0; j < EQBANDS; j++) {
+        if (i <= bandWidth[j]) {
+            return j;
+        }
+    }
+    return EQBANDS;
+}
+
+void SetBandwidth()
+{
+    uint8_t multiplier = SAMPLES / 256;
+    for (uint8_t j = 0; j < EQBANDS; j++) {
+        bandWidth[j] = audiospectrum[j].bandWidth * multiplier + bandWidth[j - 1];
+    }
+}
+
 } // namespace
 
-Spectrometer *Spectrometer::Instance()
+Spectrometer *Spectrometer::instance()
 {
-    return instance;
+    return object;
 }
 
 void Spectrometer::Initialize()
 {
-    if (instance) {
+    if (object) {
         return;
     }
 
-    instance = new Spectrometer;
+    Serial.println(F("Initializing Spectrometer"));
+    object = new Spectrometer;
 }
 
-void Spectrometer::process()
+void Spectrometer::loop()
 {
     if (timer != 0 && (millis() - timer) < timeout) {
         return;
@@ -113,7 +133,7 @@ void Spectrometer::process()
     uint16_t readBands[EQBANDS] = {0};
     for (uint16_t i = 2; i < (SAMPLES / 2); i++) { // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency and its value the amplitude.
         if (vReal[i] > noiseFilter) { // Add a crude noise filter, 10 x amplitude or more
-            uint8_t bandNum = getBand(i);
+            uint8_t bandNum = GetBand(i);
             uint16_t read = static_cast<uint16_t>(vReal[i]);
             if (bandNum != bands && readBands[bandNum] < read) {
                 readBands[bandNum] = read;
@@ -164,24 +184,6 @@ uint8_t Spectrometer::asHue()
     return hue;
 }
 
-uint8_t Spectrometer::getBand(uint16_t i)
-{
-    for (uint8_t j = 0; j < EQBANDS; j++) {
-        if (i <= bandWidth[j]) {
-            return j;
-        }
-    }
-    return EQBANDS;
-}
-
-void Spectrometer::setBandwidth()
-{
-    uint8_t multiplier = SAMPLES / 256;
-    for (uint8_t j = 0; j < EQBANDS; j++) {
-        bandWidth[j] = audiospectrum[j].bandWidth * multiplier + bandWidth[j - 1];
-    }
-}
-
 Spectrometer::Spectrometer()
 {
 #if defined(ESP32)
@@ -189,6 +191,6 @@ Spectrometer::Spectrometer()
 //    adc1_config_channel_atten(channel, ADC_ATTEN_DB_11); //ADC_ATTEN_DB_11 = 0-3,6V
 #endif
     sampling_period_us = round(1000000 * (1.0 / samplingFrequency));
-    setBandwidth();
+    SetBandwidth();
     delay(1000);
 }

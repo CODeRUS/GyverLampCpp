@@ -80,9 +80,9 @@ void Fire18Effect::tick()
         effectScaleY[z] = ctrl2 / 2;
 
         for (uint8_t i = 0; i < mySettings->matrixSettings.width; i++) {
-            uint32_t ioffset = effectScaleX[z] * (i - myMatrix->GetCenterX());
+            uint32_t ioffset = effectScaleX[z] * (i - myMatrix->getCenterX());
             for (uint8_t j = 0; j < mySettings->matrixSettings.height; j++) {
-                uint32_t joffset = effectScaleY[z] * (j - myMatrix->GetCenterY());
+                uint32_t joffset = effectScaleY[z] * (j - myMatrix->getCenterY());
                 uint16_t data = ((inoise16(effectX[z] + ioffset, effectY[z] + joffset, effectZ[z])) + 1);
                 noise3d[z][i][j] = data >> 8;
             }
@@ -92,7 +92,7 @@ void Fire18Effect::tick()
     // draw lowest line - seed the fire
     for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
         fire18heat[mySettings->matrixSettings.height - 1][x] =
-                noise3d[0][mySettings->matrixSettings.width - 1 - x][myMatrix->GetCenterY() - 1];
+                noise3d[0][mySettings->matrixSettings.width - 1 - x][myMatrix->getCenterY() - 1];
     }
 
 

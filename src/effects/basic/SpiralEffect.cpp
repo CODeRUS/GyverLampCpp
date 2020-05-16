@@ -44,8 +44,8 @@ uint8_t mapcos8(uint8_t theta, uint8_t lowest = 0, uint8_t highest = 255)
     return result;
 }
 
-byte spirotheta1 = 0;
-byte spirotheta2 = 0;
+uint8_t spirotheta1 = 0;
+uint8_t spirotheta2 = 0;
 uint8_t hue = 0;
 
 uint8_t spiroradiusx = 0;

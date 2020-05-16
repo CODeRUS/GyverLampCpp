@@ -13,10 +13,6 @@ const TProgmemRGBPalette16 WaterfallColors_p FL_PROGMEM = {
 int8_t cooling = 32;
 int8_t sparkling = 80;
 
-uint16_t x = 0;
-uint16_t y = 0;
-uint16_t z = 0;
-
 uint8_t** noise3d = nullptr;
 
 }
