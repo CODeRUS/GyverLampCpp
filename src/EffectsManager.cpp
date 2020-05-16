@@ -1,6 +1,7 @@
 #include "EffectsManager.h"
 #include "Settings.h"
 #include "MqttClient.h"
+#include "LampWebServer.h"
 
 #include "effects/basic/SparklesEffect.h"
 #include "effects/basic/FireEffect.h"
@@ -198,6 +199,7 @@ void EffectsManager::activateEffect(uint8_t index)
     Serial.printf_P(PSTR("Activating effect[%u]: %s\n"), index, effect->settings.name.c_str());
     effect->activate();
     mqtt->update();
+    lampWebServer->update();
 }
 
 void EffectsManager::updateCurrentSettings(const JsonObject &json)
