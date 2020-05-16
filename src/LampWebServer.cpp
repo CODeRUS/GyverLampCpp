@@ -347,13 +347,11 @@ LampWebServer::LampWebServer(uint16_t webPort)
 
     webServer->addHandler(socket);
 
-    webServer->serveStatic(PSTR("/static/js/"), SPIFFS, PSTR("/"))
-        .setCacheControl(PSTR("max-age=86400"));
-    webServer->serveStatic(PSTR("/static/css/"), SPIFFS, PSTR("/"))
-        .setCacheControl(PSTR("max-age=86400"));
-    webServer->serveStatic(PSTR("/"), SPIFFS, PSTR("/"))
-        .setCacheControl(PSTR("max-age=86400"))
-        .setDefaultFile(PSTR("index.html"));
+    webServer->serveStatic(PSTR("/static/js/"), SPIFFS, PSTR("/"), PSTR("max-age=86400"));
+    webServer->serveStatic(PSTR("/static/css/"), SPIFFS, PSTR("/"), PSTR("max-age=86400"));
+    webServer->serveStatic(PSTR("/effects.json"), SPIFFS, PSTR("/effects.json"), PSTR("no-cache"));
+    webServer->serveStatic(PSTR("/settings.json"), SPIFFS, PSTR("/settings.json"), PSTR("no-cache"));
+    webServer->serveStatic(PSTR("/"), SPIFFS, PSTR("/"), PSTR("max-age=86400")).setDefaultFile(PSTR("index.html"));
 
     webServer->on(PSTR("/effectJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
         PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024);
