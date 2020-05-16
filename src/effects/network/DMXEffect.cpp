@@ -116,7 +116,7 @@ void handleE131Packet(e131_packet_t* p, const IPAddress &clientIP, bool isArtnet
         }
     }
 
-    myMatrix->show();
+//    myMatrix->show();
 }
 
 }

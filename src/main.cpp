@@ -241,6 +241,9 @@ void loop() {
     LocalDNS::Process();
     if (lampWebServer->IsConnected()) {
         GyverTimer::Process();
+#if defined(ESP32)
+        mqtt->loop();
+#endif
     } else if (setupMode) {
         return;
     }
