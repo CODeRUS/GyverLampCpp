@@ -350,6 +350,11 @@ void Settings::buildSettingsJson(JsonObject &root)
     mqttObject[F("username")] = mqttSettings.username;
     mqttObject[F("password")] = mqttSettings.password;
 
+    JsonObject buttonObject = root.createNestedObject(F("button"));
+    buttonObject[F("pin")] = buttonSettings.pin;
+    buttonObject[F("type")] = buttonSettings.type;
+    buttonObject[F("state")] = buttonSettings.state;
+
     JsonObject spectrometerObject = root.createNestedObject(F("spectrometer"));
     spectrometerObject[F("active")] = generalSettings.soundControl;
 }
