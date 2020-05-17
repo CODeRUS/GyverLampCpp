@@ -399,6 +399,7 @@ void LampWebServer::sendConfig()
     root[F("working")] = mySettings->generalSettings.working;
     SendJsonToWs(json);
 
+    Serial.println(F("Sending state to ws clients"));
     serializeJsonPretty(json, Serial);
     Serial.println();
 }

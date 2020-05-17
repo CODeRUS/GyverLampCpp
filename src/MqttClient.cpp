@@ -36,7 +36,9 @@ String clientId;
 
 void subscribe()
 {
-    client->subscribe(setTopic.c_str(), 2);
+    Serial.print(F("Subscribing to topic: "));
+    Serial.println(setTopic);
+    client->subscribe(setTopic.c_str(), 0);
 }
 
 bool sendJson(const char* topic, const DynamicJsonDocument &doc)
@@ -77,6 +79,7 @@ void sendState()
     mySettings->buildJsonMqtt(json);
 
     Serial.println(F("Sending state"));
+    Serial.println(stateTopic);
     serializeJsonPretty(doc, Serial);
     Serial.println();
 
@@ -87,6 +90,7 @@ void sendState()
 void sendAvailability()
 {
     Serial.println(F("Sending availability"));
+    Serial.println(availabilityTopic);
 #if defined(ESP8266)
     boolean success = client->publish(availabilityTopic.c_str(), 2, true, "true", 4);
 #else
@@ -118,6 +122,7 @@ void sendDiscovery()
     mySettings->writeEffectsMqtt(effects);
 
     Serial.println(F("Sending discovery"));
+    Serial.println(configTopic);
     serializeJsonPretty(doc, Serial);
     Serial.println();
 
@@ -173,7 +178,7 @@ bool connectToMqtt() {
         availabilityTopic.c_str(),
         1,
         true,
-        "false");
+        PSTR("false"));
     if (client->connected()) {
         onMqttConnect(true);
     }
