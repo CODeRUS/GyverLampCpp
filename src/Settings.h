@@ -37,12 +37,10 @@ public:
     };
 
     struct ConenctionSettings {
-        String uniqueId;
         String mdns;
         String apName;
         String ntpServer;
         uint32_t ntpOffset = 10800;
-        String manufacturer;
     };
 
     struct MqttSettings {
@@ -50,6 +48,10 @@ public:
         uint16_t port = 1883;
         String username;
         String password;
+        String uniqueId;
+        String name;
+        String manufacturer;
+        String model;
     };
 
     struct ButttonSettings {

@@ -21,6 +21,9 @@
     "port": 1883,
     "username": "",
     "password": ""
+    "uniqueId": "devlamp8266",
+    "name": "devlamp8266",
+    "model": "devlamp8266"
   },
   "button": {
     "pin": 0,

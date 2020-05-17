@@ -226,9 +226,6 @@ void Settings::readSettings()
 
     if (root.containsKey(F("connection"))) {
        JsonObject connectionObject = root[F("connection")];
-       if (connectionObject.containsKey(F("uniqueId"))) {
-           connectionSettings.uniqueId = connectionObject[F("uniqueId")].as<String>();
-       }
        if (connectionObject.containsKey(F("mdns"))) {
            connectionSettings.mdns = connectionObject[F("mdns")].as<String>();
        }
@@ -256,6 +253,15 @@ void Settings::readSettings()
        }
        if (mqttObject.containsKey(F("password"))) {
            mqttSettings.password = mqttObject[F("password")].as<String>();
+       }
+       if (mqttObject.containsKey(F("uniqueId"))) {
+           mqttSettings.uniqueId = mqttObject[F("uniqueId")].as<String>();
+       }
+       if (mqttObject.containsKey(F("name"))) {
+           mqttSettings.name = mqttObject[F("name")].as<String>();
+       }
+       if (mqttObject.containsKey(F("model"))) {
+           mqttSettings.model = mqttObject[F("model")].as<String>();
        }
     }
 
@@ -338,7 +344,6 @@ void Settings::buildSettingsJson(JsonObject &root)
     matrixObject[F("rotation")] = matrixSettings.rotation;
 
     JsonObject connectionObject = root.createNestedObject(F("connection"));
-    connectionObject[F("uniqueId")] = connectionSettings.uniqueId;
     connectionObject[F("mdns")] = connectionSettings.mdns;
     connectionObject[F("apName")] = connectionSettings.apName;
     connectionObject[F("ntpServer")] = connectionSettings.ntpServer;
@@ -349,6 +354,9 @@ void Settings::buildSettingsJson(JsonObject &root)
     mqttObject[F("port")] = mqttSettings.port;
     mqttObject[F("username")] = mqttSettings.username;
     mqttObject[F("password")] = mqttSettings.password;
+    mqttObject[F("uniqueId")] = mqttSettings.uniqueId;
+    mqttObject[F("model")] = mqttSettings.model;
+    mqttObject[F("name")] = mqttSettings.name;
 
     JsonObject buttonObject = root.createNestedObject(F("button"));
     buttonObject[F("pin")] = buttonSettings.pin;
@@ -386,9 +394,10 @@ Settings::Settings(uint32_t saveInterval)
 {
     settingsSaveInterval = saveInterval;
 
-    connectionSettings.uniqueId = GetUniqueID();
     connectionSettings.mdns = F("firelamp");
     connectionSettings.apName = F("Fire Lamp");
     connectionSettings.ntpServer = F("europe.pool.ntp.org");
-    connectionSettings.manufacturer = F("coderus");
+
+    mqttSettings.uniqueId = GetUniqueID();
+    mqttSettings.manufacturer = F("coderus");
 }

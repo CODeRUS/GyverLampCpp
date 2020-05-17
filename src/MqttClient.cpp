@@ -103,8 +103,8 @@ void sendDiscovery()
 {
     DynamicJsonDocument doc(1024*5);
     doc[F("~")] = commonTopic;
-    doc[F("name")] = mySettings->connectionSettings.mdns;
-    doc[F("uniq_id")] = mySettings->connectionSettings.uniqueId;
+    doc[F("name")] = mySettings->mqttSettings.name;
+    doc[F("uniq_id")] = mySettings->mqttSettings.uniqueId;
     doc[F("cmd_t")] = F("~/set");
     doc[F("stat_t")] = F("~/state");
     doc[F("avty_t")] = F("~/available");
@@ -113,10 +113,13 @@ void sendDiscovery()
     doc[F("schema")] = F("json");
     doc[F("brightness")] = true;
     doc[F("effect")] = true;
-    doc[F("dev")][F("ids")] = mySettings->connectionSettings.uniqueId;
-    doc[F("dev")][F("mf")] = mySettings->connectionSettings.manufacturer;
-    doc[F("dev")][F("name")] = mySettings->connectionSettings.mdns;
-    doc[F("dev")][F("mdl")] = mySettings->connectionSettings.apName;
+
+    JsonObject dev = doc.createNestedObject(F("dev"));
+    dev[F("mf")] = mySettings->mqttSettings.manufacturer;
+    dev[F("name")] = mySettings->mqttSettings.name;
+    dev[F("mdl")] = mySettings->mqttSettings.model;
+    JsonArray ids = dev.createNestedArray(F("ids"));
+    ids.add(mySettings->mqttSettings.uniqueId);
 
     JsonArray effects = doc.createNestedArray(F("effect_list"));
     mySettings->writeEffectsMqtt(effects);
