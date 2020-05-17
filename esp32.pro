@@ -129,8 +129,6 @@ OTHER_FILES += platformio.ini
 
 SOURCES += src/EffectsManager.cpp
 HEADERS += src/EffectsManager.h
-SOURCES += src/GyverTimer.cpp
-HEADERS += src/GyverTimer.h
 SOURCES += src/LampWebServer.cpp
 HEADERS += src/LampWebServer.h
 SOURCES += src/LocalDNS.cpp
@@ -144,6 +142,8 @@ SOURCES += src/Settings.cpp
 HEADERS += src/Settings.h
 SOURCES += src/Spectrometer.cpp
 HEADERS += src/Spectrometer.h
+SOURCES += src/TimeClient.cpp
+HEADERS += src/TimeClient.h
 SOURCES += src/effects/Effect.cpp
 HEADERS += src/effects/Effect.h
 SOURCES += src/effects/aurora/AuroraEffect.cpp
