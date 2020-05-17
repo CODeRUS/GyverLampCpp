@@ -20,13 +20,6 @@ bool e131Multicast = true;                    // multicast or unicast
 bool e131SkipOutOfSequence = true;            // freeze instead of flickering
 bool fixUniverse = true;                         // round number of leds in one universe to rows/columns
 
-void setRealtimePixel(uint16_t i, uint8_t r, uint8_t g, uint8_t b, uint8_t)
-{
-    if (i < myMatrix->getNumLeds()) {
-        myMatrix->setLed(i, CRGB{r, g, b});
-    }
-}
-
 void handleE131Packet(e131_packet_t* p, const IPAddress &clientIP, bool isArtnet)
 {
     //E1.31 protocol support
@@ -80,17 +73,10 @@ void handleE131Packet(e131_packet_t* p, const IPAddress &clientIP, bool isArtnet
         if (fixUniverse) {
             possibleLEDsInCurrentUniverse = possibleLEDsInCurrentUniverse / myMatrix->getDimension() * myMatrix->getDimension();
         }
-        for (uint16_t i = 0; i < myMatrix->getNumLeds(); i++) {
-            if (i >= possibleLEDsInCurrentUniverse) {
-                break;  // more LEDs will follow in next universe(s)
-            }
-            setRealtimePixel(
-                i,
-                e131_data[DMXAddress + i * 3 + 0],
-                e131_data[DMXAddress + i * 3 + 1],
-                e131_data[DMXAddress + i * 3 + 2],
-                0);
-        }
+        uint16_t count = min(possibleLEDsInCurrentUniverse, myMatrix->getNumLeds());
+        memcpy(myMatrix->getLeds(),
+               &e131_data[DMXAddress],
+               count * 3);
     } else if (previousUniverses > 0 && uni < (e131Universe + universeCount)) {
         // additional universe(s) of this fixture
         uint16_t numberOfLEDsInPreviousUniverses = ((512 - DMXAddress + 1) / 3);     // first universe
@@ -101,18 +87,11 @@ void handleE131Packet(e131_packet_t* p, const IPAddress &clientIP, bool isArtnet
             numberOfLEDsInPreviousUniverses += (512 / 3) * (previousUniverses - 1);  // extended universe(s) before current
         }
         possibleLEDsInCurrentUniverse = dmxChannels / 3;
-        for (uint16_t i = numberOfLEDsInPreviousUniverses; i < myMatrix->getNumLeds(); i++) {
-            uint8_t j = i - numberOfLEDsInPreviousUniverses;
-            if (j >= possibleLEDsInCurrentUniverse) {
-                break;   // more LEDs will follow in next universe(s)
-            }
-            setRealtimePixel(
-                i,
-                e131_data[DMXAddress + j * 3 + 0],
-                e131_data[DMXAddress + j * 3 + 1],
-                e131_data[DMXAddress + j * 3 + 2],
-                0);
-        }
+        uint16_t remainingLeds = myMatrix->getNumLeds() - numberOfLEDsInPreviousUniverses;
+        uint16_t count = min(possibleLEDsInCurrentUniverse, remainingLeds);
+        memcpy(&myMatrix->getLeds()[numberOfLEDsInPreviousUniverses],
+               &e131_data[DMXAddress],
+               count * 3);
     }
 
 //    myMatrix->show();
