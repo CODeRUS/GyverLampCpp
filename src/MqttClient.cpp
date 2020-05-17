@@ -160,6 +160,27 @@ void onMqttConnect(bool sessionPresent)
     subscribe();
 }
 
+bool connectToMqtt() {
+    Serial.println(F("Connecting to MQTT..."));
+#if defined(ESP8266)
+    client->connect();
+    return true;
+#else
+    client->connect(
+        clientId.c_str(),
+        mySettings->mqttSettings.username.c_str(),
+        mySettings->mqttSettings.password.c_str(),
+        availabilityTopic.c_str(),
+        1,
+        true,
+        "false");
+    if (client->connected()) {
+        onMqttConnect(true);
+    }
+    return client->connected();
+#endif
+}
+
 #if defined(ESP8266)
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
 {
@@ -198,27 +219,6 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
     }
 }
 #endif
-
-bool connectToMqtt() {
-    Serial.println(F("Connecting to MQTT..."));
-#if defined(ESP8266)
-    client->connect();
-    return true;
-#else
-    client->connect(
-        clientId.c_str(),
-        mySettings->mqttSettings.username.c_str(),
-        mySettings->mqttSettings.password.c_str(),
-        availabilityTopic.c_str(),
-        1,
-        true,
-        "false");
-    if (client->connected()) {
-        onMqttConnect(true);
-    }
-    return client->connected();
-#endif
-}
 
 }
 
