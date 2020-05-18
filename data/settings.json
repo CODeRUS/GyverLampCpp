@@ -20,7 +20,7 @@
     "host": "",
     "port": 1883,
     "username": "",
-    "password": ""
+    "password": "",
     "uniqueId": "devlamp8266",
     "name": "devlamp8266",
     "model": "devlamp8266"
