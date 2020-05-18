@@ -102,14 +102,16 @@
     "n": "Single color",
     "s": 10,
     "l": 1,
-    "b": 80
+    "b": 80,
+    "color": 0
   },
   {
     "i": "Snow",
     "n": "Snow",
     "s": 255,
     "l": 33,
-    "b": 80
+    "b": 80,
+    "color": 16777215
   },
   {
     "i": "Matrix",
@@ -130,35 +132,45 @@
     "n": "Clock vertical",
     "s": 250,
     "l": 1,
-    "b": 80
+    "b": 80,
+    "hColor": 10565,
+    "mColor": 6627
   },
   {
     "i": "ClockHorizontal1",
     "n": "Clock horizontal colored",
     "s": 250,
     "l": 1,
-    "b": 80
+    "b": 80,
+    "hColor": 10565,
+    "mColor": 6627
   },
   {
     "i": "ClockHorizontal2",
     "n": "Clock horizontal",
     "s": 250,
     "l": 1,
-    "b": 80
+    "b": 80,
+    "hColor": 10565,
+    "mColor": 6627
   },
   {
     "i": "ClockHorizontal3",
     "n": "Clock horizontal single",
     "s": 250,
     "l": 1,
-    "b": 80
+    "b": 80,
+    "hColor": 10565,
+    "mColor": 6627
   },
   {
     "i": "Starfall",
     "n": "Starfall",
     "s": 80,
     "l": 100,
-    "b": 80
+    "b": 80,
+    "step": 100,
+    "sat": 150
   },
   {
     "i": "DiagonalRainbow",
@@ -172,21 +184,26 @@
     "n": "Waterfall",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "cooling": 32,
+    "sparkling": 80
   },
   {
     "i": "TwirlRainbow",
     "n": "Twirl Rainbow",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "step": 8,
+    "twirl": 300
   },
   {
     "i": "PulseCircles",
     "n": "Pulsing circles",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "m": 1
   },
   {
     "i": "Animation",
@@ -200,7 +217,9 @@
     "n": "Storm",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "colored": false,
+    "density": 32
   },
   {
     "i": "Matrix2",
@@ -214,21 +233,24 @@
     "n": "Tracking Lighters",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "tails": 1
   },
   {
     "i": "LightBalls",
     "n": "Light Balls",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "size": 1
   },
   {
     "i": "MovingCube",
     "n": "Moving Cube",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "rnd": true
   },
   {
     "i": "WhiteColor",
@@ -298,14 +320,16 @@
     "n": "Bouncing Balls",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "colored": false
   },
   {
     "i": "Spiral",
     "n": "Spiral",
-    "s": 100,
+    "s": 29,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "count": 1
   },
   {
     "i": "MetaBalls",
@@ -326,7 +350,8 @@
     "n": "Waterfall Pallete",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "sparkling": 80
   },
   {
     "i": "Rain",
@@ -347,14 +372,18 @@
     "n": "Flock",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "predator": false
   },
   {
     "i": "Whirl",
     "n": "Whirl",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "color": true,
+    "speed": 1,
+    "scale": 26
   },
   {
     "i": "Wave",
@@ -368,7 +397,10 @@
     "n": "Fire12",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "cooling": 70,
+    "sparking": 130,
+    "smoothing": 80
   },
   {
     "i": "Fire18",
@@ -382,20 +414,37 @@
     "n": "Rain Neo",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "rColor": 3952730,
+    "lColor": 4737104,
+    "bDpth": 60,
+    "mBri": 200,
+    "freq": 50,
+    "length": 30,
+    "splashes": false,
+    "clouds": false,
+    "storm": false
   },
   {
     "i": "Twinkles",
     "n": "Twinkles",
     "s": 100,
     "l": 20,
-    "b": 80
+    "b": 80,
+    "speed": 4,
+    "mult": 6
   },
   {
     "i": "DMX",
     "n": "e131 or art-net",
-    "s": 100,
+    "s": 0,
     "l": 20,
-    "b": 80
+    "b": 81,
+    "uni": 1,
+    "port": 6454,
+    "cha": 1,
+    "mcast": false,
+    "skip": true,
+    "fix": true
   }
 ]
