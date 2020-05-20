@@ -18,7 +18,6 @@ public:
 
     void next();
     void previous();
-    void changeEffect(uint8_t index);
     void changeEffectByName(const String &name);
     void activateEffect(uint8_t index);
 

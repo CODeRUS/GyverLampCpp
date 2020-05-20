@@ -140,7 +140,7 @@ void Settings::processConfig(const String &message)
         mySettings->generalSettings.working = working;
     } else if (event == F("ACTIVE_EFFECT")) {
         const int index = doc[F("data")];
-        effectsManager->changeEffect(static_cast<uint8_t>(index));
+        effectsManager->activateEffect(static_cast<uint8_t>(index));
     } else if (event == F("EFFECTS_CHANGED")) {
         const JsonObject effect = doc[F("data")];
         const String id = effect[F("i")];

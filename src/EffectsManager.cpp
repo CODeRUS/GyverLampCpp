@@ -105,7 +105,7 @@ void EffectsManager::processEffectSettings(const JsonObject &json)
     const char* effectId = json[F("i")];
 
     if (effectsMap.count(effectId) <= 0) {
-        Serial.print(F("Missing efect: "));
+        Serial.print(F("Missing effect: "));
         Serial.println(effectId);
         return;
     }
@@ -153,34 +153,12 @@ void EffectsManager::previous()
     activateEffect(activeIndex);
 }
 
-void EffectsManager::changeEffect(uint8_t index)
-{
-    if (index >= effects.size()) {
-        return;
-    }
-
-    if (index == activeIndex) {
-        return;
-    }
-
-    activeEffect()->deactivate();
-    myMatrix->clear();
-    activeIndex = index;
-    activateEffect(activeIndex);
-    mySettings->saveLater();
-}
-
 void EffectsManager::changeEffectByName(const String &name)
 {
     for (size_t index = 0; index < effects.size(); index++) {
         Effect *effect = effects[index];
         if (effect->settings.name == name) {
-            activeEffect()->deactivate();
-            myMatrix->clear();
-            activeIndex = index;
             activateEffect(activeIndex);
-            mySettings->saveLater();
-
             break;
         }
     }
@@ -191,6 +169,8 @@ void EffectsManager::activateEffect(uint8_t index)
     if (index >= effects.size()) {
         index = 0;
     }
+    myMatrix->clear();
+    activeEffect()->deactivate();
     if (activeIndex != index) {
         activeIndex = index;
     }
@@ -200,12 +180,14 @@ void EffectsManager::activateEffect(uint8_t index)
     effect->activate();
     mqtt->update();
     lampWebServer->update();
+    mySettings->saveLater();
 }
 
 void EffectsManager::updateCurrentSettings(const JsonObject &json)
 {
     activeEffect()->initialize(json);
     myMatrix->setBrightness(activeEffect()->settings.brightness);
+    mySettings->saveLater();
 }
 
 void EffectsManager::updateSettingsById(const String &id, const JsonObject &json)
@@ -214,9 +196,6 @@ void EffectsManager::updateSettingsById(const String &id, const JsonObject &json
         Effect *effect = effects[index];
         if (effect->settings.id == id) {
             if (effect != effects[activeIndex]) {
-                activeEffect()->deactivate();
-                myMatrix->clear();
-                activeIndex = index;
                 activateEffect(activeIndex);
             }
             effect->initialize(json);
