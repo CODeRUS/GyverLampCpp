@@ -238,6 +238,9 @@ void Settings::readSettings()
        if (connectionObject.containsKey(F("ntpOffset"))) {
            connectionSettings.ntpOffset = connectionObject[F("ntpOffset")];
        }
+       if (connectionObject.containsKey(F("hostname"))) {
+           connectionSettings.hostname = connectionObject[F("hostname")].as<String>();
+       }
     }
 
     if (root.containsKey(F("mqtt"))) {
@@ -348,6 +351,7 @@ void Settings::buildSettingsJson(JsonObject &root)
     connectionObject[F("apName")] = connectionSettings.apName;
     connectionObject[F("ntpServer")] = connectionSettings.ntpServer;
     connectionObject[F("ntpOffset")] = connectionSettings.ntpOffset;
+    connectionObject[F("hostname")] = connectionSettings.hostname;
 
     JsonObject mqttObject = root.createNestedObject(F("mqtt"));
     mqttObject[F("host")] = mqttSettings.host;
@@ -397,6 +401,7 @@ Settings::Settings(uint32_t saveInterval)
     connectionSettings.mdns = F("firelamp");
     connectionSettings.apName = F("Fire Lamp");
     connectionSettings.ntpServer = F("europe.pool.ntp.org");
+    connectionSettings.hostname = F("firelamp");
 
     mqttSettings.uniqueId = GetUniqueID();
     mqttSettings.manufacturer = F("coderus");

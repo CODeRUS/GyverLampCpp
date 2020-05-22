@@ -322,7 +322,11 @@ void LampWebServer::autoConnect()
         return;
     }
 
-    wifiManager = new ESPReactWifiManager();
+    if (wifiManager) {
+        return;
+    }
+
+    wifiManager = new ESPReactWifiManager(mySettings->connectionSettings.hostname);
     wifiManager->setFallbackToAp(true);
     wifiManager->onFinished([](bool isAPMode) {
         webServer->begin();

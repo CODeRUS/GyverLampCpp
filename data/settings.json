@@ -14,7 +14,8 @@
     "mdns": "firelamp",
     "apName": "Fire Lamp",
     "ntpServer": "europe.pool.ntp.org",
-    "ntpOffset": 10800
+    "ntpOffset": 10800,
+    "hostname": "firelamp"
   },
   "mqtt": {
     "host": "",

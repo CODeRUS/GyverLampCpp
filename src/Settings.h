@@ -41,6 +41,7 @@ public:
         String apName;
         String ntpServer;
         uint32_t ntpOffset = 10800;
+        String hostname;
     };
 
     struct MqttSettings {
