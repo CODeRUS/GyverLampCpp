@@ -8,15 +8,6 @@ cache:
   directories:
     - "~/virtualenv"
     - "~/.cache/pip"
-    - "~/.platformio"
-    - ".pio/libdeps/esp32dev"
-    - ".pio/libdeps/nodemcu"
-    - ".pio/libdeps/sonoff-r1"
-    - ".pio/libdeps/sonoff-r1-4m"
-    - ".pio/build/esp32dev"
-    - ".pio/build/nodemcu"
-    - ".pio/build/sonoff-r1"
-    - ".pio/build/sonoff-r1-4m"
 before_install:
   - pip install -U pip
   - nvm install lts/*
