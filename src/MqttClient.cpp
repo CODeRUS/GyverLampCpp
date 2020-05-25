@@ -169,6 +169,10 @@ void onMqttConnect(bool sessionPresent)
 }
 
 bool connectToMqtt() {
+    if (!WiFi.isConnected()) {
+        return false;
+    }
+
     Serial.println(F("Connecting to MQTT..."));
 #if defined(ESP8266)
     client->connect();
@@ -222,9 +226,7 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
         Serial.printf_P(PSTR("unknown %d\n"), reason);
     }
 
-    if (WiFi.isConnected()) {
-         connectToMqtt();
-    }
+    connectToMqtt();
 }
 #endif
 
