@@ -102,7 +102,7 @@ void EffectsManager::Initialize()
 
 void EffectsManager::processEffectSettings(const JsonObject &json)
 {
-    const char* effectId = json[F("i")];
+    const String effectId = json[F("i")].as<String>();
 
     if (effectsMap.count(effectId) <= 0) {
         Serial.print(F("Missing effect: "));
@@ -113,6 +113,13 @@ void EffectsManager::processEffectSettings(const JsonObject &json)
     Effect *effect = effectsMap[effectId];
     effects.push_back(effect);
     effect->initialize(json);
+}
+
+void EffectsManager::processAllEffects()
+{
+    for (auto effectPair : effectsMap) {
+        effects.push_back(effectPair.second);
+    }
 }
 
 void EffectsManager::loop()
@@ -291,7 +298,7 @@ EffectsManager::EffectsManager()
     RegisterEffect<Fire18Effect>(F("Fire18"));
     RegisterEffect<RainNeoEffect>(F("RainNeo"));
     RegisterEffect<TwinklesEffect>(F("Twinkles"));
-    RegisterEffect<SoundEffect>(F("Sound"));
-    RegisterEffect<SoundStereoEffect>(F("Stereo"));
+//    RegisterEffect<SoundEffect>(F("Sound"));
+//    RegisterEffect<SoundStereoEffect>(F("Stereo"));
     RegisterEffect<DMXEffect>(F("DMX"));
 }

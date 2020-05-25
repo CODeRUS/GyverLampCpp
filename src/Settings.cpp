@@ -305,7 +305,8 @@ void Settings::readEffects()
     bool effectsExists = SPIFFS.exists(effectsFileName);
     Serial.printf_P(PSTR("SPIFFS Effects file exists: %s\n"), effectsExists ? PSTR("true") : PSTR("false"));
     if (!effectsExists) {
-//        SaveEffects();
+        effectsManager->processAllEffects();
+        saveEffects();
         return;
     }
 

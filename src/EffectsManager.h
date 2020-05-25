@@ -15,6 +15,7 @@ public:
     void loop();
 
     void processEffectSettings(const JsonObject &json);
+    void processAllEffects();
 
     void next();
     void previous();
