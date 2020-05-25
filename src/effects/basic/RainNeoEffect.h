@@ -4,7 +4,7 @@
 class RainNeoEffect : public Effect
 {
 public:
-    RainNeoEffect();
+    explicit RainNeoEffect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

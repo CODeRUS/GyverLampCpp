@@ -4,7 +4,7 @@
 class FractionalEffect : public Effect
 {
 public:
-    FractionalEffect(uint8_t layers = 1);
+    explicit FractionalEffect(const String &id, uint8_t layers = 1);
     void activate() override;
     void deactivate() override;
 

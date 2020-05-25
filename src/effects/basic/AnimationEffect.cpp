@@ -864,7 +864,8 @@ uint8_t causticBr = 100;
 
 }
 
-AnimationEffect::AnimationEffect()
+AnimationEffect::AnimationEffect(const String &id)
+    : Effect(id)
 {
 
 }

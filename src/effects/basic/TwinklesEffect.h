@@ -4,7 +4,7 @@
 class TwinklesEffect : public Effect
 {
 public:
-    TwinklesEffect();
+    explicit TwinklesEffect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

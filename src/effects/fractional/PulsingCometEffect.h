@@ -4,7 +4,7 @@
 class PulsingCometEffect : public FractionalEffect
 {
 public:
-    PulsingCometEffect();
+    explicit PulsingCometEffect(const String &id);
     void tick() override;
 };
 

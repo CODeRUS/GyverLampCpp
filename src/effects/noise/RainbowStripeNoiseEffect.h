@@ -4,6 +4,6 @@
 class RainbowStripeNoiseEffect : public NoiseEffect
 {
 public:
-    RainbowStripeNoiseEffect();
+    explicit RainbowStripeNoiseEffect(const String &id);
 };
 

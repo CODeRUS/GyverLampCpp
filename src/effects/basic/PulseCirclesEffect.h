@@ -4,7 +4,7 @@
 class PulseCirclesEffect : public Effect
 {
 public:
-    PulseCirclesEffect();
+    explicit PulseCirclesEffect(const String &id);
     void tick() override;
     void activate() override;
     void initialize(const JsonObject &json) override;

@@ -11,7 +11,8 @@ float ratio = 0.0f;
 
 }
 
-TwirlRainbowEffect::TwirlRainbowEffect()
+TwirlRainbowEffect::TwirlRainbowEffect(const String &id)
+    : Effect(id)
 {
 
 }

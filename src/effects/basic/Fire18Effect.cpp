@@ -16,7 +16,8 @@ const uint16_t speedArray[2] = {25, 20};
 
 }
 
-Fire18Effect::Fire18Effect()
+Fire18Effect::Fire18Effect(const String &id)
+    : Effect(id)
 {
 
 }

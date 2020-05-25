@@ -4,7 +4,7 @@
 class WaterfallEffect : public Effect
 {
 public:
-    WaterfallEffect();
+    explicit WaterfallEffect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

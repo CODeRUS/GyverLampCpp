@@ -4,7 +4,7 @@
 class ClockHorizontal2Effect : public Effect
 {
 public:
-    ClockHorizontal2Effect();
+    explicit ClockHorizontal2Effect(const String &id);
     void tick() override;
     void activate() override;
     void deactivate() override;

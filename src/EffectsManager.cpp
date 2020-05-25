@@ -225,68 +225,73 @@ uint8_t EffectsManager::activeEffectIndex()
     return activeIndex;
 }
 
+template <typename T>
+void RegisterEffect(const String &id)
+{
+    effectsMap[id] = new T(id);
+}
+
 EffectsManager::EffectsManager()
 {
     randomSeed(micros());
 
-    effectsMap[PSTR("Sparkles")] = new SparklesEffect();
-    effectsMap[PSTR("Fire")] = new FireEffect();
-    effectsMap[PSTR("VerticalRainbow")] = new VerticalRainbowEffect();
-    effectsMap[PSTR("HorizontalRainbow")] = new HorizontalRainbowEffect();
-    effectsMap[PSTR("Colors")] = new ColorsEffect();
-    effectsMap[PSTR("MadnessNoise")] = new MadnessNoiseEffect();
-    effectsMap[PSTR("CloudNoise")] = new CloudNoiseEffect();
-    effectsMap[PSTR("LavaNoise")] = new LavaNoiseEffect();
-    effectsMap[PSTR("PlasmaNoise")] = new PlasmaNoiseEffect();
-    effectsMap[PSTR("RainbowNoise")] = new RainbowNoiseEffect();
-    effectsMap[PSTR("RainbowStripeNoise")] = new RainbowStripeNoiseEffect();
-    effectsMap[PSTR("ZebraNoise")] = new ZebraNoiseEffect();
-    effectsMap[PSTR("ForestNoise")] = new ForestNoiseEffect();
-    effectsMap[PSTR("OceanNoise")] = new OceanNoiseEffect();
-    effectsMap[PSTR("Color")] = new ColorEffect();
-    effectsMap[PSTR("Snow")] = new SnowEffect();
-    effectsMap[PSTR("Matrix")] = new MatrixEffect();
-    effectsMap[PSTR("Lighters")] = new LightersEffect();
-    effectsMap[PSTR("Clock")] = new ClockEffect();
-    effectsMap[PSTR("ClockHorizontal1")] = new ClockHorizontal1Effect();
-    effectsMap[PSTR("ClockHorizontal2")] = new ClockHorizontal2Effect();
-    effectsMap[PSTR("ClockHorizontal3")] = new ClockHorizontal3Effect();
-    effectsMap[PSTR("Starfall")] = new StarfallEffect();
-    effectsMap[PSTR("DiagonalRainbow")] = new DiagonalRainbowEffect();
-    effectsMap[PSTR("Waterfall")] = new WaterfallEffect();
-    effectsMap[PSTR("TwirlRainbow")] = new TwirlRainbowEffect();
-    effectsMap[PSTR("PulseCircles")] = new PulseCirclesEffect();
-    effectsMap[PSTR("Animation")] = new AnimationEffect();
-    effectsMap[PSTR("Storm")] = new StormEffect();
-    effectsMap[PSTR("Matrix2")] = new Matrix2Effect();
-    effectsMap[PSTR("TrackingLighters")] = new TrackingLightersEffect();
-    effectsMap[PSTR("LightBalls")] = new LightBallsEffect();
-    effectsMap[PSTR("MovingCube")] = new MovingCubeEffect();
-    effectsMap[PSTR("WhiteColor")] = new WhiteColorEffect();
-    effectsMap[PSTR("PulsingComet")] = new PulsingCometEffect();
-    effectsMap[PSTR("DoubleComets")] = new DoubleCometsEffect();
-    effectsMap[PSTR("TripleComets")] = new TripleCometsEffect();
-    effectsMap[PSTR("RainbowComet")] = new RainbowCometEffect();
-    effectsMap[PSTR("ColorComet")] = new ColorCometEffect();
-    effectsMap[PSTR("MovingFlame")] = new MovingFlameEffect();
-    effectsMap[PSTR("FractorialFire")] = new FractorialFireEffect();
-    effectsMap[PSTR("RainbowKite")] = new RainbowKiteEffect();
-    effectsMap[PSTR("BouncingBalls")] = new BouncingBallsEffect();
-    effectsMap[PSTR("Spiral")] = new SpiralEffect();
-    effectsMap[PSTR("MetaBalls")] = new MetaBallsEffect();
-    effectsMap[PSTR("Sinusoid")] = new SinusoidEffect();
-    effectsMap[PSTR("WaterfallPalette")] = new WaterfallPaletteEffect();
-    effectsMap[PSTR("Rain")] = new RainEffect();
-    effectsMap[PSTR("Prismata")] = new PrismataEffect();
-    effectsMap[PSTR("Flock")] = new FlockEffect();
-    effectsMap[PSTR("Whirl")] = new WhirlEffect();
-    effectsMap[PSTR("Wave")] = new WaveEffect();
-    effectsMap[PSTR("Fire12")] = new Fire12Effect();
-    effectsMap[PSTR("Fire18")] = new Fire18Effect();
-    effectsMap[PSTR("RainNeo")] = new RainNeoEffect();
-    effectsMap[PSTR("Twinkles")] = new TwinklesEffect();
-    // Uncomment to use
-    // effectsMap[PSTR("Sound")] = new SoundEffect();
-    // effectsMap[PSTR("Stereo")] = new SoundStereoEffect();
-    effectsMap[PSTR("DMX")] = new DMXEffect();
+    RegisterEffect<SparklesEffect>(F("Sparkles"));
+    RegisterEffect<FireEffect>(F("Fire"));
+    RegisterEffect<VerticalRainbowEffect>(F("VerticalRainbow"));
+    RegisterEffect<HorizontalRainbowEffect>(F("HorizontalRainbow"));
+    RegisterEffect<ColorsEffect>(F("Colors"));
+    RegisterEffect<MadnessNoiseEffect>(F("MadnessNoise"));
+    RegisterEffect<CloudNoiseEffect>(F("CloudNoise"));
+    RegisterEffect<LavaNoiseEffect>(F("LavaNoise"));
+    RegisterEffect<PlasmaNoiseEffect>(F("PlasmaNoise"));
+    RegisterEffect<RainbowNoiseEffect>(F("RainbowNoise"));
+    RegisterEffect<RainbowStripeNoiseEffect>(F("RainbowStripeNoise"));
+    RegisterEffect<ZebraNoiseEffect>(F("ZebraNoise"));
+    RegisterEffect<ForestNoiseEffect>(F("ForestNoise"));
+    RegisterEffect<OceanNoiseEffect>(F("OceanNoise"));
+    RegisterEffect<ColorEffect>(F("Color"));
+    RegisterEffect<SnowEffect>(F("Snow"));
+    RegisterEffect<MatrixEffect>(F("Matrix"));
+    RegisterEffect<LightersEffect>(F("Lighters"));
+    RegisterEffect<ClockEffect>(F("Clock"));
+    RegisterEffect<ClockHorizontal1Effect>(F("ClockHorizontal1"));
+    RegisterEffect<ClockHorizontal2Effect>(F("ClockHorizontal2"));
+    RegisterEffect<ClockHorizontal3Effect>(F("ClockHorizontal3"));
+    RegisterEffect<StarfallEffect>(F("Starfall"));
+    RegisterEffect<DiagonalRainbowEffect>(F("DiagonalRainbow"));
+    RegisterEffect<WaterfallEffect>(F("Waterfall"));
+    RegisterEffect<TwirlRainbowEffect>(F("TwirlRainbow"));
+    RegisterEffect<PulseCirclesEffect>(F("PulseCircles"));
+    RegisterEffect<AnimationEffect>(F("Animation"));
+    RegisterEffect<StormEffect>(F("Storm"));
+    RegisterEffect<Matrix2Effect>(F("Matrix2"));
+    RegisterEffect<TrackingLightersEffect>(F("TrackingLighters"));
+    RegisterEffect<LightBallsEffect>(F("LightBalls"));
+    RegisterEffect<MovingCubeEffect>(F("MovingCube"));
+    RegisterEffect<WhiteColorEffect>(F("WhiteColor"));
+    RegisterEffect<PulsingCometEffect>(F("PulsingComet"));
+    RegisterEffect<DoubleCometsEffect>(F("DoubleComets"));
+    RegisterEffect<TripleCometsEffect>(F("TripleComets"));
+    RegisterEffect<RainbowCometEffect>(F("RainbowComet"));
+    RegisterEffect<ColorCometEffect>(F("ColorComet"));
+    RegisterEffect<MovingFlameEffect>(F("MovingFlame"));
+    RegisterEffect<FractorialFireEffect>(F("FractorialFire"));
+    RegisterEffect<RainbowKiteEffect>(F("RainbowKite"));
+    RegisterEffect<BouncingBallsEffect>(F("BouncingBalls"));
+    RegisterEffect<SpiralEffect>(F("Spiral"));
+    RegisterEffect<MetaBallsEffect>(F("MetaBalls"));
+    RegisterEffect<SinusoidEffect>(F("Sinusoid"));
+    RegisterEffect<WaterfallPaletteEffect>(F("WaterfallPalette"));
+    RegisterEffect<RainEffect>(F("Rain"));
+    RegisterEffect<PrismataEffect>(F("Prismata"));
+    RegisterEffect<FlockEffect>(F("Flock"));
+    RegisterEffect<WhirlEffect>(F("Whirl"));
+    RegisterEffect<WaveEffect>(F("Wave"));
+    RegisterEffect<Fire12Effect>(F("Fire12"));
+    RegisterEffect<Fire18Effect>(F("Fire18"));
+    RegisterEffect<RainNeoEffect>(F("RainNeo"));
+    RegisterEffect<TwinklesEffect>(F("Twinkles"));
+    RegisterEffect<SoundEffect>(F("Sound"));
+    RegisterEffect<SoundStereoEffect>(F("Stereo"));
+    RegisterEffect<DMXEffect>(F("DMX"));
 }

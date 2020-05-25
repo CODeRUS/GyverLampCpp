@@ -16,7 +16,8 @@ String getClockTime()
 
 } // namespace
 
-ClockEffect::ClockEffect()
+ClockEffect::ClockEffect(const String &id)
+    : Effect(id)
 {
 }
 

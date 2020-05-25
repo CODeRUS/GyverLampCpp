@@ -4,7 +4,8 @@ namespace {
 
 } // namespace
 
-SparklesEffect::SparklesEffect()
+SparklesEffect::SparklesEffect(const String &id)
+    : Effect(id)
 {
 }
 

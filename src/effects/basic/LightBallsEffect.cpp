@@ -9,7 +9,8 @@ uint8_t paintHeight = 0;
 
 }
 
-LightBallsEffect::LightBallsEffect()
+LightBallsEffect::LightBallsEffect(const String &id)
+    : Effect(id)
 {
 
 }

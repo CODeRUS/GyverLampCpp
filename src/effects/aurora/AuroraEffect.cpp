@@ -1,7 +1,8 @@
 #include "AuroraEffect.h"
 #include "Boid.h"
 
-AuroraEffect::AuroraEffect()
+AuroraEffect::AuroraEffect(const String &id)
+    : Effect(id)
 {
 
 }

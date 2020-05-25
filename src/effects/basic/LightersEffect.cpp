@@ -12,7 +12,8 @@ uint8_t loopCounter;
 
 } // namespace
 
-LightersEffect::LightersEffect()
+LightersEffect::LightersEffect(const String &id)
+    : Effect(id)
 {
 }
 

@@ -4,7 +4,7 @@
 class WaveEffect : public Effect
 {
 public:
-    WaveEffect();
+    explicit WaveEffect(const String &id);
     void activate() override;
     void tick() override;
 };

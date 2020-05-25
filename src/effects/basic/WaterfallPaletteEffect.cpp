@@ -30,7 +30,8 @@ const TProgmemRGBPalette16 WaterfallColors4in1_p FL_PROGMEM = {
 
 }
 
-WaterfallPaletteEffect::WaterfallPaletteEffect()
+WaterfallPaletteEffect::WaterfallPaletteEffect(const String &id)
+    : Effect(id)
 {
 
 }

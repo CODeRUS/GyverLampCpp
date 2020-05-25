@@ -4,7 +4,7 @@
 class DoubleCometsEffect : public FractionalEffect
 {
 public:
-    DoubleCometsEffect();
+    explicit DoubleCometsEffect(const String &id);
     void tick() override;
 };
 

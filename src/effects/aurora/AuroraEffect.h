@@ -5,7 +5,7 @@ class Boid;
 class AuroraEffect : public Effect
 {
 public:
-    AuroraEffect();
+    explicit AuroraEffect(const String &id);
     void activate() override;
     void deactivate() override;
 

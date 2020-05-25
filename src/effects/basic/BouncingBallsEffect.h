@@ -4,7 +4,7 @@
 class BouncingBallsEffect : public Effect
 {
 public:
-    BouncingBallsEffect();
+    explicit BouncingBallsEffect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

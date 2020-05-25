@@ -4,7 +4,7 @@
 class SoundStereoEffect : public Effect
 {
 public:
-    SoundStereoEffect();
+    explicit SoundStereoEffect(const String &id);
     virtual void tick() override;
 
 private:

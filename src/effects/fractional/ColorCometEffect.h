@@ -4,7 +4,7 @@
 class ColorCometEffect : public FractionalEffect
 {
 public:
-    ColorCometEffect();
+    explicit ColorCometEffect(const String &id);
     void tick() override;
 };
 

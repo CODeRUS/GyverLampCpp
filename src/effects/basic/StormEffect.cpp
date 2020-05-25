@@ -10,7 +10,8 @@ uint8_t tailStep = 127;
 
 }
 
-StormEffect::StormEffect()
+StormEffect::StormEffect(const String &id)
+    : Effect(id)
 {
 
 }

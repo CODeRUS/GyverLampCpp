@@ -4,7 +4,7 @@
 class TrackingLightersEffect : public Effect
 {
 public:
-    TrackingLightersEffect();
+    explicit TrackingLightersEffect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

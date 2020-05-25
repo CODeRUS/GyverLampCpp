@@ -4,7 +4,7 @@
 class LightBallsEffect : public Effect
 {
 public:
-    LightBallsEffect();
+    explicit LightBallsEffect(const String &id);
     void tick() override;
     void initialize(const JsonObject &json) override;
     void writeSettings(JsonObject &json) override;

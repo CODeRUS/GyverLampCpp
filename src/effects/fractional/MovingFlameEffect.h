@@ -4,7 +4,7 @@
 class MovingFlameEffect : public FractionalEffect
 {
 public:
-    MovingFlameEffect();
+    explicit MovingFlameEffect(const String &id);
     void tick() override;
 };
 

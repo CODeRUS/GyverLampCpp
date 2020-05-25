@@ -4,7 +4,7 @@
 class AnimationEffect : public Effect
 {
 public:
-    AnimationEffect();
+    explicit AnimationEffect(const String &id);
     void tick() override;
     void activate() override;
 };

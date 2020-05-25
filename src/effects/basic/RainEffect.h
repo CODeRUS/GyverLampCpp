@@ -4,7 +4,7 @@
 class RainEffect : public Effect
 {
 public:
-    RainEffect();
+    explicit RainEffect(const String &id);
     void tick() override;
 };
 

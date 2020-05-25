@@ -27,7 +27,8 @@ void swapMatrixColor()
 
 } // namespace
 
-ClockHorizontal3Effect::ClockHorizontal3Effect()
+ClockHorizontal3Effect::ClockHorizontal3Effect(const String &id)
+    : Effect(id)
 {
 }
 

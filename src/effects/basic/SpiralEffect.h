@@ -4,7 +4,7 @@
 class SpiralEffect : public Effect
 {
 public:
-    SpiralEffect();
+    explicit SpiralEffect(const String &id);
     void activate() override;
     void tick() override;
     void initialize(const JsonObject &json) override;

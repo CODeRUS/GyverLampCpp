@@ -16,7 +16,8 @@ String getClockTime()
 
 } // namespace
 
-ClockHorizontal1Effect::ClockHorizontal1Effect()
+ClockHorizontal1Effect::ClockHorizontal1Effect(const String &id)
+    : Effect(id)
 {
 }
 

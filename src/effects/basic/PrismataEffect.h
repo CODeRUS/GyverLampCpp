@@ -4,7 +4,7 @@
 class PrismataEffect : public Effect
 {
 public:
-    PrismataEffect();
+    explicit PrismataEffect(const String &id);
     void tick() override;
 };
 

@@ -4,6 +4,6 @@
 class ForestNoiseEffect : public NoiseEffect
 {
 public:
-    ForestNoiseEffect();
+    explicit ForestNoiseEffect(const String &id);
 };
 

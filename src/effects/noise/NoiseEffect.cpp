@@ -1,6 +1,7 @@
 #include "NoiseEffect.h"
 
-NoiseEffect::NoiseEffect()
+NoiseEffect::NoiseEffect(const String &id)
+    : Effect(id)
 {
 }
 

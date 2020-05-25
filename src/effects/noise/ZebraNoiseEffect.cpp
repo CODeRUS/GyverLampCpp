@@ -1,6 +1,7 @@
 #include "ZebraNoiseEffect.h"
 
-ZebraNoiseEffect::ZebraNoiseEffect()
+ZebraNoiseEffect::ZebraNoiseEffect(const String &id)
+    : NoiseEffect(id)
 {
     fill_solid(currentPalette, 16, CRGB::Black);
     // and set every fourth one to white.

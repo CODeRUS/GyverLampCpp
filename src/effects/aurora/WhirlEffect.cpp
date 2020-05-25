@@ -15,7 +15,8 @@ uint8_t ff_scale = 26;
 
 }
 
-WhirlEffect::WhirlEffect()
+WhirlEffect::WhirlEffect(const String &id)
+    : AuroraEffect(id)
 {
 
 }

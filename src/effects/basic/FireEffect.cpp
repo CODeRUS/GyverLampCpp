@@ -39,7 +39,8 @@ bool sparkles = true;
 
 } // namespace
 
-FireEffect::FireEffect()
+FireEffect::FireEffect(const String &id)
+    : Effect(id)
 {
 }
 

@@ -1,6 +1,7 @@
 #include "RainEffect.h"
 
-RainEffect::RainEffect()
+RainEffect::RainEffect(const String &id)
+    : Effect(id)
 {
 
 }

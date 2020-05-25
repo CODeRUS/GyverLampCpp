@@ -72,7 +72,8 @@ int rbandWidth[EQBANDS] = {
 
 } // namespace
 
-SoundStereoEffect::SoundStereoEffect()
+SoundStereoEffect::SoundStereoEffect(const String &id)
+    : Effect(id)
 {
 #if defined(ESP32)
     adc1_config_width(ADC_WIDTH_BIT_12);   //Range 0-1023

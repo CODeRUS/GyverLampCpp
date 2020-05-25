@@ -4,6 +4,6 @@
 class LavaNoiseEffect : public NoiseEffect
 {
 public:
-    LavaNoiseEffect();
+    explicit LavaNoiseEffect(const String &id);
 };
 

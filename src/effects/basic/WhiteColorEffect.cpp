@@ -1,6 +1,7 @@
 #include "WhiteColorEffect.h"
 
-WhiteColorEffect::WhiteColorEffect()
+WhiteColorEffect::WhiteColorEffect(const String &id)
+    : Effect(id)
 {
 
 }

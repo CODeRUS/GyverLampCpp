@@ -4,7 +4,7 @@
 class LightersEffect : public Effect
 {
 public:
-    LightersEffect();
+    explicit LightersEffect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

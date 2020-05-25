@@ -4,7 +4,7 @@
 class SoundEffect : public Effect
 {
 public:
-    SoundEffect();
+    explicit SoundEffect(const String &id);
     virtual void tick() override;
     void initialize(const JsonObject &json) override;
     void writeSettings(JsonObject &json) override;

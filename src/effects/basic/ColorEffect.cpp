@@ -8,7 +8,8 @@ uint32_t myColor = 0;
 
 } // namespace
 
-ColorEffect::ColorEffect()
+ColorEffect::ColorEffect(const String &id)
+    : Effect(id)
 {
 }
 

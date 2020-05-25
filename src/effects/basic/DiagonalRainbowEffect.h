@@ -4,7 +4,7 @@
 class DiagonalRainbowEffect : public Effect
 {
 public:
-    DiagonalRainbowEffect();
+    explicit DiagonalRainbowEffect(const String &id);
     void tick() override;
 };
 

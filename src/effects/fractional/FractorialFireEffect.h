@@ -4,7 +4,7 @@
 class FractorialFireEffect : public FractionalEffect
 {
 public:
-    FractorialFireEffect();
+    explicit FractorialFireEffect(const String &id);
     void tick() override;
 };
 

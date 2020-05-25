@@ -1,6 +1,7 @@
 #include "FractorialFireEffect.h"
 
-FractorialFireEffect::FractorialFireEffect()
+FractorialFireEffect::FractorialFireEffect(const String &id)
+    : FractionalEffect(id)
 {
 
 }

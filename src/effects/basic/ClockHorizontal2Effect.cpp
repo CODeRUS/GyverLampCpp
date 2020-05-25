@@ -21,7 +21,8 @@ String getClockTime2()
 
 } // namespace
 
-ClockHorizontal2Effect::ClockHorizontal2Effect()
+ClockHorizontal2Effect::ClockHorizontal2Effect(const String &id)
+    : Effect(id)
 {
 }
 

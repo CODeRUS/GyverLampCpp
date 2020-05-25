@@ -4,7 +4,7 @@
 class TripleCometsEffect : public FractionalEffect
 {
 public:
-    TripleCometsEffect();
+    explicit TripleCometsEffect(const String &id);
     void tick() override;
 };
 

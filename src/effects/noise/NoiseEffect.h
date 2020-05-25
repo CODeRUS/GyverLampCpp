@@ -4,7 +4,7 @@
 class NoiseEffect : public Effect
 {
 public:
-    NoiseEffect();
+    explicit NoiseEffect(const String &id);
     void activate() override;
     void deactivate() override;
     virtual void tick() override;

@@ -10,7 +10,8 @@ bool useSpectrometer = false;
 
 } // namespace
 
-StarfallEffect::StarfallEffect()
+StarfallEffect::StarfallEffect(const String &id)
+    : Effect(id)
 {
 }
 

@@ -4,6 +4,6 @@
 class ZebraNoiseEffect : public NoiseEffect
 {
 public:
-    ZebraNoiseEffect();
+    explicit ZebraNoiseEffect(const String &id);
 };
 

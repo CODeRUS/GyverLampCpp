@@ -4,7 +4,7 @@
 class RainbowKiteEffect : public FractionalEffect
 {
 public:
-    RainbowKiteEffect();
+    explicit RainbowKiteEffect(const String &id);
     void tick() override;
 };
 

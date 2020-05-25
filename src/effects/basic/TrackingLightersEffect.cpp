@@ -12,7 +12,8 @@ CHSV* lightersColor = nullptr;
 
 }
 
-TrackingLightersEffect::TrackingLightersEffect()
+TrackingLightersEffect::TrackingLightersEffect(const String &id)
+    : Effect(id)
 {
 
 }

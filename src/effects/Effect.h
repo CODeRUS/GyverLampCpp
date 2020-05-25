@@ -7,7 +7,7 @@
 class Effect
 {
 public:
-    Effect();
+    Effect(const String &id);
     virtual ~Effect();
     void Process();
 

@@ -4,6 +4,6 @@
 class CloudNoiseEffect : public NoiseEffect
 {
 public:
-    CloudNoiseEffect();
+    explicit CloudNoiseEffect(const String &id);
 };
 

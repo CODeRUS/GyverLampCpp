@@ -15,7 +15,8 @@ uint8_t hue = 0;
 
 }
 
-FlockEffect::FlockEffect()
+FlockEffect::FlockEffect(const String &id)
+    : AuroraEffect(id)
 {
 
 }

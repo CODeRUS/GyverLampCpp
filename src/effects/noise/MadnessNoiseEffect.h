@@ -4,7 +4,7 @@
 class MadnessNoiseEffect : public NoiseEffect
 {
 public:
-    MadnessNoiseEffect();
+    explicit MadnessNoiseEffect(const String &id);
     void tick() override;
 };
 

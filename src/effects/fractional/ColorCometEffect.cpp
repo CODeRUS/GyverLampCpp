@@ -1,6 +1,7 @@
 #include "ColorCometEffect.h"
 
-ColorCometEffect::ColorCometEffect()
+ColorCometEffect::ColorCometEffect(const String &id)
+    : FractionalEffect(id)
 {
 
 }

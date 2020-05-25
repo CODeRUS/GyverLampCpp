@@ -7,7 +7,8 @@ CRGB fadeColor = 0x002000;
 
 } // namespace
 
-MatrixEffect::MatrixEffect()
+MatrixEffect::MatrixEffect(const String &id)
+    : Effect(id)
 {
 }
 

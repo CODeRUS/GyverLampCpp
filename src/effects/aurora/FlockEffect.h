@@ -4,7 +4,7 @@
 class FlockEffect : public AuroraEffect
 {
 public:
-    FlockEffect();
+    explicit FlockEffect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

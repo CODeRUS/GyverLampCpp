@@ -4,7 +4,7 @@
 class SnowEffect : public Effect
 {
 public:
-    SnowEffect();
+    explicit SnowEffect(const String &id);
     void tick() override;
     void initialize(const JsonObject &json) override;
     void writeSettings(JsonObject &json) override;

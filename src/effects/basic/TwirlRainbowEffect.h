@@ -4,7 +4,7 @@
 class TwirlRainbowEffect : public Effect
 {
 public:
-    TwirlRainbowEffect();
+    explicit TwirlRainbowEffect(const String &id);
     void activate() override;
     void tick() override;
     void initialize(const JsonObject &json) override;

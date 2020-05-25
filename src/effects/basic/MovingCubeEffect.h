@@ -4,7 +4,7 @@
 class MovingCubeEffect : public Effect
 {
 public:
-    MovingCubeEffect();
+    explicit MovingCubeEffect(const String &id);
     void tick() override;
     void activate() override;
     void deactivate() override;

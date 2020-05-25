@@ -4,6 +4,6 @@
 class PlasmaNoiseEffect : public NoiseEffect
 {
 public:
-    PlasmaNoiseEffect();
+    explicit PlasmaNoiseEffect(const String &id);
 };
 

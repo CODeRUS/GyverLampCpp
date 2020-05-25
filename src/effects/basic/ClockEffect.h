@@ -4,7 +4,7 @@
 class ClockEffect : public Effect
 {
 public:
-    ClockEffect();
+    explicit ClockEffect(const String &id);
     void tick() override;
     void activate() override;
     void deactivate() override;

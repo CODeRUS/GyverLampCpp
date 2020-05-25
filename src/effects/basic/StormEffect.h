@@ -4,7 +4,7 @@
 class StormEffect : public Effect
 {
 public:
-    StormEffect();
+    explicit StormEffect(const String &id);
     void tick() override;
     void writeSettings(JsonObject &json) override;
     void initialize(const JsonObject &json) override;

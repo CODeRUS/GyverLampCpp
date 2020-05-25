@@ -4,7 +4,7 @@
 class SinusoidEffect : public Effect
 {
 public:
-    SinusoidEffect();
+    explicit SinusoidEffect(const String &id);
     void tick() override;
 };
 

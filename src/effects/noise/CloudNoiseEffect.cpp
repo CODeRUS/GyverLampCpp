@@ -1,6 +1,7 @@
 #include "CloudNoiseEffect.h"
 
-CloudNoiseEffect::CloudNoiseEffect()
+CloudNoiseEffect::CloudNoiseEffect(const String &id)
+    : NoiseEffect(id)
 {
     currentPalette = CloudColors_p;
 }

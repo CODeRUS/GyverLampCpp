@@ -11,7 +11,8 @@ uint8_t** noise3d = nullptr;
 
 }
 
-Fire12Effect::Fire12Effect()
+Fire12Effect::Fire12Effect(const String &id)
+    : Effect(id)
 {
 
 }

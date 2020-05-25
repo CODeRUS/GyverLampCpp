@@ -1,6 +1,7 @@
 #include "MadnessNoiseEffect.h"
 
-MadnessNoiseEffect::MadnessNoiseEffect()
+MadnessNoiseEffect::MadnessNoiseEffect(const String &id)
+    : NoiseEffect(id)
 {
 }
 

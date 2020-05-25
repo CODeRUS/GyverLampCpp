@@ -40,7 +40,8 @@ uint8_t hue = 0;
 
 }
 
-PrismataEffect::PrismataEffect()
+PrismataEffect::PrismataEffect(const String &id)
+    : Effect(id)
 {
 
 }

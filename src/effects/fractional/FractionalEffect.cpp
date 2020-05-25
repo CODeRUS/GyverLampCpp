@@ -1,7 +1,8 @@
 #include "FractionalEffect.h"
 
-FractionalEffect::FractionalEffect(uint8_t layers)
-    : numLayers(layers)
+FractionalEffect::FractionalEffect(const String &id, uint8_t layers)
+    : Effect(id)
+    , numLayers(layers)
 {
 
 }

@@ -1,6 +1,7 @@
 #include "Matrix2Effect.h"
 
-Matrix2Effect::Matrix2Effect()
+Matrix2Effect::Matrix2Effect(const String &id)
+    : Effect(id)
 {
 
 }

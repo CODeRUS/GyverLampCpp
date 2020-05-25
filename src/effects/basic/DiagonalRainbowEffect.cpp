@@ -6,7 +6,8 @@ uint8_t hue = 0;
 
 } // namespace
 
-DiagonalRainbowEffect::DiagonalRainbowEffect()
+DiagonalRainbowEffect::DiagonalRainbowEffect(const String &id)
+    : Effect(id)
 {
 }
 

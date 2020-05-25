@@ -4,7 +4,7 @@
 class MatrixEffect : public Effect
 {
 public:
-    MatrixEffect();
+    explicit MatrixEffect(const String &id);
     void tick() override;
 };
 

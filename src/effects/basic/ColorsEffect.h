@@ -4,7 +4,7 @@
 class ColorsEffect : public Effect
 {
 public:
-    ColorsEffect();
+    explicit ColorsEffect(const String &id);
     void tick() override;
 };
 

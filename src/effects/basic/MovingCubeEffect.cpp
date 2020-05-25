@@ -11,7 +11,8 @@ int8_t ballSize = 0;
 
 }
 
-MovingCubeEffect::MovingCubeEffect()
+MovingCubeEffect::MovingCubeEffect(const String &id)
+    : Effect(id)
 {
 
 }

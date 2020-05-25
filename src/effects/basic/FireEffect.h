@@ -4,7 +4,7 @@
 class FireEffect : public Effect
 {
 public:
-    FireEffect();
+    explicit FireEffect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

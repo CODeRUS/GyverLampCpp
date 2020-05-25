@@ -1,6 +1,7 @@
 #include "DoubleCometsEffect.h"
 
-DoubleCometsEffect::DoubleCometsEffect()
+DoubleCometsEffect::DoubleCometsEffect(const String &id)
+    : FractionalEffect(id)
 {
 
 }

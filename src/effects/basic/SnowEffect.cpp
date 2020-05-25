@@ -8,7 +8,8 @@ uint32_t myColor = 0xffffff;
 
 } // namespace
 
-SnowEffect::SnowEffect()
+SnowEffect::SnowEffect(const String &id)
+    : Effect(id)
 {
 }
 

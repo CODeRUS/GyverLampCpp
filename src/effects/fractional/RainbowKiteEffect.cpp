@@ -1,6 +1,7 @@
 #include "RainbowKiteEffect.h"
 
-RainbowKiteEffect::RainbowKiteEffect()
+RainbowKiteEffect::RainbowKiteEffect(const String &id)
+    : FractionalEffect(id)
 {
 
 }

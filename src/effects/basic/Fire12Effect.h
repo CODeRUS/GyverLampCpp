@@ -4,7 +4,7 @@
 class Fire12Effect : public Effect
 {
 public:
-    Fire12Effect();
+    explicit Fire12Effect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

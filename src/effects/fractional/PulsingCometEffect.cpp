@@ -1,6 +1,7 @@
 #include "PulsingCometEffect.h"
 
-PulsingCometEffect::PulsingCometEffect()
+PulsingCometEffect::PulsingCometEffect(const String &id)
+    : FractionalEffect(id)
 {
 
 }

@@ -3,7 +3,7 @@
 class ClockHorizontal3Effect : public Effect
 {
 public:
-    ClockHorizontal3Effect();
+    explicit ClockHorizontal3Effect(const String &id);
     void tick() override;
     void activate() override;
     void deactivate() override;

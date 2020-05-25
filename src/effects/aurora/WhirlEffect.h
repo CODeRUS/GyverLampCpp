@@ -4,7 +4,7 @@
 class WhirlEffect : public AuroraEffect
 {
 public:
-    WhirlEffect();
+    explicit WhirlEffect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

@@ -1,7 +1,9 @@
 #include "Effect.h"
 
-Effect::Effect()
+Effect::Effect(const String &id)
 {
+    settings.id = id;
+    settings.name = id;
 }
 
 Effect::~Effect()

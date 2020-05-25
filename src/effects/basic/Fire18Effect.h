@@ -4,7 +4,7 @@
 class Fire18Effect : public Effect
 {
 public:
-    Fire18Effect();
+    explicit Fire18Effect(const String &id);
     void activate() override;
     void deactivate() override;
     void tick() override;

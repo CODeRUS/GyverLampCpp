@@ -67,7 +67,8 @@ boolean spirohandledChange = false;
 
 }
 
-SpiralEffect::SpiralEffect()
+SpiralEffect::SpiralEffect(const String &id)
+    : Effect(id)
 {
 
 }

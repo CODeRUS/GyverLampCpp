@@ -6,7 +6,8 @@ uint8_t hue = 0;
 
 } // namespace
 
-VerticalRainbowEffect::VerticalRainbowEffect()
+VerticalRainbowEffect::VerticalRainbowEffect(const String &id)
+    : Effect(id)
 {
 }
 

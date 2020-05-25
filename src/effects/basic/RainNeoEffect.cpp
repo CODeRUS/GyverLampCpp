@@ -158,7 +158,8 @@ void rain()
 
 }
 
-RainNeoEffect::RainNeoEffect()
+RainNeoEffect::RainNeoEffect(const String &id)
+    : Effect(id)
 {
 
 }

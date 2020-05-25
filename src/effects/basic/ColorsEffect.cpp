@@ -6,7 +6,8 @@ uint8_t hue = 0;
 
 } // namespace
 
-ColorsEffect::ColorsEffect()
+ColorsEffect::ColorsEffect(const String &id)
+    : Effect(id)
 {
 }
 

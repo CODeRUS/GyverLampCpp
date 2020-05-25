@@ -17,7 +17,8 @@ uint8_t** noise3d = nullptr;
 
 }
 
-WaterfallEffect::WaterfallEffect()
+WaterfallEffect::WaterfallEffect(const String &id)
+    : Effect(id)
 {
 
 }

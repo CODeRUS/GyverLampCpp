@@ -1,6 +1,7 @@
 #include "RainbowCometEffect.h"
 
-RainbowCometEffect::RainbowCometEffect()
+RainbowCometEffect::RainbowCometEffect(const String &id)
+    : FractionalEffect(id)
 {
 
 }

@@ -1,6 +1,7 @@
 #include "MetaBallsEffect.h"
 
-MetaBallsEffect::MetaBallsEffect()
+MetaBallsEffect::MetaBallsEffect(const String &id)
+    : Effect(id)
 {
 
 }

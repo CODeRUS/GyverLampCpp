@@ -44,7 +44,8 @@ void _drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, const CRGB & color) {
 
 }
 
-PulseCirclesEffect::PulseCirclesEffect()
+PulseCirclesEffect::PulseCirclesEffect(const String &id)
+    : Effect(id)
 {
 
 }

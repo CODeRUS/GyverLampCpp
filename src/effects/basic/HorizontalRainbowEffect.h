@@ -4,7 +4,7 @@
 class HorizontalRainbowEffect : public Effect
 {
 public:
-    HorizontalRainbowEffect();
+    explicit HorizontalRainbowEffect(const String &id);
     void tick() override;
 };
 

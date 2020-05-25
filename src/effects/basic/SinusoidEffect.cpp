@@ -1,6 +1,7 @@
 #include "SinusoidEffect.h"
 
-SinusoidEffect::SinusoidEffect()
+SinusoidEffect::SinusoidEffect(const String &id)
+    : Effect(id)
 {
 
 }

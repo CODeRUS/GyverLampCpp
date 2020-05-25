@@ -11,7 +11,8 @@ uint8_t mult = 6;
 
 }
 
-TwinklesEffect::TwinklesEffect()
+TwinklesEffect::TwinklesEffect(const String &id)
+    : Effect(id)
 {
 
 }

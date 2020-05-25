@@ -1,6 +1,7 @@
 #include "MovingFlameEffect.h"
 
-MovingFlameEffect::MovingFlameEffect()
+MovingFlameEffect::MovingFlameEffect(const String &id)
+    : FractionalEffect(id)
 {
 
 }

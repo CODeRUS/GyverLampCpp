@@ -40,7 +40,8 @@ uint8_t waveCount = 1;
 
 }
 
-WaveEffect::WaveEffect()
+WaveEffect::WaveEffect(const String &id)
+    : Effect(id)
 {
 
 }

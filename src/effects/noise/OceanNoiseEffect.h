@@ -4,6 +4,6 @@
 class OceanNoiseEffect : public NoiseEffect
 {
 public:
-    OceanNoiseEffect();
+    explicit OceanNoiseEffect(const String &id);
 };
 

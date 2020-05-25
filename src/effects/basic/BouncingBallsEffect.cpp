@@ -22,7 +22,8 @@ float* bballsCOR = nullptr;
 
 }
 
-BouncingBallsEffect::BouncingBallsEffect()
+BouncingBallsEffect::BouncingBallsEffect(const String &id)
+    : Effect(id)
 {
 
 }

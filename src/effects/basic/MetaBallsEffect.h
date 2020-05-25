@@ -4,7 +4,7 @@
 class MetaBallsEffect : public Effect
 {
 public:
-    MetaBallsEffect();
+    explicit MetaBallsEffect(const String &id);
     void tick() override;
 };
 

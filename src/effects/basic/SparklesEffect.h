@@ -4,7 +4,7 @@
 class SparklesEffect : public Effect
 {
 public:
-    SparklesEffect();
+    explicit SparklesEffect(const String &id);
     void tick() override;
 
 private:
