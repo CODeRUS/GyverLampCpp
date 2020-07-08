@@ -19,7 +19,7 @@ All original code is owned by it's authors
 # How to build
 
 0. Tested with envs: sonoff-r1, sonoff-r1-4m, nodemcu, esp32dev
-1. build firmware: `pio run build -e nodemcu`
+1. build firmware: `pio run -e nodemcu`
 2. build filesystem: `pio run --target buildfs -e nodemcu`
 
 # Filesystem build
