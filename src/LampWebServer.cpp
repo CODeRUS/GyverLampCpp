@@ -260,11 +260,11 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
                 Serial.println(F("Uploading FLASH started!"));
             }
             if (updateSize == 0) {
-                updateSize = total;
 #if defined(ESP32)
-                if (command == U_FS) {
-                    updateSize = UPDATE_SIZE_UNKNOWN;
-                }
+                updateSize = UPDATE_SIZE_UNKNOWN;
+#else
+
+                updateSize = total;
 #endif
             }
 #if defined(ESP8266)
