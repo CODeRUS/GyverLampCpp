@@ -136,12 +136,18 @@ boolean GButton::isStep() {
     else return false;
 }
 void GButton::tick(boolean state) {
+    if (_PIN == 0) {
+        return;
+    }
     flags.mode = true;
     flags.btn_state = state ^ flags.inv_state;
     GButton::tick();
     flags.mode = false;
 }
 void GButton::tick() {
+    if (_PIN == 0) {
+        return;
+    }
 
     // читаем пин
     if (!flags.mode) {

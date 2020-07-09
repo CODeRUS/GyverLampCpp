@@ -92,6 +92,9 @@ void printFreeHeap()
 
 void processButton()
 {
+    if (mySettings->buttonSettings.pin == 0) {
+        return;
+    }
     button->tick();
     if (button->isSingle()) {
         Serial.println(F("Single button"));
@@ -172,7 +175,9 @@ void setup() {
     mySettings->buttonSettings.pin = btnPin;
     mySettings->buttonSettings.type = btnType;
     mySettings->buttonSettings.state = btnState;
-    mySettings->readSettings();
+    if (!mySettings->readSettings()) {
+        mySettings->buttonSettings.pin = 0;
+    }
     mySettings->readEffects();
     MyMatrix::Initialize();
 
@@ -203,7 +208,7 @@ void setup() {
         if (isConnected) {
             TimeClient::Initialize();
             MqttClient::Initialize();
-        } else {
+        } else if (mySettings->buttonSettings.pin > 0) {
             button->tick();
             if (button->state()) {
                 Serial.println(F("Setup mode entered. No effects!"));
