@@ -42,13 +42,28 @@ uint16_t httpPort = 80;
 uint32_t restartTimer = 0;
 
 const char upload_html[] PROGMEM = \
-"<h1>Please upload SPIFFS binary</h1>"
-"<br/>"\
-"<form method='POST' enctype='multipart/form-data'>\
-<input type='file' name='update'>\
-<br/>\
-<input type='submit' class=button value='Upload'>\
-</form>";
+"<form method='POST' enctype='multipart/form-data'>"\
+"<h1>Upload file</h1>"\
+"<input id='file' type='file' name='update' onchange='sub(this)' style=display:none>"\
+"<label id='file-input' for='file'>Click to choose file</label>"\
+"<input id='btn' type='submit' class=btn value='Upload' disabled>"\
+"</form>"\
+"<script>"\
+"function sub(obj){"\
+"    var fileName = obj.value.split('\\');"\
+"    console.log(fileName);"\
+"    document.getElementById('file-input').innerHTML = '   '+ fileName[fileName.length-1];"\
+"    document.getElementById('btn').disabled = false;"\
+"};"\
+"</script>"\
+"<style>"\
+"#file-input,input{width:100%;height:44px;border-radius:4px;margin:10px auto;font-size:15px}"\
+"input{background:#f1f1f1;border:0;padding:0 15px}body{background:#3498db;font-family:sans-serif;font-size:14px;color:#777}"\
+"#file-input{padding:0;border:1px solid #ddd;line-height:44px;text-align:center;display:block;cursor:pointer}"\
+"form{background:#fff;max-width:258px;margin:75px auto;padding:10px;border-radius:5px;text-align:center}"\
+".btn{background:#3498db;color:#fff;cursor:pointer}"\
+".btn:disabled{background:#98342b;color:#fff;cursor:pointer}"\
+"</style>";
 
 void parseTextMessage(const String &message)
 {
