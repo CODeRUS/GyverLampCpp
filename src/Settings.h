@@ -80,8 +80,8 @@ public:
     void processConfig(const String &message);
     void processCommandMqtt(const JsonObject &json);
 
-    void readSettings();
-    void readEffects();
+    bool readSettings();
+    bool readEffects();
 
     GeneralSettings generalSettings;
     MatrixSettings matrixSettings;

@@ -173,20 +173,20 @@ void Settings::processCommandMqtt(const JsonObject &json)
     lampWebServer->update();
 }
 
-void Settings::readSettings()
+bool Settings::readSettings()
 {
     bool settingsExists = SPIFFS.exists(settingsFileName);
     Serial.printf_P(PSTR("SPIFFS Settings file exists: %s\n"), settingsExists ? PSTR("true") : PSTR("false"));
     if (!settingsExists) {
         saveSettings();
-        return;
+        return false;
     }
 
     File settings = SPIFFS.open(settingsFileName, "r");
     Serial.printf_P(PSTR("SPIFFS Settings file size: %zu\n"), settings.size());
     if (!settings) {
         Serial.println(F("SPIFFS Error reading settings file"));
-        return;
+        return false;
     }
 
     DynamicJsonDocument json(1024);
@@ -195,7 +195,7 @@ void Settings::readSettings()
     if (err) {
         Serial.print(F("SPIFFS Error parsing settings json file: "));
         Serial.println(err.c_str());
-        return;
+        return false;
     }
 
     JsonObject root = json.as<JsonObject>();
@@ -298,23 +298,24 @@ void Settings::readSettings()
     if (root.containsKey(F("activeEffect"))) {
         generalSettings.activeEffect = root[F("activeEffect")];
     }
+    return true;
 }
 
-void Settings::readEffects()
+bool Settings::readEffects()
 {
     bool effectsExists = SPIFFS.exists(effectsFileName);
     Serial.printf_P(PSTR("SPIFFS Effects file exists: %s\n"), effectsExists ? PSTR("true") : PSTR("false"));
     if (!effectsExists) {
         effectsManager->processAllEffects();
         saveEffects();
-        return;
+        return false;
     }
 
     File effects = SPIFFS.open(effectsFileName, "r");
     Serial.printf_P(PSTR("SPIFFS Effects file size: %zu\n"), effects.size());
     if (!effects) {
         Serial.println(F("SPIFFS Error reading effects file"));
-        return;
+        return false;
     }
 
     DynamicJsonDocument json(serializeSize);
@@ -323,13 +324,14 @@ void Settings::readEffects()
     if (err) {
         Serial.print(F("SPIFFS Error parsing effects json file: "));
         Serial.println(err.c_str());
-        return;
+        return false;
     }
 
     JsonArray root = json.as<JsonArray>();
     for (JsonObject effect : root) {
         effectsManager->processEffectSettings(effect);
     }
+    return true;
 }
 
 void Settings::buildSettingsJson(JsonObject &root)

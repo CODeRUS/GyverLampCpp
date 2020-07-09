@@ -41,6 +41,15 @@ uint16_t httpPort = 80;
 
 uint32_t restartTimer = 0;
 
+const char upload_html[] PROGMEM = \
+"<h1>Please upload SPIFFS binary</h1>"
+"<br/>"\
+"<form method='POST' enctype='multipart/form-data'>\
+<input type='file' name='update'>\
+<br/>\
+<input type='submit' class=button value='Upload'>\
+</form>";
+
 void parseTextMessage(const String &message)
 {
     Serial.print(F("<< "));
@@ -205,6 +214,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
     if (index == 0) {
         isUpdatingFlag = true;
         Serial.println(F("Update started!"));
+        Serial.printf_P(PSTR("Total size: %zu\n"), total);
         myMatrix->clear();
         if (data[0] == '{') {
             if (json) {
@@ -236,11 +246,17 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             }
             if (updateSize == 0) {
                 updateSize = total;
+#if defined(ESP32)
+                if (command == U_FS) {
+                    updateSize = UPDATE_SIZE_UNKNOWN;
+                }
+#endif
             }
 #if defined(ESP8266)
             Update.runAsync(true);
 #endif
             if (!Update.begin(updateSize, command)) {
+                Serial.print(F("Upload begin error: "));
                 Update.printError(Serial);
                 myMatrix->fill(CRGB::Red, true);
                 isUpdatingFlag = false;
@@ -255,6 +271,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
     if (json) {
         json.write(data, len);
     } else if (Update.write(data, len) != len) {
+        Serial.print(F("Upload write error: "));
         Update.printError(Serial);
         myMatrix->fill(CRGB::Red, true);
         isUpdatingFlag = false;
@@ -264,6 +281,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
         if (json) {
             json.close();
         } else if (!Update.end(true)) {
+            Serial.print(F("Upload end error: "));
             Update.printError(Serial);
             myMatrix->fill(CRGB::Red, true);
             isUpdatingFlag = false;
@@ -336,7 +354,15 @@ void LampWebServer::autoConnect()
         }
     });
     wifiManager->onNotFound([](AsyncWebServerRequest* request) {
-        request->send(SPIFFS, F("index.html"));
+        if (request->url() == String(F("/"))
+                || request->url() == String(F("/wifi.html"))
+                || request->url() == String(F("/index.html"))) {
+            request->redirect(String(F("http://"))
+                + request->client()->localIP().toString()
+                + String(F("/update")));
+        } else {
+            request->send(SPIFFS, F("index.html"));
+        }
     });
     wifiManager->setupHandlers(webServer);
     wifiManager->autoConnect(mySettings->connectionSettings.apName);
@@ -365,6 +391,9 @@ LampWebServer::LampWebServer(uint16_t webPort)
         request->send(response);
     });
 
+    webServer->on(PSTR("/update"), HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send_P(200, "text/html", upload_html);
+    });
     webServer->on(PSTR("/update"), HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);
     webServer->on(PSTR("/updateSize"), HTTP_POST, updateSizeHandler);
 }
