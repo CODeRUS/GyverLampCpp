@@ -10,6 +10,10 @@
 #else
 #include <Updater.h>
 #include <FS.h>
+
+extern "C" uint32_t _FS_start;
+extern "C" uint32_t _FS_end;
+
 #endif
 
 #ifndef U_FS
@@ -42,28 +46,28 @@ uint16_t httpPort = 80;
 uint32_t restartTimer = 0;
 
 const char upload_html[] PROGMEM = \
-"<form method='POST' enctype='multipart/form-data'>"\
-"<h1>Upload file</h1>"\
-"<input id='file' type='file' name='update' onchange='sub(this)' style=display:none>"\
-"<label id='file-input' for='file'>Click to choose file</label>"\
-"<input id='btn' type='submit' class=btn value='Upload' disabled>"\
-"</form>"\
-"<script>"\
-"function sub(obj){"\
-"    var fileName = obj.value.split('\\');"\
-"    console.log(fileName);"\
-"    document.getElementById('file-input').innerHTML = '   '+ fileName[fileName.length-1];"\
-"    document.getElementById('btn').disabled = false;"\
-"};"\
-"</script>"\
-"<style>"\
-"#file-input,input{width:100%;height:44px;border-radius:4px;margin:10px auto;font-size:15px}"\
-"input{background:#f1f1f1;border:0;padding:0 15px}body{background:#3498db;font-family:sans-serif;font-size:14px;color:#777}"\
-"#file-input{padding:0;border:1px solid #ddd;line-height:44px;text-align:center;display:block;cursor:pointer}"\
-"form{background:#fff;max-width:258px;margin:75px auto;padding:10px;border-radius:5px;text-align:center}"\
-".btn{background:#3498db;color:#fff;cursor:pointer}"\
-".btn:disabled{background:#98342b;color:#fff;cursor:pointer}"\
-"</style>";
+"<form method='POST' enctype='multipart/form-data'>\n"\
+"<h1>Upload file</h1>\n"\
+"<input id='file' type='file' name='update' onchange='sub(this)' style=display:none>\n"\
+"<label id='file-input' for='file'>Click to choose file</label>\n"\
+"<input id='btn' type='submit' class=btn value='Upload' disabled>\n"\
+"</form>\n"\
+"<script>\n"\
+"function sub(obj) {\n"\
+"    var fileName = obj.value.split('\\\\');\n"\
+"    console.log(fileName);\n"\
+"    document.getElementById('file-input').innerHTML = '   '+ fileName[fileName.length-1];\n"\
+"    document.getElementById('btn').disabled = false;\n"\
+"};\n"\
+"</script>\n"\
+"<style>\n"\
+"#file-input,input{width:100%;height:44px;border-radius:4px;margin:10px auto;font-size:15px}\n"\
+"input{background:#f1f1f1;border:0;padding:0 15px}body{background:#3498db;font-family:sans-serif;font-size:14px;color:#777}\n"\
+"#file-input{padding:0;border:1px solid #ddd;line-height:44px;text-align:center;display:block;cursor:pointer}\n"\
+"form{background:#fff;max-width:258px;margin:75px auto;padding:10px;border-radius:5px;text-align:center}\n"\
+".btn{background:#3498db;color:#fff;cursor:pointer}\n"\
+".btn:disabled{background:#98342b;color:#fff;cursor:pointer}\n"\
+"</style>\n";
 
 void parseTextMessage(const String &message)
 {
@@ -263,8 +267,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
 #if defined(ESP32)
                 updateSize = UPDATE_SIZE_UNKNOWN;
 #else
-
-                updateSize = total;
+                updateSize = (uintptr_t)&_FS_end - (uintptr_t)&_FS_start;
 #endif
             }
 #if defined(ESP8266)
