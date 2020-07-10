@@ -258,19 +258,27 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             }
             Serial.println(F("Uploading effects started!"));
         } else {
-            int command = U_FLASH;
-            if (data[0] == 0) {
-                command = U_FS;
-                Serial.println(F("Uploading FS started!"));
-            } else {
+            int command = U_FS;
+            if (data[0] == 0xe9 || data[0] == 0x1f) {
+                command = U_FLASH;
                 Serial.println(F("Uploading FLASH started!"));
+            } else {
+                Serial.println(F("Uploading FS started!"));
             }
             if (updateSize == 0) {
+                if (command == U_FS) {
 #if defined(ESP32)
-                updateSize = UPDATE_SIZE_UNKNOWN;
+                    updateSize = UPDATE_SIZE_UNKNOWN;
 #else
-                updateSize = (uintptr_t)&_FS_end - (uintptr_t)&_FS_start;
+                    updateSize = (uintptr_t)&_FS_end - (uintptr_t)&_FS_start;
 #endif
+                } else {
+#if defined(ESP32)
+                    updateSize = UPDATE_SIZE_UNKNOWN;
+#else
+                    updateSize = total;
+#endif
+                }
             }
 #if defined(ESP8266)
             Update.runAsync(true);
