@@ -36,7 +36,7 @@ script:
   - platformio run -e esp32dev
   - platformio run -e esp32dev --target buildfs
   - platformio run -e nodemcu
-  - platformio run -e nodemcu --target buildfs
+  - platformio run -e nodemcu --target uploadfs || :
   - platformio run -e sonoff-r1
   - platformio run -e sonoff-r1 --target buildfs
   - platformio run -e sonoff-r1-4m
@@ -47,7 +47,7 @@ before_deploy:
   - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
   - git tag $TRAVIS_TAG
   - cp .pio/build/esp32dev/firmware.bin esp32dev.bin
-  - cp .pio/build/esp32dev/fs.bin esp32dev-fs.bin
+  - cp .pio/build/esp32dev/spiffs.bin esp32dev-fs.bin
   - cp .pio/build/nodemcu/firmware.bin nodemcu.bin
   - cp .pio/build/nodemcu/fs.bin nodemcu-fs.bin
   - cp .pio/build/sonoff-r1/firmware.bin sonoff-r1.bin
