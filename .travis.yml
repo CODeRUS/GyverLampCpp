@@ -47,26 +47,26 @@ before_deploy:
   - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
   - git tag $TRAVIS_TAG
   - cp .pio/build/esp32dev/firmware.bin esp32dev.bin
-  - cp .pio/build/esp32dev/spiffs.bin esp32dev-spiffs.bin
+  - cp .pio/build/esp32dev/fs.bin esp32dev-fs.bin
   - cp .pio/build/nodemcu/firmware.bin nodemcu.bin
-  - cp .pio/build/nodemcu/spiffs.bin nodemcu-spiffs.bin
+  - cp .pio/build/nodemcu/fs.bin nodemcu-fs.bin
   - cp .pio/build/sonoff-r1/firmware.bin sonoff-r1.bin
-  - cp .pio/build/sonoff-r1/spiffs.bin sonoff-r1-spiffs.bin
+  - cp .pio/build/sonoff-r1/fs.bin sonoff-r1-fs.bin
   - cp .pio/build/sonoff-r1-4m/firmware.bin sonoff-r1-4m.bin
-  - cp .pio/build/sonoff-r1-4m/spiffs.bin sonoff-r1-4m-spiffs.bin
+  - cp .pio/build/sonoff-r1-4m/fs.bin sonoff-r1-4m-fs.bin
 deploy:
   provider: releases
   api_key:
     secure: Y5jM/09tZgDeBgsKbbYmCCSFv/Hkz4ylPg7OQJVSLYqArPn70+jPIclQkH+mkYKzT0JYBTFgUbnzxvRlPBuJKLZ62xhaWhMRdKRZaLsQRA6DHYoeEH+f7DWq03Xjiq6ojZT5hvPPdnPVSb93IM0nhCy1Aqqwbse0pq3z+FmWDrGSgqh/4iqJ35Yac9PCvNbV7VM2MxzbNYHnxnkAY6aklocl8le4qum34HgqN9Ze7TaZ42//LOQxF7w/6beIFslfdbmX6nE9GI6YsizwvzPE7uF6Zo5DQm495QCjr6NbfvLHhFMv0Xl78veyhX7gdimgPou9z0cq+LHOjiFfGaTo2yM33el9pmSmprewSzvVtcCEK5K3S5lpUDRGPt66UsLJdFZIxQ8jrNQp5P25b2UY5f2qf7KEvH4d5JU5bzXtOzXdgmDwySJBjZbuLOz+bejPYsvWn5wOsmahUGmS8xKf7jogmD1q1cFPR0m4ldYDUsLD/QQBm9GbkxTddBTFyXxFMLIxACwlAk8327KUSvmGqWqgjznW5BqWcpDjxQRa5clXDZdlYDjtKb3PyodAYiQk8Q61fcZUYU8X7gUgWmyAadJ6gv46kCWlnFcwfQmUTePtXlZ2ACpZ7CHm5o7acDv4qhrVAYT7DcwhO/i6sFAFuBSfNKgzUjPWyATUi0ZcBWA=
   file:
     - "esp32dev.bin"
-    - "esp32dev-spiffs.bin"
+    - "esp32dev-fs.bin"
     - "nodemcu.bin"
-    - "nodemcu-spiffs.bin"
+    - "nodemcu-fs.bin"
     - "sonoff-r1.bin"
-    - "sonoff-r1-spiffs.bin"
+    - "sonoff-r1-fs.bin"
     - "sonoff-r1-4m.bin"
-    - "sonoff-r1-4m-spiffs.bin"
+    - "sonoff-r1-4m-fs.bin"
     - "data.zip"
   skip_cleanup: true
   overwrite: true

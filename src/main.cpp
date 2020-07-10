@@ -2,8 +2,10 @@
 
 #if defined(ESP32)
 #include <SPIFFS.h>
+#define FLASHFS SPIFFS
 #else
-#include <FS.h>
+#include <LittleFS.h>
+#define FLASHFS LittleFS
 #endif
 
 #include "LocalDNS.h"
@@ -164,12 +166,11 @@ void setup() {
     printFlashInfo();
     printFreeHeap();
 
-    if(!SPIFFS.begin()) {
-        Serial.println(F("An Error has occurred while mounting SPIFFS"));
+    if(!FLASHFS.begin()) {
+        Serial.println(F("An Error has occurred while mounting FLASHFS"));
         return;
     }
 
-    EffectsManager::Initialize();
     Settings::Initialize();
 // default values for button
     mySettings->buttonSettings.pin = btnPin;
@@ -178,6 +179,8 @@ void setup() {
     if (!mySettings->readSettings()) {
         mySettings->buttonSettings.pin = 0;
     }
+
+    EffectsManager::Initialize();
     mySettings->readEffects();
     MyMatrix::Initialize();
 
@@ -192,6 +195,18 @@ void setup() {
     button->setTickMode(false);
     button->setStepTimeout(20);
 
+    myMatrix->matrixTest();
+
+    button->tick();
+    if (button->state()) {
+        Serial.println(F("Setup mode entered. No effects!"));
+        myMatrix->setBrightness(80);
+        myMatrix->fill(CRGB(0, 20, 0), true);
+        setupMode = true;
+        myMatrix->clear(true);
+        return;
+    }
+
     LampWebServer::Initialize(webServerPort);
 
     Serial.println(F("AutoConnect started"));
@@ -204,7 +219,6 @@ void setup() {
         } else {
             Serial.println(F("An Error has occurred while initializing mDNS"));
         }
-        myMatrix->matrixTest();
         if (isConnected) {
             TimeClient::Initialize();
             MqttClient::Initialize();
@@ -223,8 +237,9 @@ void setup() {
 //    if (mySettings->generalSettings.soundControl) {
 //        Spectrometer::Initialize();
 //    }
-
-        effectsManager->activateEffect(mySettings->generalSettings.activeEffect);
+        if (!setupMode) {
+            effectsManager->activateEffect(mySettings->generalSettings.activeEffect);
+        }
     });
     lampWebServer->autoConnect();
 }

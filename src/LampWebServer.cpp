@@ -7,9 +7,11 @@
 #if defined(ESP32)
 #include <Update.h>
 #include <SPIFFS.h>
+#define FLASHFS SPIFFS
 #else
 #include <Updater.h>
-#include <FS.h>
+#include <LittleFS.h>
+#define FLASHFS LittleFS
 
 extern "C" uint32_t _FS_start;
 extern "C" uint32_t _FS_end;
@@ -239,9 +241,9 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             if (json) {
                 json.close();
             }
-            json = SPIFFS.open("/settings.json", "w");
+            json = FLASHFS.open("/settings.json", "w");
             if (!json) {
-                Serial.println(F("SPIFFS Error opening settings file for write"));
+                Serial.println(F("FLASHFS Error opening settings file for write"));
                 return;
             }
             Serial.println(F("Uploading settings started!"));
@@ -249,9 +251,9 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             if (json) {
                 json.close();
             }
-            json = SPIFFS.open("/effects.json", "w");
+            json = FLASHFS.open("/effects.json", "w");
             if (!json) {
-                Serial.println(F("SPIFFS Error opening effects file for write"));
+                Serial.println(F("FLASHFS Error opening effects file for write"));
                 return;
             }
             Serial.println(F("Uploading effects started!"));
@@ -259,7 +261,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             int command = U_FLASH;
             if (data[0] == 0) {
                 command = U_FS;
-                Serial.println(F("Uploading SPIFFS started!"));
+                Serial.println(F("Uploading FS started!"));
             } else {
                 Serial.println(F("Uploading FLASH started!"));
             }
@@ -379,7 +381,7 @@ void LampWebServer::autoConnect()
                 + request->client()->localIP().toString()
                 + String(F("/update")));
         } else {
-            request->send(SPIFFS, F("index.html"));
+            request->send(FLASHFS, F("index.html"));
         }
     });
     wifiManager->setupHandlers(webServer);
@@ -395,11 +397,11 @@ LampWebServer::LampWebServer(uint16_t webPort)
 
     webServer->addHandler(socket);
 
-    webServer->serveStatic(PSTR("/static/js/"), SPIFFS, PSTR("/"), PSTR("max-age=86400"));
-    webServer->serveStatic(PSTR("/static/css/"), SPIFFS, PSTR("/"), PSTR("max-age=86400"));
-    webServer->serveStatic(PSTR("/effects.json"), SPIFFS, PSTR("/effects.json"), PSTR("no-cache"));
-    webServer->serveStatic(PSTR("/settings.json"), SPIFFS, PSTR("/settings.json"), PSTR("no-cache"));
-    webServer->serveStatic(PSTR("/"), SPIFFS, PSTR("/"), PSTR("max-age=86400")).setDefaultFile(PSTR("index.html"));
+    webServer->serveStatic(PSTR("/static/js/"), FLASHFS, PSTR("/"), PSTR("max-age=86400"));
+    webServer->serveStatic(PSTR("/static/css/"), FLASHFS, PSTR("/"), PSTR("max-age=86400"));
+    webServer->serveStatic(PSTR("/effects.json"), FLASHFS, PSTR("/effects.json"), PSTR("no-cache"));
+    webServer->serveStatic(PSTR("/settings.json"), FLASHFS, PSTR("/settings.json"), PSTR("no-cache"));
+    webServer->serveStatic(PSTR("/"), FLASHFS, PSTR("/"), PSTR("max-age=86400")).setDefaultFile(PSTR("index.html"));
 
     webServer->on(PSTR("/effectJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
         PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024);
