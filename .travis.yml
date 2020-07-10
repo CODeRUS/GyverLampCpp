@@ -36,7 +36,7 @@ script:
   - platformio run -e esp32dev
   - platformio run -e esp32dev --target buildfs
   - platformio run -e nodemcu
-  - platformio run -e nodemcu --target uploadfs || :
+  - platformio run -e nodemcu --target buildfs
   - platformio run -e sonoff-r1
   - platformio run -e sonoff-r1 --target buildfs
   - platformio run -e sonoff-r1-4m
