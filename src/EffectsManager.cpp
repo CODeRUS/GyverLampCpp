@@ -165,7 +165,7 @@ void EffectsManager::changeEffectByName(const String &name)
     for (size_t index = 0; index < effects.size(); index++) {
         Effect *effect = effects[index];
         if (effect->settings.name == name) {
-            activateEffect(activeIndex);
+            activateEffect(index);
             break;
         }
     }
