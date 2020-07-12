@@ -20,6 +20,7 @@ public:
     void next();
     void previous();
     void changeEffectByName(const String &name);
+    void changeEffectById(const String &id);
     void activateEffect(uint8_t index);
 
     void updateCurrentSettings(const JsonObject &json);

@@ -164,10 +164,14 @@ void Settings::processCommandMqtt(const JsonObject &json)
     if (json.containsKey(F("state"))) {
         const String state = json[F("state")];
         mySettings->generalSettings.working = state == F("ON");
-    }
-    if (json.containsKey(F("effect"))) {
-        const String effect = json[F("effect")];
-        effectsManager->changeEffectByName(effect);
+
+        if (json.containsKey(F("effect"))) {
+            const String effect = json[F("effect")];
+            effectsManager->changeEffectByName(effect);
+        }
+        if (json.containsKey(F("color"))) {
+            effectsManager->changeEffectById(F("Color"));
+        }
     }
     effectsManager->updateCurrentSettings(json);
     saveLater();

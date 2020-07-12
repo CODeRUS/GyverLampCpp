@@ -171,6 +171,17 @@ void EffectsManager::changeEffectByName(const String &name)
     }
 }
 
+void EffectsManager::changeEffectById(const String &id)
+{
+    for (size_t index = 0; index < effects.size(); index++) {
+        Effect *effect = effects[index];
+        if (effect->settings.id == id) {
+            activateEffect(index);
+            break;
+        }
+    }
+}
+
 void EffectsManager::activateEffect(uint8_t index)
 {
     if (index >= effects.size()) {

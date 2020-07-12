@@ -113,6 +113,7 @@ void sendDiscovery()
     doc[F("schema")] = F("json");
     doc[F("brightness")] = true;
     doc[F("effect")] = true;
+    doc[F("rgb")] = true;
 
     JsonObject dev = doc.createNestedObject(F("dev"));
     dev[F("mf")] = mySettings->mqttSettings.manufacturer;
