@@ -73,7 +73,7 @@ void ClockHorizontal3Effect::activate()
     myMatrix->setTextWrap(false);
     myMatrix->setTextColor(hoursColor);
 
-    uint8_t matrixRotation = myMatrix->getRotation();
+    uint8_t matrixRotation = mySettings->matrixSettings.rotation;
     int horizontalRotation = matrixRotation - 3;
     if (horizontalRotation < 0) {
         horizontalRotation = horizontalRotation + 4;
@@ -88,8 +88,9 @@ void ClockHorizontal3Effect::deactivate()
 {
     timeClient->setInterval(0);
     uint8_t matrixRotation = myMatrix->getRotation();
-    if (myMatrix->getRotation() != matrixRotation) {
-        myMatrix->setRotation(matrixRotation);
+    uint8_t settingsRotation = mySettings->matrixSettings.rotation;
+    if (matrixRotation != settingsRotation) {
+        myMatrix->setRotation(settingsRotation);
     }
 }
 
