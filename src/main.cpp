@@ -29,6 +29,8 @@ uint16_t webServerPort = 80;
 #if defined(ESP32)
 const uint8_t btnPin = 15;
 const GButton::PullType btnType = GButton::PullTypeLow;
+TaskHandle_t processMatrixTaskHandle = 0;
+TaskHandle_t userTaskHandle = 0;
 #elif defined(SONOFF)
 const uint8_t btnPin = 0;
 const GButton::PullType btnType = GButton::PullTypeHigh;
@@ -49,6 +51,38 @@ uint32_t logTimer = 0;
 
 bool setupMode = false;
 bool connectFinished = false;
+
+void processMatrix()
+{
+    if (mySettings->generalSettings.working) {
+        effectsManager->loop();
+    } else {
+        myMatrix->clear(true);
+    }
+}
+
+#if defined(ESP32)
+void processMatrix32()
+{
+    if (userTaskHandle == 0) {
+        noInterrupts();
+        userTaskHandle = xTaskGetCurrentTaskHandle();
+        xTaskNotifyGive(processMatrixTaskHandle);
+        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(200));
+        interrupts();
+        userTaskHandle = 0;
+    }
+}
+
+void processMatrixTask(void *)
+{
+    for (;;) {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        processMatrix();
+        xTaskNotifyGive(userTaskHandle);
+    }
+}
+#endif
 
 void printFlashInfo()
 {
@@ -180,6 +214,8 @@ void setup() {
         mySettings->buttonSettings.pin = 0;
     }
 
+    Serial.printf_P(PSTR("Button pin: %d\n"), mySettings->buttonSettings.pin);
+
     EffectsManager::Initialize();
     mySettings->readEffects();
     MyMatrix::Initialize();
@@ -242,6 +278,10 @@ void setup() {
         }
     });
     lampWebServer->autoConnect();
+
+#if defined(ESP32)
+    xTaskCreatePinnedToCore(processMatrixTask, "FastLEDshowTask", 10000, NULL, 2, &processMatrixTaskHandle, 0);
+#endif
 }
 
 void loop() {
@@ -278,11 +318,11 @@ void loop() {
 //        mySpectrometer->loop();
 //    }
 
-    if (mySettings->generalSettings.working) {
-        effectsManager->loop();
-    } else {
-        myMatrix->clear(true);
-    }
+#if defined(ESP32)
+    processMatrix32();
+#else
+    processMatrix();
+#endif
 
     mySettings->loop();
 
