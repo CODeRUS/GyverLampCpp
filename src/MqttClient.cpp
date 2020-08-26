@@ -10,12 +10,15 @@
 #include <WiFi.h>
 #endif
 
+#include <Ticker.h>
 #include <PangolinMQTT.h>
 
 #include "Settings.h"
 
 namespace
 {
+
+Ticker mqttReconnectTimer;
 
 MqttClient *object = nullptr;
 PangolinMQTT *client = nullptr;
@@ -31,6 +34,10 @@ String clientId;
 
 void subscribe()
 {
+    if (!client->connected()) {
+        return;
+    }
+
     Serial.print(F("Subscribing to topic: "));
     Serial.println(setTopic);
     client->subscribe(setTopic.c_str(), 0);
@@ -38,11 +45,19 @@ void subscribe()
 
 void sendString(String topic, String message, uint8_t qos = 2, bool retain = false)
 {
+    if (!client->connected()) {
+        return;
+    }
+
     client->publish(topic.c_str(), qos, retain, (uint8_t*)message.c_str(), message.length(), false);
 }
 
 bool sendJson(String topic, const DynamicJsonDocument &doc)
 {
+    if (!client->connected()) {
+        return false;
+    }
+
     String buffer;
     if (!serializeJson(doc, buffer)) {
         Serial.println(F("writing payload: wrong size!"));
@@ -54,6 +69,10 @@ bool sendJson(String topic, const DynamicJsonDocument &doc)
 
 void sendState()
 {
+    if (!client->connected()) {
+        return;
+    }
+
     DynamicJsonDocument doc(1024);
     JsonObject json = doc.to<JsonObject>();
 
@@ -70,6 +89,10 @@ void sendState()
 
 void sendAvailability()
 {
+    if (!client->connected()) {
+        return;
+    }
+
     Serial.println(F("Sending availability"));
     Serial.println(availabilityTopic);
     sendString(availabilityTopic, F("true"), 2, true);
@@ -77,6 +100,10 @@ void sendAvailability()
 
 void sendDiscovery()
 {
+    if (!client->connected()) {
+        return;
+    }
+
     DynamicJsonDocument doc(1024*5);
     doc[F("~")] = commonTopic;
     doc[F("name")] = mySettings->mqttSettings.name;
@@ -142,14 +169,17 @@ void onMqttConnect(bool sessionPresent)
     subscribe();
 }
 
-bool connectToMqtt() {
+void connectToMqtt() {
     if (!WiFi.isConnected()) {
-        return false;
+        return;
+    }
+
+    if (!client) {
+        return;
     }
 
     Serial.println(F("Connecting to MQTT..."));
     client->connect();
-    return true;
 }
 
 void onMqttDisconnect(int8_t reason)
@@ -201,9 +231,38 @@ void onMqttDisconnect(int8_t reason)
     default:
         Serial.printf_P(PSTR("unknown %d\n"), reason);
     }
-
-    connectToMqtt();
 }
+
+#if defined(ESP8266)
+WiFiEventHandler wifiConnectHandler;
+WiFiEventHandler wifiDisconnectHandler;
+
+void onWifiConnect(const WiFiEventStationModeGotIP& event) {
+    Serial.println("Connected to Wi-Fi.");
+    mqttReconnectTimer.once(2, connectToMqtt);
+}
+
+void onWifiDisconnect(const WiFiEventStationModeDisconnected& event) {
+    Serial.println("Disconnected from Wi-Fi.");
+    mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
+}
+
+#else
+void WiFiEvent(WiFiEvent_t event) {
+    switch(event) {
+    case SYSTEM_EVENT_STA_GOT_IP:
+        Serial.println("Connected to Wi-Fi.");
+        mqttReconnectTimer.once(2, connectToMqtt);
+        break;
+    case SYSTEM_EVENT_STA_DISCONNECTED:
+        Serial.println("Disconnected from Wi-Fi.");
+        mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
+        break;
+    default:
+        break;
+    }
+}
+#endif
 
 }
 
@@ -222,11 +281,6 @@ void MqttClient::Initialize()
     object = new MqttClient();
 }
 
-void MqttClient::loop()
-{
-    return;
-}
-
 void MqttClient::update()
 {
     if (!client) {
@@ -242,6 +296,13 @@ MqttClient::MqttClient()
         Serial.println(F("Empty host for MqttClient"));
         return;
     }
+
+#ifdef ARDUINO_ARCH_ESP8266
+    wifiConnectHandler = WiFi.onStationModeGotIP(onWifiConnect);
+    wifiDisconnectHandler = WiFi.onStationModeDisconnected(onWifiDisconnect);
+#else
+    WiFi.onEvent(WiFiEvent);
+#endif
 
     commonTopic = String(F("homeassistant/light/")) + mySettings->connectionSettings.mdns;
     setTopic = commonTopic + String(F("/set"));
@@ -263,5 +324,6 @@ MqttClient::MqttClient()
                            mySettings->mqttSettings.password.c_str());
     client->setServer(mySettings->mqttSettings.host.c_str(),
                       mySettings->mqttSettings.port);
-    connectToMqtt();
+
+    mqttReconnectTimer.once(2, connectToMqtt);
 }

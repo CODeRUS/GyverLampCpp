@@ -247,7 +247,9 @@ void setup() {
 
     Serial.println(F("AutoConnect started"));
     lampWebServer->onConnected([](bool isConnected) {
-        connectFinished = true;
+        if (connectFinished) {
+            return;
+        }
         Serial.println(F("AutoConnect finished"));
         LocalDNS::Initialize();
         if (localDNS->begin()) {
@@ -276,6 +278,7 @@ void setup() {
         if (!setupMode) {
             effectsManager->activateEffect(mySettings->generalSettings.activeEffect);
         }
+        connectFinished = true;
     });
     lampWebServer->autoConnect();
 
@@ -302,9 +305,6 @@ void loop() {
     localDNS->loop();
     if (lampWebServer->isConnected()) {
         timeClient->loop();
-#if defined(ESP32)
-        mqtt->loop();
-#endif
     } else if (setupMode) {
         return;
     }
