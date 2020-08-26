@@ -247,17 +247,14 @@ void setup() {
 
     Serial.println(F("AutoConnect started"));
     lampWebServer->onConnected([](bool isConnected) {
-        if (connectFinished) {
-            return;
-        }
         Serial.println(F("AutoConnect finished"));
-        LocalDNS::Initialize();
-        if (localDNS->begin()) {
-            localDNS->addService(F("http"), F("tcp"), webServerPort);
-        } else {
-            Serial.println(F("An Error has occurred while initializing mDNS"));
-        }
         if (isConnected) {
+            LocalDNS::Initialize();
+            if (localDNS->begin()) {
+                localDNS->addService(F("http"), F("tcp"), webServerPort);
+            } else {
+                Serial.println(F("An Error has occurred while initializing mDNS"));
+            }
             TimeClient::Initialize();
             MqttClient::Initialize();
         } else if (mySettings->buttonSettings.pin > 0) {
