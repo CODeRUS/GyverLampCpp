@@ -76,8 +76,8 @@ void TwinklesEffect::tick()
 void TwinklesEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("speed"))) {
-        speed = json[F("speed")];
+    if (json.containsKey(F("espeed"))) {
+        speed = json[F("espeed")];
     }
     if (json.containsKey(F("mult"))) {
         mult = json[F("mult")];
@@ -86,6 +86,6 @@ void TwinklesEffect::initialize(const JsonObject &json)
 
 void TwinklesEffect::writeSettings(JsonObject &json)
 {
-    json[F("speed")] = speed;
+    json[F("espeed")] = speed;
     json[F("mult")] = mult;
 }
