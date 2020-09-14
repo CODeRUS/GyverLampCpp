@@ -304,12 +304,12 @@ MqttClient::MqttClient()
     WiFi.onEvent(WiFiEvent);
 #endif
 
-    commonTopic = String(F("homeassistant/light/")) + mySettings->connectionSettings.mdns;
+    commonTopic = String(F("homeassistant/light/")) + mySettings->mqttSettings.name;
     setTopic = commonTopic + String(F("/set"));
     stateTopic = commonTopic + String(F("/state"));
     configTopic = commonTopic + String(F("/config"));
     availabilityTopic = commonTopic + String(F("/available"));
-    clientId = String(F("FireLampClient-")) + mySettings->connectionSettings.mdns;
+    clientId = String(F("FireLampClient-")) + mySettings->mqttSettings.name;
 
     client = new PangolinMQTT;
     client->onConnect(onMqttConnect);
