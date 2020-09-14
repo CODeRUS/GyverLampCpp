@@ -266,19 +266,15 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
                 Serial.println(F("Uploading FS started!"));
             }
             if (updateSize == 0) {
+#if defined(ESP32)
+                updateSize = UPDATE_SIZE_UNKNOWN;
+#else
                 if (command == U_FS) {
-#if defined(ESP32)
-                    updateSize = UPDATE_SIZE_UNKNOWN;
-#else
                     updateSize = (uintptr_t)&_FS_end - (uintptr_t)&_FS_start;
-#endif
                 } else {
-#if defined(ESP32)
-                    updateSize = UPDATE_SIZE_UNKNOWN;
-#else
                     updateSize = total;
-#endif
                 }
+#endif
             }
 #if defined(ESP8266)
             Update.runAsync(true);
