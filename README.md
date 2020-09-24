@@ -39,6 +39,51 @@ Easy steps:
 
 Then just upload built fs to module using `pio run --target uploadfs -e nodemcu`
 
+## Configuration
+
+src/MyMatrix.cpp - change led pin here
+src/EffectsManager.cpp - comment out unused effects here
+
+data/effects.json - default options for effects
+
+    i - id of effect, should match one in src/EffectsManager.cpp
+    n - name of eefect visible in ui and Home Assistant
+    s - effect speed
+    l - effect scale
+    b - effect brightness
+
+data/settings.json - main settings of firmware
+matrix - settings of matrix
+
+    type - match with Framebuffer GFX: https://github.com/marcmerlin/Framebuffer_GFX/blob/master/Framebuffer_GFX.h#L43
+    values should be combined. Example: NEO_MATRIX_ZIGZAG + NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_ROWS (or NEO_MATRIX_COLUMNS) = 11 (or 15). Matrix test effect at boot: Pixels started from left bottom. Red is horizontal from left to right, Green is vertical from bottom to top.
+    rotation - value from 0 to 3, each value by +90 degree.
+
+connection - connection settings
+
+    mdns - domain name in .local
+    apName - access point name for initial configuration
+    ntpServer - time server name
+    ntpOffset - time offset in seconds
+    hostname - hostname for local network
+
+mqtt - mqtt settings
+
+    host - server address
+    port - server port
+    username - username
+    password - password
+    uniqueId - unique identifier for entity light in Home Assistant
+    name - device name in Home Assistant
+    model - model name in Home Assistant
+
+button - button settings
+
+    pin - GPIO pin number
+    type - 0 for PullTypeHigh or 1 for PullTypeLow
+    state - 0 for DefaultStateOpen or 1 for DefaultStateClose
+
+
 ## Changes with original GyverLamp projects
 
 - Rewritten in C++ and classes for easier maintenance
