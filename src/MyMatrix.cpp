@@ -239,12 +239,12 @@ void MyMatrix::dimAll(uint8_t value)
 
 uint8_t MyMatrix::wrapX(int8_t x)
 {
-    return (x + width()) % width();
+    return mod8(x + 1, mySettings->matrixSettings.width);
 }
 
 uint8_t MyMatrix::wrapY(int8_t y)
 {
-    return (y + height()) % height();
+    return mod8(y + 1, mySettings->matrixSettings.height);
 }
 
 void MyMatrix::fader(uint8_t step)
