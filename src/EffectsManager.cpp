@@ -138,26 +138,26 @@ void EffectsManager::loop()
 
 void EffectsManager::next()
 {
-    activeEffect()->deactivate();
     myMatrix->clear();
-    if (activeIndex == effects.size() - 1) {
-        activeIndex = 0;
+    uint8_t aIndex = activeIndex;
+    if (aIndex == effects.size() - 1) {
+        aIndex = 0;
     } else {
-        ++activeIndex;
+        ++aIndex;
     }
-    activateEffect(activeIndex);
+    activateEffect(aIndex);
 }
 
 void EffectsManager::previous()
 {
-    activeEffect()->deactivate();
     myMatrix->clear();
-    if (activeIndex == 0) {
-        activeIndex = static_cast<uint8_t>(effects.size() - 1);
+    uint8_t aIndex = activeIndex;
+    if (aIndex == 0) {
+        aIndex = static_cast<uint8_t>(effects.size() - 1);
     } else {
-        --activeIndex;
+        --aIndex;
     }
-    activateEffect(activeIndex);
+    activateEffect(aIndex);
 }
 
 void EffectsManager::changeEffectByName(const String &name)
