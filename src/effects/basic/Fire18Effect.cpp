@@ -38,9 +38,9 @@ void Fire18Effect::activate()
         }
     }
 
-    fire18heat = new uint8_t*[mySettings->matrixSettings.width];
-    for (uint8_t j = 0; j < mySettings->matrixSettings.width; ++j) {
-        fire18heat[j] = new uint8_t[mySettings->matrixSettings.height];
+    fire18heat = new uint8_t*[mySettings->matrixSettings.height];
+    for (uint8_t j = 0; j < mySettings->matrixSettings.height; ++j) {
+        fire18heat[j] = new uint8_t[mySettings->matrixSettings.width];
     }
 }
 
@@ -60,7 +60,7 @@ void Fire18Effect::deactivate()
     }
     delete[] noise3d;
 
-    for (uint8_t j = 0; j < mySettings->matrixSettings.width; j++) {
+    for (uint8_t j = 0; j < mySettings->matrixSettings.height; j++) {
         delete[] fire18heat[j];
     }
     delete[] fire18heat;
