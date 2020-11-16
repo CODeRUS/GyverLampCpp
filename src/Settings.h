@@ -42,6 +42,9 @@ public:
         String ntpServer;
         uint32_t ntpOffset = 10800;
         String hostname;
+        String ssid;
+        String password;
+        String login;
     };
 
     struct MqttSettings {

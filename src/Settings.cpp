@@ -247,6 +247,15 @@ bool Settings::readSettings()
        if (connectionObject.containsKey(F("hostname"))) {
            connectionSettings.hostname = connectionObject[F("hostname")].as<String>();
        }
+       if (connectionObject.containsKey(F("ssid"))) {
+           connectionSettings.ssid = connectionObject[F("ssid")].as<String>();
+       }
+       if (connectionObject.containsKey(F("password"))) {
+           connectionSettings.password = connectionObject[F("password")].as<String>();
+       }
+       if (connectionObject.containsKey(F("login"))) {
+           connectionSettings.login = connectionObject[F("login")].as<String>();
+       }
     }
 
     if (root.containsKey(F("mqtt"))) {
@@ -359,6 +368,9 @@ void Settings::buildSettingsJson(JsonObject &root)
     connectionObject[F("ntpServer")] = connectionSettings.ntpServer;
     connectionObject[F("ntpOffset")] = connectionSettings.ntpOffset;
     connectionObject[F("hostname")] = connectionSettings.hostname;
+    connectionObject[F("ssid")] = connectionSettings.ssid;
+    connectionObject[F("password")] = F("**secret**");
+    connectionObject[F("login")] = F("**secret**");
 
     JsonObject mqttObject = root.createNestedObject(F("mqtt"));
     mqttObject[F("host")] = mqttSettings.host;

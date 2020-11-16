@@ -15,7 +15,9 @@
     "apName": "Fire Lamp",
     "ntpServer": "europe.pool.ntp.org",
     "ntpOffset": 10800,
-    "hostname": "firelamp"
+    "hostname": "firelamp",
+    "ssid": "My Home Network",
+    "password": "myhomepassword1"
   },
   "mqtt": {
     "host": "",
@@ -27,8 +29,8 @@
     "model": "devlamp8266"
   },
   "button": {
-    "pin": 0,
-    "type": 0,
+    "pin": 4,
+    "type": 1,
     "state": 0
   }
 }

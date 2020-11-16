@@ -37,6 +37,8 @@ Easy steps:
 - extract to project folder
 - build filesystem in Platform IO
 
+**PLEASE!** Do not forget to build or to download and extract data artifacts from releases page! It doesn't preset in clonned git repository!
+
 Then just upload built fs to module using `pio run --target uploadfs -e nodemcu`
 
 ## Configuration
@@ -66,6 +68,9 @@ connection - connection settings
     ntpServer - time server name
     ntpOffset - time offset in seconds
     hostname - hostname for local network
+    ssid - name of wifi network to connect
+    password - password of wifi network to connect
+    login - login for connection to wifi network (WPA-E)
 
 mqtt - mqtt settings
 
@@ -83,6 +88,13 @@ button - button settings
     type - 0 for PullTypeHigh or 1 for PullTypeLow
     state - 0 for DefaultStateOpen or 1 for DefaultStateClose
 
+Please refer to https://github.com/esp8266/Arduino/blob/master/variants/nodemcu/pins_arduino.h#L40 for pin numbers if using nodemcu-like ESP8266 boards! This configuration uses numeric gpio pins, not the ones marked as D0-D10 on the board!
+
+## Safe mode
+
+If lamp is turned on while button is pressed, it will boot into safe mode. Lamp will try to connect to last known network, otherwise it will create access point. You can connect to lamp with your mobile device wia wifi and upload correct json settings or firmware files.
+
+Please do not use GPIO0, GPIO2, GPIO15 D3, D4 and D8 on nodemcu boards) for button connection, your board may fail to boot at all if putton will be pressed during startup: https://www.forward.com.au/pfod/ESP8266/GPIOpins/index.html
 
 ## Changes with original GyverLamp projects
 
