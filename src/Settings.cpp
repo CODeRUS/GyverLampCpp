@@ -398,6 +398,12 @@ void Settings::buildJsonMqtt(JsonObject &root)
     root[F("speed")] = effectsManager->activeEffect()->settings.speed;
     root[F("scale")] = effectsManager->activeEffect()->settings.scale;
     root[F("effect")] = effectsManager->activeEffect()->settings.name;
+    root[F("localIp")] = WiFi.localIP().toString();
+#if defined(ESP8266)
+    root[F("device")] = F("esp8266");
+#else
+    root[F("device")] = F("esp32");
+#endif
     effectsManager->activeEffect()->writeSettings(root);
 }
 
