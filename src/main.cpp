@@ -235,15 +235,17 @@ void setup() {
 
     button->tick();
     if (button->state()) {
-        Serial.println(F("Setup mode entered. No effects!"));
+        Serial.println(F("!!! Setup mode entered. No effects !!!"));
         myMatrix->setBrightness(80);
         myMatrix->fill(CRGB(0, 20, 0), true);
         setupMode = true;
-        myMatrix->clear(true);
-        return;
+        myMatrix->show();
     }
 
     LampWebServer::Initialize(webServerPort);
+    if (setupMode) {
+        lampWebServer->enterSetupMode();
+    }
 
     Serial.println(F("AutoConnect started"));
     lampWebServer->onConnected([](bool isConnected) {
@@ -255,17 +257,9 @@ void setup() {
             } else {
                 Serial.println(F("An Error has occurred while initializing mDNS"));
             }
-            TimeClient::Initialize();
-            MqttClient::Initialize();
-        } else if (mySettings->buttonSettings.pin > 0) {
-            button->tick();
-            if (button->state()) {
-                Serial.println(F("Setup mode entered. No effects!"));
-                myMatrix->setBrightness(80);
-                myMatrix->fill(CRGB(0, 20, 0), true);
-                setupMode = true;
-                myMatrix->clear(true);
-                return;
+            if (!setupMode) {
+                TimeClient::Initialize();
+                MqttClient::Initialize();
             }
         }
 
@@ -300,10 +294,13 @@ void loop() {
     }
 
     localDNS->loop();
+
+    if (setupMode) {
+        return;
+    }
+
     if (lampWebServer->isConnected()) {
         timeClient->loop();
-    } else if (setupMode) {
-        return;
     }
     processButton();
 #if defined(SONOFF)

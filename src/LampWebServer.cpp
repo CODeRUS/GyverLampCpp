@@ -32,6 +32,8 @@ extern "C" uint32_t _FS_end;
 
 namespace  {
 
+bool setupMode = false;
+
 size_t updateSize = 0;
 bool isUpdatingFlag = false;
 
@@ -353,6 +355,11 @@ void LampWebServer::Initialize(uint16_t webPort)
     object = new LampWebServer(webPort);
 }
 
+void LampWebServer::enterSetupMode()
+{
+    setupMode = true;
+}
+
 bool LampWebServer::isConnected()
 {
     return wifiConnected;
@@ -378,6 +385,10 @@ void LampWebServer::autoConnect()
         }
     });
     wifiManager->onNotFound([](AsyncWebServerRequest* request) {
+        if (setupMode) {
+            request->redirect(F("/update"));
+            return;
+        }
         if (request->url() == String(F("/"))
                 || request->url() == String(F("/wifi.html"))
                 || request->url() == String(F("/index.html"))) {
@@ -387,6 +398,13 @@ void LampWebServer::autoConnect()
         } else {
             request->send(FLASHFS, F("index.html"));
         }
+    });
+    wifiManager->onCaptiveRedirect([](AsyncWebServerRequest* request) {
+        if (setupMode) {
+            request->redirect(F("/update"));
+            return true;
+        }
+        return false;
     });
     wifiManager->setupHandlers(webServer);
     wifiManager->autoConnect(mySettings->connectionSettings.apName);
