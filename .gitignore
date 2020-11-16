@@ -2,8 +2,18 @@
 .pioenvs
 .piolibdeps
 .vscode
+*.bin
 
+*.pro
 *.user
+
+*.creator
+*.creator.user
+*.cflags
+*.config
+*.cxxflags
+*.files
+*.includes
 
 data/*.gz
 data/*.ico
