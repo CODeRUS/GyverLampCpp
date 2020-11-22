@@ -16,17 +16,17 @@
     "ntpServer": "europe.pool.ntp.org",
     "ntpOffset": 10800,
     "hostname": "firelamp",
-    "ssid": "My Home Network",
-    "password": "myhomepassword1"
+    "ssid": "",
+    "password": ""
   },
   "mqtt": {
     "host": "",
     "port": 1883,
     "username": "",
     "password": "",
-    "uniqueId": "devlamp8266",
-    "name": "devlamp8266",
-    "model": "devlamp8266"
+    "uniqueId": "firelamp",
+    "name": "firelamp",
+    "model": "firelamp"
   },
   "button": {
     "pin": 4,
