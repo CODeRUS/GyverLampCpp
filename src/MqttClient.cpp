@@ -304,7 +304,7 @@ MqttClient::MqttClient()
     WiFi.onEvent(WiFiEvent);
 #endif
 
-    commonTopic = String(F("homeassistant/light/")) + mySettings->mqttSettings.name;
+    commonTopic = String(F("homeassistant/light/")) + mySettings->mqttSettings.uniqueId;
     setTopic = commonTopic + String(F("/set"));
     stateTopic = commonTopic + String(F("/state"));
     configTopic = commonTopic + String(F("/config"));
