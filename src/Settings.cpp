@@ -369,8 +369,8 @@ void Settings::buildSettingsJson(JsonObject &root)
     connectionObject[F("ntpOffset")] = connectionSettings.ntpOffset;
     connectionObject[F("hostname")] = connectionSettings.hostname;
     connectionObject[F("ssid")] = connectionSettings.ssid;
-    connectionObject[F("password")] = F("**secret**");
-    connectionObject[F("login")] = F("**secret**");
+    connectionObject[F("password")] = connectionSettings.password;
+    connectionObject[F("login")] = connectionSettings.login;
 
     JsonObject mqttObject = root.createNestedObject(F("mqtt"));
     mqttObject[F("host")] = mqttSettings.host;
