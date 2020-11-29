@@ -1,12 +1,16 @@
 #include <Arduino.h>
 
 #if defined(ESP32)
+#include <WiFi.h>
 #include <SPIFFS.h>
 #define FLASHFS SPIFFS
 #else
+#include <ESP8266WiFi.h>
 #include <LittleFS.h>
 #define FLASHFS LittleFS
 #endif
+
+#include <EEPROM.h>
 
 #include "LocalDNS.h"
 #include "MyMatrix.h"
@@ -190,6 +194,25 @@ void setupSerial()
 
 }
 
+void clearEeprom(size_t size = 512)
+{
+    EEPROM.begin(size);
+    for (uint16_t i = 0; i < size; i++) {
+      EEPROM.write(i, 0);
+    }
+    EEPROM.commit();
+    EEPROM.end();
+}
+
+void clearWifi()
+{
+#if defined(ESP32)
+        WiFi.disconnect(false, true);
+#else
+        WiFi.disconnect();
+#endif
+}
+
 void setup() {
 #if defined(ESP8266)
     ESP.wdtDisable();
@@ -240,6 +263,8 @@ void setup() {
         myMatrix->fill(CRGB(0, 20, 0), true);
         setupMode = true;
         myMatrix->show();
+        clearEeprom();
+        clearWifi();
     }
 
     LampWebServer::Initialize(webServerPort);
