@@ -386,7 +386,9 @@ void LampWebServer::autoConnect()
     });
     wifiManager->onNotFound([](AsyncWebServerRequest* request) {
         if (setupMode) {
-            request->redirect(F("/update"));
+            request->redirect(String(F("http://"))
+                + request->client()->localIP().toString()
+                + String(F("/update")));
             return;
         }
         if (request->url() == String(F("/"))
@@ -401,7 +403,9 @@ void LampWebServer::autoConnect()
     });
     wifiManager->onCaptiveRedirect([](AsyncWebServerRequest* request) {
         if (setupMode) {
-            request->redirect(F("/update"));
+            request->redirect(String(F("http://"))
+                + request->client()->localIP().toString()
+                + String(F("/update")));
             return true;
         }
         return false;
