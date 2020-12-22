@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
 #if defined(ESP32)
+#include <esp_wifi.h>
 #include <WiFi.h>
 #include <SPIFFS.h>
 #define FLASHFS SPIFFS
@@ -194,20 +195,13 @@ void setupSerial()
 
 }
 
-void clearEeprom(size_t size = 512)
-{
-    EEPROM.begin(size);
-    for (uint16_t i = 0; i < size; i++) {
-      EEPROM.write(i, 0);
-    }
-    EEPROM.commit();
-    EEPROM.end();
-}
-
 void clearWifi()
 {
 #if defined(ESP32)
-        WiFi.disconnect(false, true);
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    esp_wifi_init(&cfg);
+    delay(2000);
+    esp_wifi_restore();
 #else
         WiFi.disconnect();
 #endif
@@ -263,7 +257,6 @@ void setup() {
         myMatrix->fill(CRGB(0, 20, 0), true);
         setupMode = true;
         myMatrix->show();
-        clearEeprom();
         clearWifi();
     }
 
