@@ -131,7 +131,7 @@ jobs:
         for asset in artifacts/*.zip; do
           assets+=("-a" "$asset")
         done
-        RELEASE_TAG="$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}"
+        RELEASE_TAG="$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
         hub release create "${assets[@]}" -m "$RELEASE_TAG" "$RELEASE_TAG"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
