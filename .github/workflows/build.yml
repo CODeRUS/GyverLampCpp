@@ -1,0 +1,127 @@
+name: PlatformIO build
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build webui
+      run: |
+        set -x
+        git clone --single-branch --branch master https://github.com/coderus/led-lamp-webui.git || true
+        pushd led-lamp-webui
+        git pull
+        npm install
+        npm run build
+        popd
+
+    - name: Build wifimanager
+      run: |
+        set -x
+        git clone --single-branch --branch master https://github.com/CODeRUS/wifimanager-react-page.git || true
+        pushd wifimanager-react-page
+        git pull
+        npm install
+        npm run build
+        popd
+
+    - name: Prepare data
+      run: |
+        set -x
+        for f in $(find led-lamp-webui/gzipped/static -name "*.js.gz" -o -name "*.css.gz"); do cp -f $f data; done
+        cp -f led-lamp-webui/gzipped/index.html.gz data
+        cp -f led-lamp-webui/gzipped/favicon.ico.gz data
+        for f in $(find wifimanager-react-page/gzipped/static -name "*.js.gz" -o -name "*.css.gz"); do cp -f $f data; done
+        cp -f wifimanager-react-page/gzipped/index.html.gz data/wifi.html.gz
+        zip -r data.zip data
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Cache PlatformIO
+      uses: actions/cache@v2
+      with:
+        path: ~/.platformio
+        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+
+    - name: Install PlatformIO
+      run: |
+        set -x
+        python3 -m pip install --upgrade pip
+        pip3 install --upgrade platformio
+
+    - name: Build env esp32dev
+      run: |
+        set -x
+        platformio run -e esp32dev
+        platformio run -e esp32dev --target buildfs
+
+    - name: Build env nodemcu
+      run: |
+        set -x
+        platformio run -e nodemcu
+        platformio run -e nodemcu --target buildfs
+
+    - name: Build env sonoff-r1
+      run: |
+        set -x
+        platformio run -e sonoff-r1
+        platformio run -e sonoff-r1 --target buildfs
+
+    - name: Build env sonoff-r1-4m
+      run: |
+        set -x
+        platformio run -e sonoff-r1-4m
+        platformio run -e sonoff-r1-4m --target buildfs
+
+    - name: Prepare artifacts
+      run: |
+        set -x
+        mkdir -p artifacts
+        cp data.zip artifacts/data.zip
+        cp .pio/build/esp32dev/firmware.bin artifacts/esp32dev.bin
+        cp .pio/build/esp32dev/spiffs.bin artifacts/esp32dev-fs.bin
+        cp .pio/build/nodemcu/firmware.bin artifacts/nodemcu.bin
+        cp .pio/build/nodemcu/fs.bin artifacts/nodemcu-fs.bin
+        cp .pio/build/sonoff-r1/firmware.bin artifacts/sonoff-r1.bin
+        cp .pio/build/sonoff-r1/fs.bin artifacts/sonoff-r1-fs.bin
+        cp .pio/build/sonoff-r1-4m/firmware.bin artifacts/sonoff-r1-4m.bin
+        cp .pio/build/sonoff-r1-4m/fs.bin artifacts/sonoff-r1-4m-fs.bin
+      
+    - name: Upload build result
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: artifacts
+
+    - name: Create release
+      if: github.ref == 'refs/heads/master'
+      run: |
+        set -x
+        assets=()
+        for asset in artifacts/*.(bin|zip); do
+          assets+=("-a" "$asset")
+        done
+        RELEASE_TAG="$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}"
+        hub release create "${assets[@]}" -m "$RELEASE_TAG" "$RELEASE_TAG"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
