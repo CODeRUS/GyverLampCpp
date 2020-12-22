@@ -440,8 +440,13 @@ LampWebServer::LampWebServer(uint16_t webPort)
         request->send(response);
     });
 
+    webServer->on(PSTR("/reboot"), HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send(200, F("text/html"), F("Rebooting"));
+        restartTimer = millis() + 100;
+    });
+
     webServer->on(PSTR("/update"), HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send_P(200, "text/html", upload_html);
+        request->send_P(200, F("text/html"), upload_html);
     });
     webServer->on(PSTR("/update"), HTTP_POST, updateRequestHandler, updateFileHandler, updateBodyHandler);
     webServer->on(PSTR("/updateSize"), HTTP_POST, updateSizeHandler);
