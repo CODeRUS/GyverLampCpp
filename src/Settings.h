@@ -59,7 +59,7 @@ public:
     };
 
     struct ButttonSettings {
-        uint8_t pin = 0;
+        uint8_t pin = 255;
         uint8_t type = 1;
         uint8_t state = 0;
     };

@@ -132,7 +132,7 @@ void printFreeHeap()
 
 void processButton()
 {
-    if (mySettings->buttonSettings.pin == 0) {
+    if (mySettings->buttonSettings.pin == 255) {
         return;
     }
     button->tick();
@@ -234,7 +234,7 @@ void setup() {
     mySettings->buttonSettings.type = btnType;
     mySettings->buttonSettings.state = btnState;
     if (!mySettings->readSettings()) {
-        mySettings->buttonSettings.pin = 0;
+        mySettings->buttonSettings.pin = 255;
     }
 
     Serial.printf_P(PSTR("Button pin: %d\n"), mySettings->buttonSettings.pin);

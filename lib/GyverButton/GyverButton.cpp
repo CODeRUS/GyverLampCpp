@@ -136,7 +136,7 @@ boolean GButton::isStep() {
     else return false;
 }
 void GButton::tick(boolean state) {
-    if (_PIN == 0) {
+    if (_PIN == 255) {
         return;
     }
     flags.mode = true;
@@ -145,7 +145,7 @@ void GButton::tick(boolean state) {
     flags.mode = false;
 }
 void GButton::tick() {
-    if (_PIN == 0) {
+    if (_PIN == 255) {
         return;
     }
 
