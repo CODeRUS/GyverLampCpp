@@ -15,6 +15,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache npm
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
     - name: Build webui
       run: |
         set -x
@@ -117,7 +125,10 @@ jobs:
       run: |
         set -x
         assets=()
-        for asset in artifacts/*.(bin|zip); do
+        for asset in artifacts/*.bin; do
+          assets+=("-a" "$asset")
+        done
+        for asset in artifacts/*.zip; do
           assets+=("-a" "$asset")
         done
         RELEASE_TAG="$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}"
