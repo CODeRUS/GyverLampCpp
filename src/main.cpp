@@ -127,7 +127,9 @@ void printFlashInfo()
 
 void printFreeHeap()
 {
-    Serial.print(F("FreeHeap: "));
+    static uint32_t s_counter = 0;
+    Serial.print(++s_counter);
+    Serial.print(F("_FreeHeap: "));
     Serial.println(ESP.getFreeHeap());
 }
 
@@ -301,6 +303,11 @@ void loop() {
     ESP.wdtFeed();
 #endif
 
+    if (mySettings->generalSettings.logInterval > 0 && millis() - logTimer > mySettings->generalSettings.logInterval) {
+        printFreeHeap();
+        logTimer = millis();
+    }
+
     lampWebServer->loop();
 
     if (!connectFinished) {
@@ -337,9 +344,4 @@ void loop() {
 #endif
 
     mySettings->loop();
-
-    if (mySettings->generalSettings.logInterval > 0 && millis() - logTimer > mySettings->generalSettings.logInterval) {
-        printFreeHeap();
-        logTimer = millis();
-    }
 }
