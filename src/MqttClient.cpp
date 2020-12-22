@@ -52,7 +52,7 @@ void sendString(String topic, String message, uint8_t qos = 2, bool retain = fal
     client->publish(topic.c_str(), qos, retain, (uint8_t*)message.c_str(), message.length(), false);
 }
 
-bool sendJson(String topic, const DynamicJsonDocument &doc)
+bool sendJson(String topic, const DynamicJsonDocument &doc, uint8_t qos = 2, bool retain = false)
 {
     if (!client->connected()) {
         return false;
@@ -63,7 +63,7 @@ bool sendJson(String topic, const DynamicJsonDocument &doc)
         Serial.println(F("writing payload: wrong size!"));
         return false;
     }
-    sendString(topic, buffer);
+    sendString(topic, buffer, qos, retain);
     return true;
 }
 
@@ -83,7 +83,7 @@ void sendState()
     serializeJsonPretty(doc, Serial);
     Serial.println();
 
-    boolean success = sendJson(stateTopic, doc);
+    boolean success = sendJson(stateTopic, doc, 2, true);
     Serial.printf_P(PSTR("State sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
 }
 
@@ -134,7 +134,7 @@ void sendDiscovery()
     serializeJsonPretty(doc, Serial);
     Serial.println();
 
-    boolean success = sendJson(configTopic, doc);
+    boolean success = sendJson(configTopic, doc, 2, true);
     Serial.printf_P(PSTR("Discovery sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
 }
 
