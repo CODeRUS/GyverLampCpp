@@ -143,6 +143,9 @@ void processButton()
         Serial.println(F("Single button"));
         mySettings->generalSettings.working = !mySettings->generalSettings.working;
         mySettings->saveLater();
+        if (mqtt) {
+            mqtt->update();
+        }
     }
     if (!mySettings->generalSettings.working) {
         return;
@@ -151,11 +154,17 @@ void processButton()
         Serial.println(F("Double button"));
         effectsManager->next();
         mySettings->saveLater();
+        if (mqtt) {
+            mqtt->update();
+        }
     }
     if (button->isTriple()) {
         Serial.println(F("Triple button"));
         effectsManager->previous();
         mySettings->saveLater();
+        if (mqtt) {
+            mqtt->update();
+        }
     }
     if (button->isHolded()) {
         Serial.println(F("Holded button"));
@@ -165,6 +174,9 @@ void processButton()
             stepDirection = 1;
         } else if (brightness == 255) {
             stepDirection = -1;
+        }
+        if (mqtt) {
+            mqtt->update();
         }
     }
     if (isHolding && button->isStep()) {
@@ -180,10 +192,12 @@ void processButton()
         effectsManager->activeEffect()->settings.brightness = brightness;
         myMatrix->setBrightness(brightness);
         mySettings->saveLater();
+        if (mqtt) {
+            mqtt->update();
+        }
     }
     if (button->isRelease() && isHolding) {
         Serial.println(F("Release button"));
-        mySettings->saveLater();
         isHolding = false;
     }
 }
