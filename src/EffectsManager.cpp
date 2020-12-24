@@ -71,6 +71,8 @@
 
 #include "effects/network/DMXEffect.h"
 
+#include "effects/basic/ScrollingTextEffect.h"
+
 #include <map>
 
 namespace  {
@@ -312,4 +314,5 @@ EffectsManager::EffectsManager()
 //    RegisterEffect<SoundEffect>(F("Sound"));
 //    RegisterEffect<SoundStereoEffect>(F("Stereo"));
     RegisterEffect<DMXEffect>(F("DMX"));
+    RegisterEffect<ScrollingTextEffect>(F("Text"));
 }

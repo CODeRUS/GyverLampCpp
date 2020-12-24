@@ -68,6 +68,8 @@ public:
 
     void fadePixelXY(uint8_t x, uint8_t y, uint8_t step);
 
+    void getCharBounds(char c, int16_t *xx, int16_t *yy, uint16_t *ww, uint16_t *hh);
+
 protected:
     MyMatrix(CRGB *leds, uint8_t w, uint8_t h, uint8_t matrixType);
 };

@@ -446,5 +446,15 @@
     "mcast": false,
     "skip": true,
     "fix": true
+  },
+  {
+    "i": "Text",
+    "n": "Scrolling Text",
+    "s": 55,
+    "l": 1,
+    "b": 80,
+    "textColor": 10565,
+    "bgColor": 0,
+    "text": "hello world!"
   }
 ]

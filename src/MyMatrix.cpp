@@ -380,3 +380,22 @@ void MyMatrix::fadePixelXY(uint8_t x, uint8_t y, uint8_t step)
         myMatrix->setLed(pixelNum, CRGB::Black);
     }
 }
+
+void MyMatrix::getCharBounds(char c, int16_t *xx, int16_t *yy, uint16_t *ww, uint16_t *hh)
+{
+    int16_t minx = 0x7FFF, miny = 0x7FFF, maxx = -1, maxy = -1; // Bound rect
+    // Bound rect is intentionally initialized inverted, so 1st char sets it
+
+    int16_t x, y = 0;
+
+    charBounds(c, &x, &y, &minx, &miny, &maxx, &maxy);
+
+    if (maxx >= minx) {     // If legit string bounds were found...
+      *xx = minx;           // Update x1 to least X coord,
+      *ww = maxx - minx + 1; // And w to bound rect width
+    }
+    if (maxy >= miny) { // Same for height
+      *yy = miny;
+      *hh = maxy - miny + 1;
+    }
+}
