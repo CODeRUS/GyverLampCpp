@@ -120,15 +120,17 @@ void ClockHorizontal1Effect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
     if (json.containsKey(F("hColor"))) {
-        hoursColor = json[F("hColor")];
+        uint32_t color = json[F("hColor")];
+        hoursColor = myMatrix->Color24to16(color);
     }
     if (json.containsKey(F("mColor"))) {
-        minutesColor = json[F("mColor")];
+        uint32_t color = json[F("mColor")];
+        minutesColor = myMatrix->Color24to16(color);
     }
 }
 
 void ClockHorizontal1Effect::writeSettings(JsonObject &json)
 {
-    json[F("hColor")] = hoursColor;
-    json[F("mColor")] = minutesColor;
+    json[F("hColor")] = myMatrix->expandColor(hoursColor);
+    json[F("mColor")] = myMatrix->expandColor(minutesColor);
 }
