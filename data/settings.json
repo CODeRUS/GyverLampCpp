@@ -1,35 +1,36 @@
 {
   "activeEffect": 0,
-  "logInterval": 0,
+  "logInterval": 2000,
   "matrix": {
     "width": 16,
     "height": 16,
     "segments": 1,
     "type": 15,
     "maxBrightness": 255,
-    "currentLimit": 1500,
+    "currentLimit": 1000,
     "rotation": 3
   },
   "connection": {
-    "mdns": "firelamp",
-    "apName": "Fire Lamp",
+    "mdns": "devlamp32",
+    "apName": "Dev Lamp 32",
     "ntpServer": "europe.pool.ntp.org",
     "ntpOffset": 10800,
-    "hostname": "firelamp",
-    "ssid": "",
-    "password": ""
+    "hostname": "devlamp32",
+    "ssid": "omhome",
+    "password": "omnomnom",
+    "bssid": "EC:08:6B:D9:8C:8F"
   },
   "mqtt": {
-    "host": "",
+    "host": "192.168.1.111",
     "port": 1883,
-    "username": "",
-    "password": "",
-    "uniqueId": "firelamp",
-    "name": "firelamp",
-    "model": "firelamp"
+    "username": "username",
+    "password": "only4one8mqtt",
+    "uniqueId": "devlamp32",
+    "name": "devlamp32",
+    "model": "devlamp32"
   },
   "button": {
-    "pin": 4,
+    "pin": 12,
     "type": 1,
     "state": 0
   }

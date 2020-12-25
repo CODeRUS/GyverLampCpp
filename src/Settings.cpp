@@ -18,7 +18,7 @@
 
 namespace {
 
-const size_t serializeSize = 512 * 20;
+const size_t serializeSize = 512 * 22;
 
 Settings *object = nullptr;
 
@@ -250,6 +250,9 @@ bool Settings::readSettings()
        if (connectionObject.containsKey(F("ssid"))) {
            connectionSettings.ssid = connectionObject[F("ssid")].as<String>();
        }
+       if (connectionObject.containsKey(F("bssid"))) {
+           connectionSettings.bssid = connectionObject[F("bssid")].as<String>();
+       }
        if (connectionObject.containsKey(F("password"))) {
            connectionSettings.password = connectionObject[F("password")].as<String>();
        }
@@ -369,6 +372,7 @@ void Settings::buildSettingsJson(JsonObject &root)
     connectionObject[F("ntpOffset")] = connectionSettings.ntpOffset;
     connectionObject[F("hostname")] = connectionSettings.hostname;
     connectionObject[F("ssid")] = connectionSettings.ssid;
+    connectionObject[F("bssid")] = connectionSettings.bssid;
     connectionObject[F("password")] = connectionSettings.password;
     connectionObject[F("login")] = connectionSettings.login;
 

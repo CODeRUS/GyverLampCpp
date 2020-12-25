@@ -43,6 +43,7 @@ public:
         uint32_t ntpOffset = 10800;
         String hostname;
         String ssid;
+        String bssid;
         String password;
         String login;
     };

@@ -414,7 +414,8 @@ void LampWebServer::autoConnect()
     wifiManager->autoConnect(mySettings->connectionSettings.apName,
                              mySettings->connectionSettings.ssid,
                              mySettings->connectionSettings.password,
-                             mySettings->connectionSettings.login);
+                             mySettings->connectionSettings.login,
+                             mySettings->connectionSettings.bssid);
 }
 
 LampWebServer::LampWebServer(uint16_t webPort)
