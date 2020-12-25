@@ -1,10 +1,13 @@
-[![Build Status](https://travis-ci.org/CODeRUS/GyverLampCpp.svg?branch=master)](https://travis-ci.org/CODeRUS/GyverLampCpp)
+![Github Actions CI Status](https://github.com/CODeRUS/GyverLampCpp/workflows/PlatformIO%20build/badge.svg)
+
 <br />
 You can download latest build with artifacts from GitHub [Releases](https://github.com/CODeRUS/GyverLampCpp/releases) page
 <br />
 # GyverLampCpp
 
 Rewrite of https://github.com/AlexGyver/GyverLamp in C++ and classes for PlatformIO: https://platformio.org/platformio-ide
+
+Discuss building, modifications, deployment, etc. in telegram group: [@GyverLampCpp](https://t.me/GyverLampCpp)
 
 Contains effects ported from:
 - https://community.alexgyver.ru/threads/wifi-lampa-budilnik-obsuzhdenie-proshivki-ot-gunner47.2418/page-72#post-33652
