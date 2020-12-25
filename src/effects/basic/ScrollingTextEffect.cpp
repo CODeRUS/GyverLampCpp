@@ -96,6 +96,8 @@ void ScrollingTextEffect::initialize(const JsonObject &json)
     } else {
         line = text;
     }
+    posx = 0;
+    indexx = 0;
     delay(50);
 }
 
