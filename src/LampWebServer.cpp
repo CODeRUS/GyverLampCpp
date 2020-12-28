@@ -75,9 +75,6 @@ const char upload_html[] PROGMEM = \
 
 void parseTextMessage(const String &message)
 {
-    Serial.print(F("<< "));
-    Serial.println(message);
-
     mySettings->processConfig(message);
 }
 
@@ -131,7 +128,6 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
             if (info->opcode == WS_TEXT) {
                 //                client->text("I got your text message");
                 parseTextMessage(msg);
-                lampWebServer->sendConfig();
             } else {
                 //                client->binary("I got your binary message");
                 Serial.println(F("Received binary message"));
@@ -191,7 +187,6 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
                     if (info->message_opcode == WS_TEXT) {
                         //                        client->text("I got your text message");
                         parseTextMessage(msg);
-                        lampWebServer->sendConfig();
                     } else {
                         //                        client->binary("I got your binary message");
                         Serial.println(F("Received binary message"));

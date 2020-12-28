@@ -29,6 +29,9 @@ uint32_t settingsSaveInterval = 3000;
 const char* settingsFileName PROGMEM = "/settings.json";
 const char* effectsFileName PROGMEM = "/effects.json";
 
+std::vector<String> pendingConfig;
+std::vector<String> pendingCommand;
+
 String GetUniqueID()
 {
 #if defined(ESP32)
@@ -67,18 +70,33 @@ void Settings::loop()
         settingsSaveTimer = millis();
         saveSettings();
         saveEffects();
+
+        if (pendingConfig.size()) {
+            for (const String &config : pendingConfig) {
+                processConfig(config);
+            }
+            pendingConfig.clear();
+        }
+
+        if (pendingCommand.size()) {
+            for (const String &command : pendingCommand) {
+                processCommandMqtt(command);
+            }
+            pendingCommand.clear();
+        }
     }
 }
 
 void Settings::saveLater()
 {
-    lampWebServer->update();
     settingsChanged = true;
     settingsSaveTimer = millis();
 }
 
 void Settings::saveSettings()
 {
+    busy = true;
+
     Serial.print(F("Saving settings... "));
     File file = FLASHFS.open(settingsFileName, "w");
     if (!file) {
@@ -98,10 +116,14 @@ void Settings::saveSettings()
         file.close();
     }
     Serial.println(F("Done!"));
+
+    busy = false;
 }
 
 void Settings::saveEffects()
 {
+    busy = true;
+
     Serial.print(F("Saving effects... "));
     File file = FLASHFS.open(effectsFileName, "w");
     if (!file) {
@@ -121,6 +143,12 @@ void Settings::saveEffects()
         file.close();
     }
     Serial.println(F("Done!"));
+
+    busy = false;
+
+
+    mqtt->update();
+    lampWebServer->update();
 }
 
 void Settings::writeEffectsMqtt(JsonArray &array)
@@ -132,6 +160,16 @@ void Settings::writeEffectsMqtt(JsonArray &array)
 
 void Settings::processConfig(const String &message)
 {
+    if (busy) {
+        Serial.println(F("\nSaving in progress! Delaying operation.\n"));
+        pendingConfig.push_back(message);
+        lampWebServer->update();
+        return;
+    }
+
+    Serial.print(F("<< "));
+    Serial.println(message);
+
     DynamicJsonDocument doc(512);
     deserializeJson(doc, message);
 
@@ -157,10 +195,27 @@ void Settings::processConfig(const String &message)
     }
 
     mqtt->update();
+    lampWebServer->update();
 }
 
-void Settings::processCommandMqtt(const JsonObject &json)
+void Settings::processCommandMqtt(const String &message)
 {
+    if (busy) {
+        Serial.println(F("\nSaving in progress! Delaying operation.\n"));
+        pendingCommand.push_back(message);
+        return;
+    }
+
+    Serial.println(message);
+    Serial.println();
+
+    DynamicJsonDocument doc(1024);
+    if (deserializeJson(doc, message) != DeserializationError::Ok) {
+        Serial.println(F("Error parsing json data"));
+        return;
+    }
+    JsonObject json = doc.as<JsonObject>();
+
     if (json.containsKey(F("state"))) {
         const String state = json[F("state")];
         mySettings->generalSettings.working = state == F("ON");
@@ -176,6 +231,7 @@ void Settings::processCommandMqtt(const JsonObject &json)
     effectsManager->updateCurrentSettings(json);
     saveLater();
 
+    mqtt->update();
     lampWebServer->update();
 }
 
@@ -194,6 +250,13 @@ bool Settings::readSettings()
         Serial.println(F("FLASHFS Error reading settings file"));
         return false;
     }
+
+    Serial.println("reading settings.json");
+    while (settings.available()) {
+        String buffer = settings.readStringUntil('\n');
+        Serial.println(buffer);
+    }
+    settings.seek(0);
 
     DynamicJsonDocument json(1024);
     DeserializationError err = deserializeJson(json, settings);
@@ -333,6 +396,13 @@ bool Settings::readEffects()
         Serial.println(F("FLASHFS Error reading effects file"));
         return false;
     }
+
+    Serial.println("reading effects.json");
+    while (effects.available()) {
+        String buffer = effects.readStringUntil('\n');
+        Serial.println(buffer);
+    }
+    effects.seek(0);
 
     DynamicJsonDocument json(serializeSize);
     DeserializationError err = deserializeJson(json, effects);

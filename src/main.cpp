@@ -139,34 +139,29 @@ void processButton()
         return;
     }
     button->tick();
-    if (button->isSingle()) {
+    if (button->isSingle() && !mySettings->busy) {
         Serial.println(F("Single button"));
         mySettings->generalSettings.working = !mySettings->generalSettings.working;
         mySettings->saveLater();
         if (mqtt) {
             mqtt->update();
         }
+        if (lampWebServer) {
+            lampWebServer->update();
+        }
     }
     if (!mySettings->generalSettings.working) {
         return;
     }
-    if (button->isDouble()) {
+    if (button->isDouble() && !mySettings->busy) {
         Serial.println(F("Double button"));
         effectsManager->next();
-        mySettings->saveLater();
-        if (mqtt) {
-            mqtt->update();
-        }
     }
-    if (button->isTriple()) {
+    if (button->isTriple() && !mySettings->busy) {
         Serial.println(F("Triple button"));
         effectsManager->previous();
-        mySettings->saveLater();
-        if (mqtt) {
-            mqtt->update();
-        }
     }
-    if (button->isHolded()) {
+    if (button->isHolded() && !mySettings->busy) {
         Serial.println(F("Holded button"));
         isHolding = true;
         const uint8_t brightness = effectsManager->activeEffect()->settings.brightness;
@@ -175,8 +170,12 @@ void processButton()
         } else if (brightness == 255) {
             stepDirection = -1;
         }
+        mySettings->saveLater();
         if (mqtt) {
             mqtt->update();
+        }
+        if (lampWebServer) {
+            lampWebServer->update();
         }
     }
     if (isHolding && button->isStep()) {
@@ -194,6 +193,9 @@ void processButton()
         mySettings->saveLater();
         if (mqtt) {
             mqtt->update();
+        }
+        if (lampWebServer) {
+            lampWebServer->update();
         }
     }
     if (button->isRelease() && isHolding) {

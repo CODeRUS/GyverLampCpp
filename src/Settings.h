@@ -82,7 +82,7 @@ public:
     void writeEffectsMqtt(JsonArray &array);
 
     void processConfig(const String &message);
-    void processCommandMqtt(const JsonObject &json);
+    void processCommandMqtt(const String &message);
 
     bool readSettings();
     bool readEffects();
@@ -92,6 +92,8 @@ public:
     ConenctionSettings connectionSettings;
     MqttSettings mqttSettings;
     ButttonSettings buttonSettings;
+
+    bool busy = false;
 
 protected:
     Settings(uint32_t saveInterval = 3000);

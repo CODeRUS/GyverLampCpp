@@ -142,19 +142,12 @@ void callback(const char* topic, uint8_t* payload, struct PANGO_PROPS props, siz
 {
     Serial.println(topic);
 
-    DynamicJsonDocument doc(1024);
-    if (deserializeJson(doc, payload, len) != DeserializationError::Ok) {
-        Serial.println(F("Error parsing json data"));
-        return;
-    }
-    JsonObject json = doc.as<JsonObject>();
+    char* buffer = new char [len + 1]();
+    memcpy(buffer, payload, len);
+    String message = buffer;
+    delete[] buffer;
 
-    serializeJsonPretty(doc, Serial);
-    Serial.println();
-
-    mySettings->processCommandMqtt(json);
-
-    sendState();
+    mySettings->processCommandMqtt(message);
 }
 
 void onMqttConnect(bool sessionPresent)
