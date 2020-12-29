@@ -114,7 +114,7 @@ void Settings::saveSettings()
         Serial.println(F("Error opening settings file from FLASHFS!"));
         return;
     }
-    size_t wsize = file.write(buffer.c_str(), buffer.length());
+    size_t wsize = file.write(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
     if (wsize != buffer.length()) {
         Serial.print(F("Error writing settings. Size: "));
         Serial.print((int)wsize);
@@ -150,7 +150,7 @@ void Settings::saveEffects()
         Serial.println(F("Error opening effects file from FLASHFS!"));
         return;
     }
-    size_t wsize = file.write(buffer.c_str(), buffer.length());
+    size_t wsize = file.write(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
     if (wsize != buffer.length()) {
         Serial.print(F("Error writing effects. Size: "));
         Serial.print((int)wsize);
