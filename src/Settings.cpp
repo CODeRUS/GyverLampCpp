@@ -98,32 +98,22 @@ void Settings::saveSettings()
     busy = true;
 
     Serial.print(F("Saving settings... "));
-    String buffer;
-    {
-        DynamicJsonDocument json(serializeSize);
-        JsonObject root = json.to<JsonObject>();
-        buildSettingsJson(root);
-
-        if (serializeJson(json, buffer) == 0) {
-            Serial.println(F("Failed to serialize settings"));
-        }
-    }
-    if (buffer.length() == 0) {
-        return;
-    }
 
     File file = FLASHFS.open(settingsFileName, "w");
     if (!file) {
         Serial.println(F("Error opening settings file from FLASHFS!"));
         return;
     }
-    size_t wsize = file.write(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
-    if (wsize != buffer.length()) {
-        Serial.print(F("Error writing settings. Size: "));
-        Serial.print((int)wsize);
-        Serial.print(F(" expected: "));
-        Serial.print((int)buffer.length());
+
+    DynamicJsonDocument json(serializeSize);
+    JsonObject root = json.to<JsonObject>();
+    buildSettingsJson(root);
+
+    if (serializeJson(json, file) == 0) {
+        Serial.println(F("Failed to serialize settings"));
+        saveLater();
     }
+
     if (file) {
         file.close();
     }
@@ -137,31 +127,20 @@ void Settings::saveEffects()
     busy = true;
 
     Serial.print(F("Saving effects... "));
-    String buffer;
-    {
-        DynamicJsonDocument json(serializeSize);
-        JsonArray root = json.to<JsonArray>();
-        buildEffectsJson(root);
-
-        if (serializeJson(json, buffer) == 0) {
-            Serial.println(F("Failed to serialize effects"));
-        }
-    }
-    if (buffer.length() == 0) {
-        return;
-    }
 
     File file = FLASHFS.open(effectsFileName, "w");
     if (!file) {
         Serial.println(F("Error opening effects file from FLASHFS!"));
         return;
     }
-    size_t wsize = file.write(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
-    if (wsize != buffer.length()) {
-        Serial.print(F("Error writing effects. Size: "));
-        Serial.print((int)wsize);
-        Serial.print(F(" expected: "));
-        Serial.print((int)buffer.length());
+
+    DynamicJsonDocument json(serializeSize);
+    JsonArray root = json.to<JsonArray>();
+    buildEffectsJson(root);
+
+    if (serializeJson(json, file) == 0) {
+        Serial.println(F("Failed to serialize effects"));
+        saveLater();
     }
     if (file) {
         file.close();
@@ -300,6 +279,11 @@ bool Settings::readSettings()
     }
 
     JsonObject root = json.as<JsonObject>();
+    if (root.size() == 0) {
+        saveSettings();
+        return false;
+    }
+
     if (root.containsKey(F("matrix"))) {
        JsonObject matrixObject = root[F("matrix")];
        if (matrixObject.containsKey(F("width"))) {
@@ -455,6 +439,12 @@ bool Settings::readEffects()
     }
 
     JsonArray root = json.as<JsonArray>();
+    if (root.size() == 0) {
+        effectsManager->processAllEffects();
+        saveEffects();
+        return false;
+    }
+
     for (JsonObject effect : root) {
         effectsManager->processEffectSettings(effect);
     }
