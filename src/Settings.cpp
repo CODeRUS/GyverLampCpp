@@ -105,8 +105,11 @@ void Settings::saveSettings()
         buildSettingsJson(root);
 
         if (serializeJson(json, buffer) == 0) {
-            Serial.println(F("Failed to write settings to file"));
+            Serial.println(F("Failed to serialize settings"));
         }
+    }
+    if (buffer.length() == 0) {
+        return;
     }
 
     File file = FLASHFS.open(settingsFileName, "w");
@@ -141,8 +144,11 @@ void Settings::saveEffects()
         buildEffectsJson(root);
 
         if (serializeJson(json, buffer) == 0) {
-            Serial.println(F("Failed to write effects to file"));
+            Serial.println(F("Failed to serialize effects"));
         }
+    }
+    if (buffer.length() == 0) {
+        return;
     }
 
     File file = FLASHFS.open(effectsFileName, "w");
@@ -184,28 +190,34 @@ void Settings::processConfig(const String &message)
     Serial.print(F("<< "));
     Serial.println(message);
 
-    DynamicJsonDocument doc(512);
-    deserializeJson(doc, message);
-
-    const String event = doc[F("event")];
-    if (event == F("WORKING")) {
-        const bool working = doc[F("data")];
-        Serial.printf_P(PSTR("working: %s\n"), working ? PSTR("true") : PSTR("false"));
-        mySettings->generalSettings.working = working;
-    } else if (event == F("ACTIVE_EFFECT")) {
-        const int index = doc[F("data")];
-        effectsManager->activateEffect(static_cast<uint8_t>(index));
-    } else if (event == F("EFFECTS_CHANGED")) {
-        const JsonObject effect = doc[F("data")];
-        const String id = effect[F("i")];
-        if (id == effectsManager->activeEffect()->settings.id) {
-            effectsManager->updateCurrentSettings(effect);
-        } else {
-            effectsManager->updateSettingsById(id, effect);
+    {
+        DynamicJsonDocument doc(512);
+        if (DeserializationError err = deserializeJson(doc, message)) {
+            Serial.print(F("[processConfig] Error parsing json: "));
+            Serial.println(err.c_str());
+            return;
         }
-        saveLater();
-    } else if (event == F("ALARMS_CHANGED")) {
 
+        const String event = doc[F("event")];
+        if (event == F("WORKING")) {
+            const bool working = doc[F("data")];
+            Serial.printf_P(PSTR("working: %s\n"), working ? PSTR("true") : PSTR("false"));
+            mySettings->generalSettings.working = working;
+        } else if (event == F("ACTIVE_EFFECT")) {
+            const int index = doc[F("data")];
+            effectsManager->activateEffect(static_cast<uint8_t>(index));
+        } else if (event == F("EFFECTS_CHANGED")) {
+            const JsonObject effect = doc[F("data")];
+            const String id = effect[F("i")];
+            if (id == effectsManager->activeEffect()->settings.id) {
+                effectsManager->updateCurrentSettings(effect);
+            } else {
+                effectsManager->updateSettingsById(id, effect);
+            }
+            saveLater();
+        } else if (event == F("ALARMS_CHANGED")) {
+
+        }
     }
 
     mqtt->update();
@@ -223,27 +235,29 @@ void Settings::processCommandMqtt(const String &message)
     Serial.println(message);
     Serial.println();
 
-    DynamicJsonDocument doc(1024);
-    if (deserializeJson(doc, message) != DeserializationError::Ok) {
-        Serial.println(F("Error parsing json data"));
-        return;
-    }
-    JsonObject json = doc.as<JsonObject>();
-
-    if (json.containsKey(F("state"))) {
-        const String state = json[F("state")];
-        mySettings->generalSettings.working = state == F("ON");
-
-        if (json.containsKey(F("effect"))) {
-            const String effect = json[F("effect")];
-            effectsManager->changeEffectByName(effect);
+    {
+        DynamicJsonDocument doc(1024);
+        if (DeserializationError err = deserializeJson(doc, message)) {
+            Serial.print(F("[processCommandMqtt] Error parsing json: "));
+            Serial.println(err.c_str());
         }
-        if (json.containsKey(F("color"))) {
-            effectsManager->changeEffectById(F("Color"));
+        JsonObject json = doc.as<JsonObject>();
+
+        if (json.containsKey(F("state"))) {
+            const String state = json[F("state")];
+            mySettings->generalSettings.working = state == F("ON");
+
+            if (json.containsKey(F("effect"))) {
+                const String effect = json[F("effect")];
+                effectsManager->changeEffectByName(effect);
+            }
+            if (json.containsKey(F("color"))) {
+                effectsManager->changeEffectById(F("Color"));
+            }
         }
+        effectsManager->updateCurrentSettings(json);
+        saveLater();
     }
-    effectsManager->updateCurrentSettings(json);
-    saveLater();
 
     mqtt->update();
     lampWebServer->update();
@@ -262,6 +276,8 @@ bool Settings::readSettings()
     Serial.printf_P(PSTR("FLASHFS Settings file size: %zu\n"), settings.size());
     if (!settings) {
         Serial.println(F("FLASHFS Error reading settings file"));
+
+        saveSettings();
         return false;
     }
 
@@ -278,6 +294,8 @@ bool Settings::readSettings()
     if (err) {
         Serial.print(F("FLASHFS Error parsing settings json file: "));
         Serial.println(err.c_str());
+
+        saveSettings();
         return false;
     }
 
@@ -411,6 +429,9 @@ bool Settings::readEffects()
     Serial.printf_P(PSTR("FLASHFS Effects file size: %zu\n"), effects.size());
     if (!effects) {
         Serial.println(F("FLASHFS Error reading effects file"));
+
+        effectsManager->processAllEffects();
+        saveEffects();
         return false;
     }
 
@@ -427,6 +448,9 @@ bool Settings::readEffects()
     if (err) {
         Serial.print(F("FLASHFS Error parsing effects json file: "));
         Serial.println(err.c_str());
+
+        effectsManager->processAllEffects();
+        saveEffects();
         return false;
     }
 

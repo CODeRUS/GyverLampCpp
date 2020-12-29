@@ -52,39 +52,32 @@ void sendString(String topic, String message, uint8_t qos = 2, bool retain = fal
     client->publish(topic.c_str(), qos, retain, (uint8_t*)message.c_str(), message.length(), false);
 }
 
-bool sendJson(String topic, const DynamicJsonDocument &doc, uint8_t qos = 2, bool retain = false)
-{
-    if (!client->connected()) {
-        return false;
-    }
-
-    String buffer;
-    if (!serializeJson(doc, buffer)) {
-        Serial.println(F("writing payload: wrong size!"));
-        return false;
-    }
-    sendString(topic, buffer, qos, retain);
-    return true;
-}
-
 void sendState()
 {
     if (!client->connected()) {
         return;
     }
 
-    DynamicJsonDocument doc(1024);
-    JsonObject json = doc.to<JsonObject>();
+    String buffer;
+    {
+        DynamicJsonDocument doc(1024);
+        JsonObject json = doc.to<JsonObject>();
 
-    mySettings->buildJsonMqtt(json);
+        mySettings->buildJsonMqtt(json);
 
-    Serial.println(F("Sending state"));
-    Serial.println(stateTopic);
-    serializeJsonPretty(doc, Serial);
-    Serial.println();
+        Serial.println(F("Sending state"));
+        Serial.println(stateTopic);
+        serializeJsonPretty(doc, Serial);
+        Serial.println();
 
-    boolean success = sendJson(stateTopic, doc, 2, true);
-    Serial.printf_P(PSTR("State sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
+        if (!serializeJson(doc, buffer)) {
+            Serial.println(F("writing payload: wrong size!"));
+        }
+    }
+    if (buffer.length() == 0) {
+        return;
+    }
+    sendString(stateTopic, buffer, 2, true);
 }
 
 void sendAvailability()
@@ -104,38 +97,47 @@ void sendDiscovery()
         return;
     }
 
-    DynamicJsonDocument doc(1024*5);
-    doc[F("~")] = commonTopic;
-    doc[F("name")] = mySettings->mqttSettings.name;
-    doc[F("uniq_id")] = mySettings->mqttSettings.uniqueId;
-    doc[F("cmd_t")] = F("~/set");
-    doc[F("stat_t")] = F("~/state");
-    doc[F("avty_t")] = F("~/available");
-    doc[F("pl_avail")] = F("true");
-    doc[F("pl_not_avail")] = F("false");
-    doc[F("schema")] = F("json");
-    doc[F("brightness")] = true;
-    doc[F("effect")] = true;
-    doc[F("rgb")] = true;
-    doc[F("json_attr_t")] =F("~/state");
+    String buffer;
+    {
+        DynamicJsonDocument doc(1024*5);
+        doc[F("~")] = commonTopic;
+        doc[F("name")] = mySettings->mqttSettings.name;
+        doc[F("uniq_id")] = mySettings->mqttSettings.uniqueId;
+        doc[F("cmd_t")] = F("~/set");
+        doc[F("stat_t")] = F("~/state");
+        doc[F("avty_t")] = F("~/available");
+        doc[F("pl_avail")] = F("true");
+        doc[F("pl_not_avail")] = F("false");
+        doc[F("schema")] = F("json");
+        doc[F("brightness")] = true;
+        doc[F("effect")] = true;
+        doc[F("rgb")] = true;
+        doc[F("json_attr_t")] =F("~/state");
 
-    JsonObject dev = doc.createNestedObject(F("dev"));
-    dev[F("mf")] = mySettings->mqttSettings.manufacturer;
-    dev[F("name")] = mySettings->mqttSettings.name;
-    dev[F("mdl")] = mySettings->mqttSettings.model;
-    JsonArray ids = dev.createNestedArray(F("ids"));
-    ids.add(mySettings->mqttSettings.uniqueId);
+        JsonObject dev = doc.createNestedObject(F("dev"));
+        dev[F("mf")] = mySettings->mqttSettings.manufacturer;
+        dev[F("name")] = mySettings->mqttSettings.name;
+        dev[F("mdl")] = mySettings->mqttSettings.model;
+        JsonArray ids = dev.createNestedArray(F("ids"));
+        ids.add(mySettings->mqttSettings.uniqueId);
 
-    JsonArray effects = doc.createNestedArray(F("effect_list"));
-    mySettings->writeEffectsMqtt(effects);
+        JsonArray effects = doc.createNestedArray(F("effect_list"));
+        mySettings->writeEffectsMqtt(effects);
 
-    Serial.println(F("Sending discovery"));
-    Serial.println(configTopic);
-    serializeJsonPretty(doc, Serial);
-    Serial.println();
+        Serial.println(F("Sending discovery"));
+        Serial.println(configTopic);
+        serializeJsonPretty(doc, Serial);
+        Serial.println();
 
-    boolean success = sendJson(configTopic, doc, 2, true);
-    Serial.printf_P(PSTR("Discovery sent: %s\n"), success ? PSTR("success") : PSTR("fail"));
+
+        if (!serializeJson(doc, buffer)) {
+            Serial.println(F("writing payload: wrong size!"));
+        }
+    }
+    if (buffer.length() == 0 ) {
+        return;
+    }
+    sendString(configTopic, buffer, 2, true);
 }
 
 void callback(const char* topic, uint8_t* payload, struct PANGO_PROPS props, size_t len, size_t index, size_t total)

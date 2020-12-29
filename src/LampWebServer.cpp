@@ -462,13 +462,6 @@ void LampWebServer::loop()
     }
 }
 
-void SendJsonToWs(const DynamicJsonDocument &json)
-{
-    String buffer;
-    serializeJson(json, buffer);
-    socket->textAll(buffer);
-}
-
 void LampWebServer::sendConfig()
 {
     if (!socket) {
@@ -479,15 +472,23 @@ void LampWebServer::sendConfig()
         return;
     }
 
-    DynamicJsonDocument json(512);
-    JsonObject root = json.to<JsonObject>();
-    root[F("activeEffect")] = effectsManager->activeEffectIndex();
-    root[F("working")] = mySettings->generalSettings.working;
-    SendJsonToWs(json);
+    String buffer;
+    {
+        Serial.println(F("Sending state to ws clients"));
 
-    Serial.println(F("Sending state to ws clients"));
-    serializeJsonPretty(json, Serial);
-    Serial.println();
+        DynamicJsonDocument json(512);
+        JsonObject root = json.to<JsonObject>();
+        root[F("activeEffect")] = effectsManager->activeEffectIndex();
+        root[F("working")] = mySettings->generalSettings.working;
+        serializeJson(json, buffer);
+
+        serializeJsonPretty(json, Serial);
+        Serial.println();
+    }
+    if (buffer.length() == 0) {
+        return;
+    }
+    socket->textAll(buffer);
 }
 
 bool LampWebServer::isUpdating()
