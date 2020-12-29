@@ -301,6 +301,9 @@ bool Settings::readSettings()
        if (connectionObject.containsKey(F("apName"))) {
            connectionSettings.apName = connectionObject[F("apName")].as<String>();
        }
+       if (connectionObject.containsKey(F("apPassword"))) {
+           connectionSettings.apPassword = connectionObject[F("apPassword")].as<String>();
+       }
        if (connectionObject.containsKey(F("ntpServer"))) {
            connectionSettings.ntpServer = connectionObject[F("ntpServer")].as<String>();
        }
@@ -438,6 +441,7 @@ void Settings::buildSettingsJson(JsonObject &root)
     JsonObject connectionObject = root.createNestedObject(F("connection"));
     connectionObject[F("mdns")] = connectionSettings.mdns;
     connectionObject[F("apName")] = connectionSettings.apName;
+    connectionObject[F("apPassword")] = connectionSettings.apPassword;
     connectionObject[F("ntpServer")] = connectionSettings.ntpServer;
     connectionObject[F("ntpOffset")] = connectionSettings.ntpOffset;
     connectionObject[F("hostname")] = connectionSettings.hostname;

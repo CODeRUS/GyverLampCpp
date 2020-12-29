@@ -68,6 +68,7 @@ connection - connection settings
 
     mdns - domain name in .local
     apName - access point name for initial configuration
+    apPassword - access point password
     ntpServer - time server name
     ntpOffset - time offset in seconds
     hostname - hostname for local network
@@ -98,7 +99,7 @@ Please refer to https://github.com/esp8266/Arduino/blob/master/variants/nodemcu/
 
 If lamp is turned on while button is pressed, it will boot into safe mode. Lamp will try to connect to last known network, otherwise it will create access point. You can connect to lamp with your mobile device wia wifi and upload correct json settings or firmware files.
 
-Please do not use GPIO0, GPIO2, GPIO15 D3, D4 and D8 on nodemcu boards) for button connection, your board may fail to boot at all if putton will be pressed during startup: https://www.forward.com.au/pfod/ESP8266/GPIOpins/index.html
+Please do not use GPIO0, GPIO2, GPIO15 (D3, D4 and D8 on nodemcu boards) for button connection, your board may fail to boot at all if button will be pressed during startup: https://www.forward.com.au/pfod/ESP8266/GPIOpins/index.html
 
 ## Changes with original GyverLamp projects
 

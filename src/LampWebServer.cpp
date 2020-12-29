@@ -370,7 +370,7 @@ void LampWebServer::autoConnect()
         return;
     }
 
-    wifiManager = new ESPReactWifiManager(mySettings->connectionSettings.hostname);
+    wifiManager = new ESPReactWifiManager();
     wifiManager->setFallbackToAp(true);
     wifiManager->onFinished([](bool isAPMode) {
         webServer->begin();
@@ -406,11 +406,14 @@ void LampWebServer::autoConnect()
         return false;
     });
     wifiManager->setupHandlers(webServer);
-    wifiManager->autoConnect(mySettings->connectionSettings.apName,
-                             mySettings->connectionSettings.ssid,
-                             mySettings->connectionSettings.password,
-                             mySettings->connectionSettings.login,
-                             mySettings->connectionSettings.bssid);
+    wifiManager->setHostname(mySettings->connectionSettings.hostname);
+    wifiManager->setApOptions(mySettings->connectionSettings.apName,
+                              mySettings->connectionSettings.apPassword);
+    wifiManager->setStaOptions(mySettings->connectionSettings.ssid,
+                               mySettings->connectionSettings.password,
+                               mySettings->connectionSettings.login,
+                               mySettings->connectionSettings.bssid);
+    wifiManager->autoConnect();
 }
 
 LampWebServer::LampWebServer(uint16_t webPort)

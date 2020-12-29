@@ -221,7 +221,7 @@ void clearWifi()
     delay(2000);
     esp_wifi_restore();
 #else
-        WiFi.disconnect();
+    WiFi.disconnect();
 #endif
 }
 

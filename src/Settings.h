@@ -39,6 +39,7 @@ public:
     struct ConenctionSettings {
         String mdns;
         String apName;
+        String apPassword;
         String ntpServer;
         uint32_t ntpOffset = 10800;
         String hostname;
