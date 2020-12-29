@@ -98,20 +98,29 @@ void Settings::saveSettings()
     busy = true;
 
     Serial.print(F("Saving settings... "));
+    String buffer;
+    {
+        DynamicJsonDocument json(serializeSize);
+        JsonObject root = json.to<JsonObject>();
+        buildSettingsJson(root);
+
+        if (serializeJson(json, buffer) == 0) {
+            Serial.println(F("Failed to write settings to file"));
+        }
+    }
+
     File file = FLASHFS.open(settingsFileName, "w");
     if (!file) {
         Serial.println(F("Error opening settings file from FLASHFS!"));
         return;
     }
-
-    DynamicJsonDocument json(serializeSize);
-    JsonObject root = json.to<JsonObject>();
-    buildSettingsJson(root);
-
-    if (serializeJson(json, file) == 0) {
-        Serial.println(F("Failed to write settings to file"));
+    size_t wsize = file.write(buffer.c_str(), buffer.length());
+    if (wsize != buffer.length()) {
+        Serial.print(F("Error writing settings. Size: "));
+        Serial.print((int)wsize);
+        Serial.print(F(" expected: "));
+        Serial.print((int)buffer.length());
     }
-
     if (file) {
         file.close();
     }
@@ -125,30 +134,35 @@ void Settings::saveEffects()
     busy = true;
 
     Serial.print(F("Saving effects... "));
+    String buffer;
+    {
+        DynamicJsonDocument json(serializeSize);
+        JsonArray root = json.to<JsonArray>();
+        buildEffectsJson(root);
+
+        if (serializeJson(json, buffer) == 0) {
+            Serial.println(F("Failed to write effects to file"));
+        }
+    }
+
     File file = FLASHFS.open(effectsFileName, "w");
     if (!file) {
         Serial.println(F("Error opening effects file from FLASHFS!"));
         return;
     }
-
-    DynamicJsonDocument json(serializeSize);
-    JsonArray root = json.to<JsonArray>();
-    buildEffectsJson(root);
-
-    if (serializeJson(json, file) == 0) {
-        Serial.println(F("Failed to write effects to file"));
+    size_t wsize = file.write(buffer.c_str(), buffer.length());
+    if (wsize != buffer.length()) {
+        Serial.print(F("Error writing effects. Size: "));
+        Serial.print((int)wsize);
+        Serial.print(F(" expected: "));
+        Serial.print((int)buffer.length());
     }
-
     if (file) {
         file.close();
     }
     Serial.println(F("Done!"));
 
     busy = false;
-
-
-    mqtt->update();
-    lampWebServer->update();
 }
 
 void Settings::writeEffectsMqtt(JsonArray &array)
