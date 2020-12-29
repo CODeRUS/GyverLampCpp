@@ -3,12 +3,21 @@
 
 namespace  {
 
+#if defined(LED_PIN)
+#define XSTR(x) STR(x)
+#define STR(x) #x
+#pragma message "Using led pin: " XSTR(LED_PIN)
+const uint8_t ledPin = LED_PIN;
+#else
+
 #if defined(SONOFF)
 const uint8_t ledPin = 14;
 #elif defined(ESP32)
 const uint8_t ledPin = 13;
 #else
 const uint8_t ledPin = D4;
+#endif
+
 #endif
 
 uint16_t numLeds = 0;

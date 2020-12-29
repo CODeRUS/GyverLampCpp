@@ -46,8 +46,9 @@ Then just upload built fs to module using `pio run --target uploadfs -e nodemcu`
 
 ## Configuration
 
-src/MyMatrix.cpp - change led pin here
-src/EffectsManager.cpp - comment out unused effects here
+Copy platformio_override_sample.ini to platformio_override.ini. Change value of `build_flags = -DLED_PIN=5` from 5 to pin you want to use. Otherwise default pin will be used: GPIO15 for sonoff boards, GPIO13 for esp32, D4 for nodemcu ones.
+
+src/EffectsManager.cpp - comment out unused effects here. Comment out incudes at top and RegisterEffect from bottom of file.
 
 data/effects.json - default options for effects
 
