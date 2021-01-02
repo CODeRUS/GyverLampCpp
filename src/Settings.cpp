@@ -286,6 +286,9 @@ bool Settings::readSettings()
 
     if (root.containsKey(F("matrix"))) {
        JsonObject matrixObject = root[F("matrix")];
+       if (matrixObject.containsKey(F("pin"))) {
+           matrixSettings.pin = matrixObject[F("pin")];
+       }
        if (matrixObject.containsKey(F("width"))) {
            matrixSettings.width = matrixObject[F("width")];
        }
@@ -458,6 +461,7 @@ void Settings::buildSettingsJson(JsonObject &root)
     root[F("working")] = generalSettings.working;
 
     JsonObject matrixObject = root.createNestedObject(F("matrix"));
+    matrixObject[F("pin")] = matrixSettings.pin;
     matrixObject[F("width")] = matrixSettings.width;
     matrixObject[F("height")] = matrixSettings.height;
     matrixObject[F("segments")] = matrixSettings.segments;

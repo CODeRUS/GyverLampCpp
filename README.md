@@ -46,8 +46,6 @@ Then just upload built fs to module using `pio run --target uploadfs -e nodemcu`
 
 ## Configuration
 
-Copy platformio_override_sample.ini to platformio_override.ini. Change value of `build_flags = -DLED_PIN=5` from 5 to pin you want to use. Otherwise default pin will be used: GPIO15 for sonoff boards, GPIO13 for esp32, D4 for nodemcu ones.
-
 src/EffectsManager.cpp - comment out unused effects here. Comment out incudes at top and RegisterEffect from bottom of file.
 
 data/effects.json - default options for effects
@@ -61,6 +59,7 @@ data/effects.json - default options for effects
 data/settings.json - main settings of firmware
 matrix - settings of matrix
 
+    pin - GPIO number of pin used to communicate with matrix leds
     type - match with Framebuffer GFX: https://github.com/marcmerlin/Framebuffer_GFX/blob/master/Framebuffer_GFX.h#L43
     values should be combined. Example: NEO_MATRIX_ZIGZAG + NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_ROWS (or NEO_MATRIX_COLUMNS) = 11 (or 15). Matrix test effect at boot: Pixels started from left bottom. Red is horizontal from left to right, Green is vertical from bottom to top.
     rotation - value from 0 to 3, each value by +90 degree.
