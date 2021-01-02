@@ -1,24 +1,13 @@
 #include "MyMatrix.h"
 #include "Settings.h"
 
+#if defined(ESP8266)
+#include "MyLedController8266.h"
+#else
+#include "MyLedController32.h"
+#endif
+
 namespace  {
-
-#if defined(LED_PIN)
-#define XSTR(x) STR(x)
-#define STR(x) #x
-#pragma message "Using led pin: " XSTR(LED_PIN)
-const uint8_t ledPin = LED_PIN;
-#else
-
-#if defined(SONOFF)
-const uint8_t ledPin = 14;
-#elif defined(ESP32)
-const uint8_t ledPin = 13;
-#else
-const uint8_t ledPin = D4;
-#endif
-
-#endif
 
 uint16_t numLeds = 0;
 
@@ -92,6 +81,10 @@ FASTLED_NAMESPACE_BEGIN
 uint16_t XY(uint8_t x, uint8_t y) {
     return object->XY(x, y);
 }
+
+template <EOrder RGB_ORDER = RGB>
+class WS2812CustomController : public ClocklessCustomController<C_NS(250), C_NS(625), C_NS(375), RGB_ORDER> {};
+
 FASTLED_NAMESPACE_END
 
 MyMatrix *MyMatrix::instance()
@@ -107,13 +100,14 @@ void MyMatrix::Initialize()
 
     Serial.println(F("Initializing MyMatrix"));
 
+    PinHolder::setLedPin(mySettings->matrixSettings.pin);
     uint8_t sizeWidth = mySettings->matrixSettings.width;
     uint8_t sizeHeight = mySettings->matrixSettings.height;
     uint8_t matrixType = mySettings->matrixSettings.type;
 
     numLeds = sizeWidth * sizeHeight;
     leds = new CRGB[numLeds]();
-    FastLED.addLeds<WS2812B, ledPin, GRB>(leds, numLeds);
+    FastLED.addLeds<WS2812CustomController, GRB>(leds, numLeds);
 
     uint8_t maxBrightness = mySettings->matrixSettings.maxBrightness;
     Serial.printf_P(PSTR("Set max brightness to: %u\n"), maxBrightness);
