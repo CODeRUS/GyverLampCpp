@@ -26,19 +26,12 @@ public:
     };
 
     struct MatrixSettings {
-#if defined(LED_PIN)
-#define XSTR(x) STR(x)
-#define STR(x) #x
-#pragma message "Using led pin: " XSTR(LED_PIN)
-        uint8_t pin = LED_PIN;
-#else
 #if defined(SONOFF)
         uint8_t pin = 14;
 #elif defined(ESP32)
         uint8_t pin = 13;
 #else
         uint8_t pin = 2;
-#endif
 #endif
         uint8_t width = 16;
         uint8_t height = 16;
