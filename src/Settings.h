@@ -37,7 +37,7 @@ public:
 #elif defined(ESP32)
         uint8_t pin = 13;
 #else
-        uint8_t pin = D4;
+        uint8_t pin = 2;
 #endif
 #endif
         uint8_t width = 16;

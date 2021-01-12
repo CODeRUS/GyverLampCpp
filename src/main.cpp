@@ -42,7 +42,7 @@ const GButton::PullType btnType = GButton::PullTypeHigh;
 const uint8_t relayPin = 12;
 const uint8_t miniLedPin = 13;
 #else
-const uint8_t btnPin = D2;
+const uint8_t btnPin = 4;
 const GButton::PullType btnType = GButton::PullTypeLow;
 #endif
 const GButton::DefaultState btnState = GButton::DefaultStateOpen;
