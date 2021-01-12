@@ -24,7 +24,7 @@ Settings *object = nullptr;
 
 bool settingsChanged = false;
 uint32_t settingsSaveTimer = 0;
-uint32_t settingsSaveInterval = 3000;
+uint32_t settingsSaveInterval = 5000;
 
 const char* settingsFileName PROGMEM = "/settings.json";
 const char* effectsFileName PROGMEM = "/effects.json";

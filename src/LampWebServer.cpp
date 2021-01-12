@@ -28,6 +28,7 @@ extern "C" uint32_t _FS_end;
 #define ARDUINOJSON_ENABLE_PROGMEM 1
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
+#include <Ticker.h>
 
 
 namespace  {
@@ -48,6 +49,17 @@ void (*onConnectedCallback)(bool) = nullptr;
 uint16_t httpPort = 80;
 
 uint32_t restartTimer = 0;
+
+Ticker updateTimer;
+
+void staticUpdate()
+{
+    if (!lampWebServer) {
+        return;
+    }
+
+    lampWebServer->sendConfig();
+}
 
 const char upload_html[] PROGMEM = \
 "<form method='POST' enctype='multipart/form-data'>\n"\
@@ -503,5 +515,5 @@ void LampWebServer::onConnected(void (*func)(bool))
 
 void LampWebServer::update()
 {
-    sendConfig();
+    updateTimer.once(2, staticUpdate);
 }

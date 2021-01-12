@@ -19,6 +19,7 @@ namespace
 {
 
 Ticker mqttReconnectTimer;
+Ticker updateTimer;
 
 MqttClient *object = nullptr;
 PangolinMQTT *client = nullptr;
@@ -78,6 +79,15 @@ void sendState()
         return;
     }
     sendString(stateTopic, buffer, 2, true);
+}
+
+void staticUpdate()
+{
+    if (!mqtt) {
+        return;
+    }
+
+    sendState();
 }
 
 void sendAvailability()
@@ -283,7 +293,7 @@ void MqttClient::update()
         return;
     }
 
-    sendState();
+    mqttReconnectTimer.once(1, staticUpdate);
 }
 
 MqttClient::MqttClient()
