@@ -183,8 +183,9 @@ void Settings::processConfig(const String &message)
             Serial.printf_P(PSTR("working: %s\n"), working ? PSTR("true") : PSTR("false"));
             mySettings->generalSettings.working = working;
         } else if (event == F("ACTIVE_EFFECT")) {
-            const int index = doc[F("data")];
-            effectsManager->activateEffect(static_cast<uint8_t>(index));
+//            const int index = doc[F("data")];
+//            effectsManager->activateEffect(static_cast<uint8_t>(index));
+            return;
         } else if (event == F("EFFECTS_CHANGED")) {
             const JsonObject effect = doc[F("data")];
             const String id = effect[F("i")];

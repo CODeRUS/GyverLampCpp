@@ -218,7 +218,7 @@ void EffectsManager::updateSettingsById(const String &id, const JsonObject &json
         Effect *effect = effects[index];
         if (effect->settings.id == id) {
             if (effect != effects[activeIndex]) {
-                activateEffect(activeIndex);
+                activateEffect(index);
             }
             effect->initialize(json);
             break;
