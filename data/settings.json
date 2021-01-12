@@ -2,6 +2,7 @@
   "activeEffect": 0,
   "logInterval": 0,
   "matrix": {
+    "pin": 2,
     "width": 16,
     "height": 16,
     "segments": 1,
@@ -13,11 +14,14 @@
   "connection": {
     "mdns": "firelamp",
     "apName": "Fire Lamp",
+    "apPassword": "",
     "ntpServer": "europe.pool.ntp.org",
     "ntpOffset": 10800,
     "hostname": "firelamp",
     "ssid": "",
-    "password": ""
+    "bssid": "",
+    "password": "",
+    "login": ""
   },
   "mqtt": {
     "host": "",
