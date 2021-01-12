@@ -131,6 +131,6 @@ TimeClient::TimeClient()
 
     Serial.printf_P(
         PSTR("Initializing GyverTimer: %s, offset: %d\n"),
-        mySettings->connectionSettings.ntpServer.c_str(),
-                timeOffset);
+            mySettings->connectionSettings.ntpServer.c_str(),
+            timeOffset);
 }
