@@ -285,6 +285,9 @@ void setup() {
 
     Serial.println(F("AutoConnect started"));
     lampWebServer->onConnected([](bool isConnected) {
+        if (connectFinished) {
+            return;
+        }
         Serial.println(F("AutoConnect finished"));
         if (isConnected) {
             LocalDNS::Initialize();

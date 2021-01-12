@@ -198,7 +198,9 @@ void EffectsManager::activateEffect(uint8_t index)
     myMatrix->setBrightness(effect->settings.brightness);
     Serial.printf_P(PSTR("Activating effect[%u]: %s\n"), index, effect->settings.name.c_str());
     effect->activate();
-    mqtt->update();
+    if (mqtt) {
+        mqtt->update();
+    }
     lampWebServer->update();
     mySettings->saveLater();
 }

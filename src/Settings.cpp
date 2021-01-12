@@ -199,7 +199,9 @@ void Settings::processConfig(const String &message)
         }
     }
 
-    mqtt->update();
+    if (mqtt) {
+        mqtt->update();
+    }
     lampWebServer->update();
 }
 
@@ -238,7 +240,9 @@ void Settings::processCommandMqtt(const String &message)
         saveLater();
     }
 
-    mqtt->update();
+    if (mqtt) {
+        mqtt->update();
+    }
     lampWebServer->update();
 }
 
