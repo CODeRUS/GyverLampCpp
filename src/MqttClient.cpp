@@ -236,7 +236,7 @@ void onMqttDisconnect(int8_t reason)
     default:
         Serial.printf_P(PSTR("unknown %d\n"), reason);
     }
-    mqttReconnectTimer.once(2, connectToMqtt);
+    mqttReconnectTimer.once(10, connectToMqtt);
 }
 
 #if defined(ESP8266)
@@ -293,7 +293,7 @@ void MqttClient::update()
         return;
     }
 
-    mqttReconnectTimer.once(1, staticUpdate);
+    updateTimer.once(1, staticUpdate);
 }
 
 MqttClient::MqttClient()
