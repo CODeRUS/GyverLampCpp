@@ -88,6 +88,12 @@ jobs:
         platformio run -e nodemcu
         platformio run -e nodemcu --target buildfs
 
+    - name: Build env d1_mini
+      run: |
+        set -x
+        platformio run -e d1_mini
+        platformio run -e d1_mini --target buildfs
+
     - name: Build env sonoff-r1
       run: |
         set -x
@@ -109,6 +115,8 @@ jobs:
         cp .pio/build/esp32dev/spiffs.bin artifacts/esp32dev-fs.bin
         cp .pio/build/nodemcu/firmware.bin artifacts/nodemcu.bin
         cp .pio/build/nodemcu/fs.bin artifacts/nodemcu-fs.bin
+        cp .pio/build/d1_mini/firmware.bin artifacts/d1_mini.bin
+        cp .pio/build/d1_mini/fs.bin artifacts/d1_mini-fs.bin
         cp .pio/build/sonoff-r1/firmware.bin artifacts/sonoff-r1.bin
         cp .pio/build/sonoff-r1/fs.bin artifacts/sonoff-r1-fs.bin
         cp .pio/build/sonoff-r1-4m/firmware.bin artifacts/sonoff-r1-4m.bin
