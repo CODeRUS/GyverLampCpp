@@ -15,14 +15,14 @@ ColorEffect::ColorEffect(const String &id)
 
 void ColorEffect::tick()
 {
-    if (myColor > 0) {
-        myMatrix->fill(CRGB(myColor));
-    } else {
+    CRGB color = myColor;
+    if (!color) {
         uint8_t hue = (mySettings->generalSettings.soundControl && useSpectrometer)
                 ? mySpectrometer->asHue()
                 : settings.scale * 2.55;
-        myMatrix->fill(CHSV(hue, 255, 255));
+        color = CHSV(hue, 255, 255);
     }
+    myMatrix->fill(color);
 }
 
 void ColorEffect::initialize(const JsonObject &json)
