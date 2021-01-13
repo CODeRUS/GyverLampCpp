@@ -131,6 +131,7 @@ void EffectsManager::loop()
     }
 
     if (effectTimer != 0 && (millis() - effectTimer) < activeEffect()->settings.speed) {
+        myMatrix->show();
         return;
     }
     effectTimer = millis();
