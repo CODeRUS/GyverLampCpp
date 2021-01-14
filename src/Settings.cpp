@@ -315,6 +315,9 @@ bool Settings::readSettings()
        if (matrixObject.containsKey(F("rotation"))) {
            matrixSettings.rotation = matrixObject[F("rotation")];
        }
+       if (matrixObject.containsKey(F("dither"))) {
+           matrixSettings.dither = matrixObject[F("dither")];
+       }
     }
 
     if (root.containsKey(F("connection"))) {
@@ -474,6 +477,7 @@ void Settings::buildSettingsJson(JsonObject &root)
     matrixObject[F("maxBrightness")] = matrixSettings.maxBrightness;
     matrixObject[F("currentLimit")] = matrixSettings.currentLimit;
     matrixObject[F("rotation")] = matrixSettings.rotation;
+    matrixObject[F("dither")] = matrixSettings.dither;
 
     JsonObject connectionObject = root.createNestedObject(F("connection"));
     connectionObject[F("mdns")] = connectionSettings.mdns;

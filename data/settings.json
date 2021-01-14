@@ -9,7 +9,8 @@
     "type": 15,
     "maxBrightness": 255,
     "currentLimit": 1500,
-    "rotation": 3
+    "rotation": 3,
+    "dither": true
   },
   "connection": {
     "mdns": "firelamp",

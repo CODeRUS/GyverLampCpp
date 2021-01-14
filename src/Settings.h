@@ -41,6 +41,7 @@ public:
         uint8_t maxBrightness = 80;
         uint16_t currentLimit = 1000;
         uint8_t rotation = 3;
+        bool dither = true;
     };
 
     struct ConenctionSettings {

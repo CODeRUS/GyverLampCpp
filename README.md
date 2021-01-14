@@ -63,6 +63,7 @@ matrix - settings of matrix
     type - match with Framebuffer GFX: https://github.com/marcmerlin/Framebuffer_GFX/blob/master/Framebuffer_GFX.h#L43
     values should be combined. Example: NEO_MATRIX_ZIGZAG + NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_ROWS (or NEO_MATRIX_COLUMNS) = 11 (or 15). Matrix test effect at boot: Pixels started from left bottom. Red is horizontal from left to right, Green is vertical from bottom to top.
     rotation - value from 0 to 3, each value by +90 degree.
+    dither - enable or disable dithering: https://github.com/FastLED/FastLED/wiki/FastLED-Temporal-Dithering
 
 connection - connection settings
 
