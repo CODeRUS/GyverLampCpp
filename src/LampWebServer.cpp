@@ -437,11 +437,14 @@ LampWebServer::LampWebServer(uint16_t webPort)
 
     webServer->addHandler(socket);
 
+    webServer->rewrite(PSTR("/"), PSTR("/index.html"));
+    webServer->rewrite(PSTR("/index.html"), PSTR("/index-cdn.html")).setFilter(ON_STA_FILTER);
+    webServer->rewrite(PSTR("/wifi.html"), PSTR("/wifi-cdn.html")).setFilter(ON_STA_FILTER);
     webServer->serveStatic(PSTR("/static/js/"), FLASHFS, PSTR("/"), PSTR("max-age=86400"));
     webServer->serveStatic(PSTR("/static/css/"), FLASHFS, PSTR("/"), PSTR("max-age=86400"));
     webServer->serveStatic(PSTR("/effects.json"), FLASHFS, PSTR("/effects.json"), PSTR("no-cache"));
     webServer->serveStatic(PSTR("/settings.json"), FLASHFS, PSTR("/settings.json"), PSTR("no-cache"));
-    webServer->serveStatic(PSTR("/"), FLASHFS, PSTR("/"), PSTR("max-age=86400")).setDefaultFile(PSTR("index.html"));
+    webServer->serveStatic(PSTR("/"), FLASHFS, PSTR("/"), PSTR("max-age=86400"));
 
     webServer->on(PSTR("/effectJson"), HTTP_GET, [](AsyncWebServerRequest *request) {
         PrettyAsyncJsonResponse *response = new PrettyAsyncJsonResponse(false, 1024);
