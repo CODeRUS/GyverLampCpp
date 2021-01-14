@@ -15,42 +15,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Cache npm
-      uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-
-    - name: Build webui
-      run: |
-        set -x
-        git clone --single-branch --branch master https://github.com/coderus/led-lamp-webui.git || true
-        pushd led-lamp-webui
-        git pull
-        npm install
-        npm run build
-        popd
-
-    - name: Build wifimanager
-      run: |
-        set -x
-        git clone --single-branch --branch master https://github.com/CODeRUS/wifimanager-react-page.git || true
-        pushd wifimanager-react-page
-        git pull
-        npm install
-        npm run build
-        popd
-
     - name: Prepare data
       run: |
         set -x
-        for f in $(find led-lamp-webui/gzipped/static -name "*.js.gz" -o -name "*.css.gz"); do cp -f $f data; done
-        cp -f led-lamp-webui/gzipped/index.html.gz data
-        cp -f led-lamp-webui/gzipped/favicon.ico.gz data
-        for f in $(find wifimanager-react-page/gzipped/static -name "*.js.gz" -o -name "*.css.gz"); do cp -f $f data; done
-        cp -f wifimanager-react-page/gzipped/index.html.gz data/wifi.html.gz
+        pushd data
+        for f in $(curl -sL https://api.github.com/repos/coderus/led-lamp-webui/releases/latest | jq -r '.assets[].browser_download_url'); do curl $f -O; done
+        for f in $(curl -sL https://api.github.com/repos/coderus/wifimanager-react-page/releases/latest | jq -r '.assets[].browser_download_url'); do curl $f -O; done
+        popd
         zip -r data.zip data
 
     - name: Cache pip
