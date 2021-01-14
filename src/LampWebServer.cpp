@@ -250,7 +250,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             if (json) {
                 json.close();
             }
-            json = FLASHFS.open("/settings.json", "w");
+            json = FLASHFS.open("/settings.json.save", "w");
             if (!json) {
                 Serial.println(F("FLASHFS Error opening settings file for write"));
                 return;
@@ -260,7 +260,7 @@ void updateHandler(uint8_t *data, size_t len, size_t index, size_t total, bool f
             if (json) {
                 json.close();
             }
-            json = FLASHFS.open("/effects.json", "w");
+            json = FLASHFS.open("/effects.json.save", "w");
             if (!json) {
                 Serial.println(F("FLASHFS Error opening effects file for write"));
                 return;
@@ -455,8 +455,12 @@ LampWebServer::LampWebServer(uint16_t webPort)
     });
 
     webServer->on(PSTR("/reboot"), HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(200, F("text/html"), F("Rebooting"));
-        restartTimer = millis() + 100;
+        if (mySettings->busy) {
+            request->send(200, F("text/html"), F("Busy, try again later"));
+        } else {
+            request->send(200, F("text/html"), F("Rebooting"));
+            restartTimer = millis() + 100;
+        }
     });
 
     webServer->on(PSTR("/update"), HTTP_GET, [](AsyncWebServerRequest *request) {
