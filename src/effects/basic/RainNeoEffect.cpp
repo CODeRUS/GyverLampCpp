@@ -183,9 +183,11 @@ void RainNeoEffect::deactivate()
     delete[] splashArray;
     if (noise) {
         delete[] noise;
+        noise = nullptr;
     }
     if (lightning) {
         delete[] lightning;
+        lightning = nullptr;
     }
 }
 
