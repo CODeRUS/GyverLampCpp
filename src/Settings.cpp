@@ -29,6 +29,9 @@ uint32_t settingsSaveInterval = 5000;
 const char* settingsFileName PROGMEM = "/settings.json";
 const char* effectsFileName PROGMEM = "/effects.json";
 
+const char* settingsFileNameSave PROGMEM = "/settings.json.save";
+const char* effectsFileNameSave PROGMEM = "/effects.json.save";
+
 std::vector<String> pendingConfig;
 std::vector<String> pendingCommand;
 
@@ -39,6 +42,69 @@ String GetUniqueID()
 #else
   return String((uint32_t)ESP.getChipId(), HEX);
 #endif
+}
+
+bool copyFile(String fileFrom, String fileTo)
+{
+    mySettings->busy = true;
+    Serial.printf_P(PSTR("Copying file from %s to %s\n"), fileFrom.c_str(), fileTo.c_str());
+
+    File source = FLASHFS.open(fileFrom, "r");
+    if (!source) {
+        Serial.print(F("FLASHFS Error reading file: "));
+        Serial.println(fileFrom);
+        mySettings->busy = false;
+        return false;
+    }
+
+    if (FLASHFS.exists(fileTo)) {
+        FLASHFS.remove(fileTo);
+    }
+
+    File dest = FLASHFS.open(fileTo, "w");
+    if (!dest) {
+        Serial.print(F("FLASHFS Error opening file: "));
+        Serial.println(fileTo);
+        source.close();
+        mySettings->busy = false;
+        return false;
+    }
+
+    size_t blockSize = 64;
+    uint8_t buf[blockSize];
+    while (size_t n = source.read(buf, blockSize)) {
+        if (dest.write(buf, n) == 0) {
+            Serial.print(F("FLASHFS Error writing to file: "));
+            Serial.println(fileTo);
+            source.close();
+            dest.close();
+            FLASHFS.remove(fileTo);
+            mySettings->busy = false;
+            return false;
+        }
+    }
+
+    dest.close();
+    source.close();
+
+    mySettings->busy = false;
+    return true;
+}
+
+void restoreSettingsAndReboot()
+{
+    Serial.println(F("Restoring settings json save and rebooting"));
+    copyFile(settingsFileName, settingsFileNameSave);
+    ESP.restart();
+    delay(5000);
+}
+
+void restoreEffectsAndReboot()
+{
+    Serial.println(F("Restoring effects json save and rebooting"));
+    copyFile(effectsFileName, effectsFileNameSave);
+    ESP.restart();
+    delay(5000);
 }
 
 } // namespace
@@ -99,7 +165,7 @@ void Settings::saveSettings()
 
     Serial.print(F("Saving settings... "));
 
-    File file = FLASHFS.open(settingsFileName, "w");
+    File file = FLASHFS.open(settingsFileNameSave, "w");
     if (!file) {
         Serial.println(F("Error opening settings file from FLASHFS!"));
         return;
@@ -128,7 +194,7 @@ void Settings::saveEffects()
 
     Serial.print(F("Saving effects... "));
 
-    File file = FLASHFS.open(effectsFileName, "w");
+    File file = FLASHFS.open(effectsFileNameSave, "w");
     if (!file) {
         Serial.println(F("Error opening effects file from FLASHFS!"));
         return;
@@ -253,15 +319,21 @@ bool Settings::readSettings()
     Serial.printf_P(PSTR("FLASHFS Settings file exists: %s\n"), settingsExists ? PSTR("true") : PSTR("false"));
     if (!settingsExists) {
         saveSettings();
+        copyFile(settingsFileNameSave, settingsFileName);
         return false;
     }
 
-    File settings = FLASHFS.open(settingsFileName, "r");
+    bool settingsSaveExists = FLASHFS.exists(settingsFileNameSave);
+    Serial.printf_P(PSTR("FLASHFS Settings save file exists: %s\n"), settingsSaveExists ? PSTR("true") : PSTR("false"));
+    if (!settingsSaveExists) {
+        copyFile(settingsFileName, settingsFileNameSave);
+    }
+
+    File settings = FLASHFS.open(settingsFileNameSave, "r");
     Serial.printf_P(PSTR("FLASHFS Settings file size: %zu\n"), settings.size());
     if (!settings) {
         Serial.println(F("FLASHFS Error reading settings file"));
-
-        saveSettings();
+        restoreSettingsAndReboot();
         return false;
     }
 
@@ -279,13 +351,13 @@ bool Settings::readSettings()
         Serial.print(F("FLASHFS Error parsing settings json file: "));
         Serial.println(err.c_str());
 
-        saveSettings();
+        restoreSettingsAndReboot();
         return false;
     }
 
     JsonObject root = json.as<JsonObject>();
     if (root.size() == 0) {
-        saveSettings();
+        restoreSettingsAndReboot();
         return false;
     }
 
@@ -407,6 +479,9 @@ bool Settings::readSettings()
     if (root.containsKey(F("activeEffect"))) {
         generalSettings.activeEffect = root[F("activeEffect")];
     }
+
+    copyFile(settingsFileNameSave, settingsFileName);
+
     return true;
 }
 
@@ -417,16 +492,20 @@ bool Settings::readEffects()
     if (!effectsExists) {
         effectsManager->processAllEffects();
         saveEffects();
+        copyFile(effectsFileNameSave, effectsFileName);
         return false;
     }
+    bool effectsSaveExists = FLASHFS.exists(effectsFileNameSave);
+    Serial.printf_P(PSTR("FLASHFS Effects save file exists: %s\n"), effectsSaveExists ? PSTR("true") : PSTR("false"));
+    if (!effectsSaveExists) {
+        copyFile(effectsFileName, effectsFileNameSave);
+    }
 
-    File effects = FLASHFS.open(effectsFileName, "r");
+    File effects = FLASHFS.open(effectsFileNameSave, "r");
     Serial.printf_P(PSTR("FLASHFS Effects file size: %zu\n"), effects.size());
     if (!effects) {
         Serial.println(F("FLASHFS Error reading effects file"));
-
-        effectsManager->processAllEffects();
-        saveEffects();
+        restoreEffectsAndReboot();
         return false;
     }
 
@@ -443,22 +522,22 @@ bool Settings::readEffects()
     if (err) {
         Serial.print(F("FLASHFS Error parsing effects json file: "));
         Serial.println(err.c_str());
-
-        effectsManager->processAllEffects();
-        saveEffects();
+        restoreEffectsAndReboot();
         return false;
     }
 
     JsonArray root = json.as<JsonArray>();
     if (root.size() == 0) {
-        effectsManager->processAllEffects();
-        saveEffects();
+        restoreEffectsAndReboot();
         return false;
     }
 
     for (JsonObject effect : root) {
         effectsManager->processEffectSettings(effect);
     }
+
+    copyFile(effectsFileNameSave, effectsFileName);
+
     return true;
 }
 
