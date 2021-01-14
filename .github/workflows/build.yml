@@ -71,6 +71,12 @@ jobs:
         platformio run -e sonoff-r1-4m
         platformio run -e sonoff-r1-4m --target buildfs
 
+    - name: Build env esp01s
+      run: |
+        set -x
+        platformio run -e esp01s
+        platformio run -e esp01s --target buildfs
+
     - name: Prepare artifacts
       run: |
         set -x
@@ -84,6 +90,8 @@ jobs:
         cp .pio/build/sonoff-r1/fs.bin artifacts/sonoff-r1-fs.bin
         cp .pio/build/sonoff-r1-4m/firmware.bin artifacts/sonoff-r1-4m.bin
         cp .pio/build/sonoff-r1-4m/fs.bin artifacts/sonoff-r1-4m-fs.bin
+        cp .pio/build/esp01s/firmware.bin artifacts/esp01s.bin
+        cp .pio/build/esp01s/fs.bin artifacts/esp01s-fs.bin
       
     - name: Upload build result
       uses: actions/upload-artifact@v2
