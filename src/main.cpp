@@ -34,8 +34,6 @@ uint16_t webServerPort = 80;
 #if defined(ESP32)
 const uint8_t btnPin = 15;
 const GButton::PullType btnType = GButton::PullTypeLow;
-TaskHandle_t processMatrixTaskHandle = 0;
-TaskHandle_t userTaskHandle = 0;
 #elif defined(SONOFF)
 const uint8_t btnPin = 0;
 const GButton::PullType btnType = GButton::PullTypeHigh;
@@ -65,29 +63,6 @@ void processMatrix()
         myMatrix->clear(true);
     }
 }
-
-#if defined(ESP32)
-void processMatrix32()
-{
-    if (userTaskHandle == 0) {
-        noInterrupts();
-        userTaskHandle = xTaskGetCurrentTaskHandle();
-        xTaskNotifyGive(processMatrixTaskHandle);
-        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(200));
-        interrupts();
-        userTaskHandle = 0;
-    }
-}
-
-void processMatrixTask(void *)
-{
-    for (;;) {
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-        processMatrix();
-        xTaskNotifyGive(userTaskHandle);
-    }
-}
-#endif
 
 void printFlashInfo()
 {
@@ -131,6 +106,7 @@ void printFreeHeap()
     Serial.print(++s_counter);
     Serial.print(F("_FreeHeap: "));
     Serial.println(ESP.getFreeHeap());
+//    Serial.flush();
 }
 
 void processButton()
@@ -231,6 +207,8 @@ void setup() {
     ESP.wdtEnable(0);
 #endif
 
+    delay(5000);
+
     setupSerial();
     printFlashInfo();
     printFreeHeap();
@@ -311,10 +289,6 @@ void setup() {
         connectFinished = true;
     });
     lampWebServer->autoConnect();
-
-#if defined(ESP32)
-    xTaskCreatePinnedToCore(processMatrixTask, "FastLEDshowTask", 10000, NULL, 2, &processMatrixTaskHandle, 0);
-#endif
 }
 
 void loop() {
@@ -356,11 +330,6 @@ void loop() {
 //        mySpectrometer->loop();
 //    }
 
-#if defined(ESP32)
-    processMatrix32();
-#else
     processMatrix();
-#endif
-
     mySettings->loop();
 }
