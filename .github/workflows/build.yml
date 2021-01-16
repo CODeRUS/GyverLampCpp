@@ -19,8 +19,8 @@ jobs:
       run: |
         set -x
         pushd data
-        for f in $(curl -sL https://api.github.com/repos/coderus/led-lamp-webui/releases/latest | jq -r '.assets[].browser_download_url'); do curl $f -O; done
-        for f in $(curl -sL https://api.github.com/repos/coderus/wifimanager-react-page/releases/latest | jq -r '.assets[].browser_download_url'); do curl $f -O; done
+        for f in $(curl -sL https://api.github.com/repos/coderus/led-lamp-webui/releases/latest | jq -r '.assets[].browser_download_url'); do curl $f -OL; done
+        for f in $(curl -sL https://api.github.com/repos/coderus/wifimanager-react-page/releases/latest | jq -r '.assets[].browser_download_url'); do curl $f -OL; done
         popd
         zip -r data.zip data
 
