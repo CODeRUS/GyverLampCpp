@@ -11,7 +11,7 @@
 #endif
 
 #include <Ticker.h>
-#include <PangolinMQTT.h>
+#include <AsyncMqttClient.h>
 
 #include "Settings.h"
 
@@ -22,7 +22,7 @@ Ticker mqttReconnectTimer;
 Ticker updateTimer;
 
 MqttClient *object = nullptr;
-PangolinMQTT *client = nullptr;
+AsyncMqttClient *client = nullptr;
 
 String commonTopic;
 
@@ -50,7 +50,7 @@ void sendString(String topic, String message, uint8_t qos = 2, bool retain = fal
         return;
     }
 
-    client->publish(topic.c_str(), qos, retain, (uint8_t*)message.c_str(), message.length(), false);
+    client->publish(topic.c_str(), qos, retain, message.c_str(), message.length(), false);
 }
 
 void sendState()
@@ -150,14 +150,12 @@ void sendDiscovery()
     sendString(configTopic, buffer, 2, true);
 }
 
-void callback(const char* topic, uint8_t* payload, struct PANGO_PROPS props, size_t len, size_t index, size_t total)
+void callback(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
 {
     Serial.println(topic);
-
     char* buffer = new char [len + 1]();
     memcpy(buffer, payload, len);
     String message = buffer;
-    delete[] buffer;
 
     mySettings->processCommandMqtt(message);
 }
@@ -187,51 +185,33 @@ void connectToMqtt() {
     client->connect();
 }
 
-void onMqttDisconnect(int8_t reason)
+void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
 {
     Serial.print(F("MQTT disconnect reason: "));
     switch (reason) {
-    case TCP_DISCONNECTED:
+    case AsyncMqttClientDisconnectReason::TCP_DISCONNECTED:
         Serial.println(F("TCP_DISCONNECTED"));
         break;
-    case MQTT_SERVER_UNAVAILABLE:
+    case AsyncMqttClientDisconnectReason::MQTT_SERVER_UNAVAILABLE:
         Serial.println(F("MQTT_SERVER_UNAVAILABLE"));
         break;
-    case UNRECOVERABLE_CONNECT_FAIL:
-        Serial.println(F("UNRECOVERABLE_CONNECT_FAIL"));
+    case AsyncMqttClientDisconnectReason::MQTT_UNACCEPTABLE_PROTOCOL_VERSION:
+        Serial.println(F("MQTT_UNACCEPTABLE_PROTOCOL_VERSION"));
         break;
-    case TLS_BAD_FINGERPRINT:
+    case AsyncMqttClientDisconnectReason::TLS_BAD_FINGERPRINT:
         Serial.println(F("TLS_BAD_FINGERPRINT"));
         break;
-    case TCP_TIMEOUT:
-        Serial.println(F("TCP_TIMEOUT"));
+    case AsyncMqttClientDisconnectReason::MQTT_IDENTIFIER_REJECTED:
+        Serial.println(F("MQTT_IDENTIFIER_REJECTED"));
         break;
-    case SUBSCRIBE_FAIL:
-        Serial.println(F("SUBSCRIBE_FAIL"));
+    case AsyncMqttClientDisconnectReason::MQTT_MALFORMED_CREDENTIALS:
+        Serial.println(F("MQTT_MALFORMED_CREDENTIALS"));
         break;
-    case INBOUND_QOS_FAIL:
-        Serial.println(F("INBOUND_QOS_FAIL"));
+    case AsyncMqttClientDisconnectReason::MQTT_NOT_AUTHORIZED:
+        Serial.println(F("MQTT_NOT_AUTHORIZED"));
         break;
-    case OUTBOUND_QOS_FAIL:
-        Serial.println(F("OUTBOUND_QOS_FAIL"));
-        break;
-    case INBOUND_QOS_ACK_FAIL:
-        Serial.println(F("INBOUND_QOS_ACK_FAIL"));
-        break;
-    case OUTBOUND_QOS_ACK_FAIL:
-        Serial.println(F("OUTBOUND_QOS_ACK_FAIL"));
-        break;
-    case INBOUND_PUB_TOO_BIG:
-        Serial.println(F("INBOUND_PUB_TOO_BIG"));
-        break;
-    case OUTBOUND_PUB_TOO_BIG:
-        Serial.println(F("OUTBOUND_PUB_TOO_BIG"));
-        break;
-    case BOGUS_PACKET:
-        Serial.println(F("BOGUS_PACKET"));
-        break;
-    case BOGUS_ACK:
-        Serial.println(F("BOGUS_ACK"));
+    case AsyncMqttClientDisconnectReason::ESP8266_NOT_ENOUGH_SPACE:
+        Serial.println(F("ESP8266_NOT_ENOUGH_SPACE"));
         break;
     default:
         Serial.printf_P(PSTR("unknown %d\n"), reason);
@@ -317,13 +297,13 @@ MqttClient::MqttClient()
     availabilityTopic = commonTopic + String(F("/available"));
     clientId = String(F("FireLampClient-")) + mySettings->mqttSettings.name;
 
-    client = new PangolinMQTT;
+    client = new AsyncMqttClient;
     client->onConnect(onMqttConnect);
     client->onDisconnect(onMqttDisconnect);
     client->onMessage(callback);
     client->setClientId(clientId.c_str());
     client->setWill(availabilityTopic.c_str(),
-                    1,
+                    2,
                     true,
                     "false");
     client->setCredentials(mySettings->mqttSettings.username.c_str(),
