@@ -456,5 +456,38 @@
     "textColor": 10565,
     "bgColor": 0,
     "text": "hello world!"
+  },
+  {
+    "i": "PulseJ",
+    "n": "JeeUi Pulse",
+    "s": 55,
+    "l": 1,
+    "b": 80
+  },
+  {
+    "i": "SparclesJ",
+    "n": "JeeUi Sparkles",
+    "s": 55,
+    "l": 1,
+    "b": 80,
+    "micMode10": "1",
+    "micScale": 1,
+    "amount": 1
+  },
+  {
+    "i": "WhiteJ",
+    "n": "JeeUi White",
+    "s": 55,
+    "l": 1,
+    "b": 80
+  },
+  {
+    "i": "FallJ",
+    "n": "JeeUi Fall",
+    "s": 55,
+    "l": 1,
+    "b": 80,
+    "sparkling": 80,
+    "palette": 0
   }
 ]

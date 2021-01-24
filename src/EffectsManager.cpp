@@ -73,6 +73,11 @@
 
 #include "effects/basic/ScrollingTextEffect.h"
 
+#include "effects/jeeui/EffectPulse.h"
+#include "effects/jeeui/EffectSparcles.h"
+#include "effects/jeeui/EffectWhiteColorStripe.h"
+#include "effects/jeeui/EffectEverythingFall.h"
+
 #include <map>
 
 namespace  {
@@ -323,4 +328,9 @@ EffectsManager::EffectsManager()
 //    RegisterEffect<SoundStereoEffect>(F("Stereo"));
     RegisterEffect<DMXEffect>(F("DMX"));
     RegisterEffect<ScrollingTextEffect>(F("Text"));
+
+    RegisterEffect<EffectPulse>(F("PulseJ"));
+    RegisterEffect<EffectSparcles>(F("SparclesJ"));
+    RegisterEffect<EffectWhiteColorStripe>(F("WhiteJ"));
+    RegisterEffect<EffectEverythingFall>(F("FallJ"));
 }
