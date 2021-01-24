@@ -117,7 +117,8 @@ void MyMatrix::Initialize()
     Serial.printf_P(PSTR("Set current limit to: %u\n"), currentLimit);
     FastLED.setMaxPowerInVoltsAndMilliamps(5, currentLimit);
 
-    FastLED.setDither(mySettings->matrixSettings.dither ? 1 : 0);
+    uint8_t dither = mySettings->matrixSettings.dither ? 1 : 0;
+    Serial.printf_P(PSTR("Set dither: %u\n"), dither);
 
     object = new MyMatrix(leds, sizeWidth, sizeHeight, matrixType);
     uint8_t rotation = mySettings->matrixSettings.rotation;
