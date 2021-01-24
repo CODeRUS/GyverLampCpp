@@ -255,10 +255,8 @@ uint8_t MyMatrix::wrapY(int8_t y)
 
 void MyMatrix::fader(uint8_t step)
 {
-    for (uint8_t x = 0; x < width(); x++) {
-        for (uint8_t y = 0; y < height(); y++) {
-            fadePixel(x, y, step);
-        }
+    for (uint16_t i = 0; i < numLeds; i++) {
+        fadePixel(i, step);
     }
 }
 
@@ -269,12 +267,17 @@ void MyMatrix::fadePixel(uint8_t x, uint8_t y, uint8_t step)
         return;
     }
 
-    if (leds[pixelNum].r >= 30 ||
-            leds[pixelNum].g >= 30 ||
-            leds[pixelNum].b >= 30) {
-        leds[pixelNum].fadeToBlackBy(step);
+    fadePixel(pixelNum, step);
+}
+
+void MyMatrix::fadePixel(uint16_t i, uint8_t step)
+{
+    if (leds[i].r >= 30 ||
+            leds[i].g >= 30 ||
+            leds[i].b >= 30) {
+        leds[i].fadeToBlackBy(step);
     } else {
-        leds[pixelNum] = 0;
+        leds[i] = 0;
     }
 }
 
@@ -282,7 +285,7 @@ uint32_t MyMatrix::colorcode(const CRGB &color)
 {
     return uint32_t{color.r} << 16 |
            uint32_t{color.g} << 8 |
-uint32_t{color.b};
+           uint32_t{color.b};
 }
 
 void MyMatrix::applyBlur2d(uint8_t amount)

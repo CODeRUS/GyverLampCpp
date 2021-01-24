@@ -18,13 +18,5 @@ void SparklesEffect::tick()
             myMatrix->drawPixelXY(x, y, CHSV(random(0, 255), 255, 255));
         }
     }
-    fader(70);
-}
-
-void SparklesEffect::fader(uint8_t step) {
-    for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {
-        for (uint8_t y = 0; y < mySettings->matrixSettings.height; y++) {
-            myMatrix->fadePixelXY(x, y, step);
-        }
-    }
+    myMatrix->fader(70);
 }
