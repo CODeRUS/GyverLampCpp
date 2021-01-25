@@ -489,5 +489,15 @@
     "b": 80,
     "sparkling": 80,
     "palette": 0
+  },
+  {
+    "i": "MatrixJ",
+    "n": "JeeUi Matrix",
+    "s": 55,
+    "l": 1,
+    "b": 80,
+    "rnd": false,
+    "color": 65280,
+    "glitch": 0
   }
 ]

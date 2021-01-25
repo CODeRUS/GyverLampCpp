@@ -12,5 +12,12 @@ public:
     static void fader(uint8_t step);
     static uint32_t getPixColorXY(uint16_t x, uint16_t y);
     static void setLed(uint16_t idx, CRGB val);
+    static float randomf(float min, float max);
+    static void dimAll(uint8_t value);
+    static void drawPixelXYF_Y(uint16_t x, float y, const CRGB &color, uint8_t darklevel = 50);
+    static CRGB makeDarker(const CRGB& color, fract8 howMuchDarker = 5);
+
+    template <typename T>
+    static double fmap(const T x, const T in_min, const T in_max, const T out_min, const T out_max);
 };
 

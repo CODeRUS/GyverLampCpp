@@ -77,6 +77,7 @@
 #include "effects/jeeui/EffectSparcles.h"
 #include "effects/jeeui/EffectWhiteColorStripe.h"
 #include "effects/jeeui/EffectEverythingFall.h"
+#include "effects/jeeui/EffectMatrix.h"
 
 #include <map>
 
@@ -333,4 +334,5 @@ EffectsManager::EffectsManager()
     RegisterEffect<EffectSparcles>(F("SparclesJ"));
     RegisterEffect<EffectWhiteColorStripe>(F("WhiteJ"));
     RegisterEffect<EffectEverythingFall>(F("FallJ"));
+    RegisterEffect<EffectMatrix>(F("MatrixJ"));
 }
