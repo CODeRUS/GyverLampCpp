@@ -153,7 +153,7 @@ Please check by link: https://gist.github.com/CODeRUS/f025fa5c12d6eaad6878576e82
 
 # Troubleshooting
 
-If you have any issues with firmware or effects and you cannot find answers here check the closed issues on [Github Issues page](https://github.com/CODeRUS/GyverLampCpp/issues?q=is%3Aissue+is%3Aclosed)
+If you have any issues with firmware or effects and you cannot find answers here check the closed issues on [Github Issues page](https://github.com/CODeRUS/GyverLampCpp/issues?q=is%3Aissue+is%3Aclosed) or find me in [Telegram](https://t.me/icoderus)
 
 ## The effect start flickering
 
