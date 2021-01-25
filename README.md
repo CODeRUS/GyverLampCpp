@@ -8,7 +8,11 @@ You can download latest build with artifacts from GitHub [Releases](https://gith
 
 Rewrite of https://github.com/AlexGyver/GyverLamp in C++ and classes for PlatformIO: https://platformio.org/platformio-ide
 
+## Contact
+
 Discuss building, modifications, deployment, etc. in telegram group: [@GyverLampCpp](https://t.me/GyverLampCpp)
+
+## Content
 
 Contains effects ported from:
 - https://community.alexgyver.ru/threads/wifi-lampa-budilnik-obsuzhdenie-proshivki-ot-gunner47.2418/page-72#post-33652
@@ -153,7 +157,7 @@ Please check by link: https://gist.github.com/CODeRUS/f025fa5c12d6eaad6878576e82
 
 # Troubleshooting
 
-If you have any issues with firmware or effects and you cannot find answers here check the closed issues on [Github Issues page](https://github.com/CODeRUS/GyverLampCpp/issues?q=is%3Aissue+is%3Aclosed) or find me in [Telegram](https://t.me/icoderus)
+If you have any issues with firmware or effects and you cannot find answers here check the closed issues on [Github Issues page](https://github.com/CODeRUS/GyverLampCpp/issues?q=is%3Aissue+is%3Aclosed) or leave message in [Telegram Group](https://t.me/GyverLampCpp)
 
 ## The effect start flickering
 
