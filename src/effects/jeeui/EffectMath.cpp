@@ -1,6 +1,15 @@
 #include "EffectMath.h"
 #include "MyMatrix.h"
 
+namespace {
+
+uint8_t WU_WEIGHT(uint8_t a, uint8_t b)
+{
+    return (a*b + a+b) >> 8;
+}
+
+}
+
 EffectMath::EffectMath()
 {
 
@@ -100,6 +109,37 @@ void EffectMath::drawPixelXYF_Y(uint16_t x, float y, const CRGB &color, uint8_t 
     }
 }
 
+void EffectMath::drawPixelXYF(float x, float y, const CRGB &color, uint8_t darklevel)
+{
+    if (x<0 || y<0 || x>((float)myMatrix->width()) || y>((float)myMatrix->height())) return;
+
+    // extract the fractional parts and derive their inverses
+    uint8_t xx = (x - (int)x) * 255, yy = (y - (int)y) * 255, ix = 255 - xx, iy = 255 - yy;
+    // calculate the intensities for each affected pixel
+    uint8_t wu[4] = {WU_WEIGHT(ix, iy), WU_WEIGHT(xx, iy),
+                     WU_WEIGHT(ix, yy), WU_WEIGHT(xx, yy)};
+    // multiply the intensities by the colour, and saturating-add them to the pixels
+    for (uint8_t i = 0; i < 4; i++) {
+      int16_t xn = x + (i & 1), yn = y + ((i >> 1) & 1);
+      CRGB clr = EffectMath::getPixColorXY(xn, yn);
+      clr.r = qadd8(clr.r, (color.r * wu[i]) >> 8);
+      clr.g = qadd8(clr.g, (color.g * wu[i]) >> 8);
+      clr.b = qadd8(clr.b, (color.b * wu[i]) >> 8);
+
+      // if(xn<(int)WIDTH-1 && yn<(int)HEIGHT-1 && yn>0 && xn>0){
+      //   clr.r = qadd8(clr.r, (color.r * wu[i]) >> 8);
+      //   clr.g = qadd8(clr.g, (color.g * wu[i]) >> 8);
+      //   clr.b = qadd8(clr.b, (color.b * wu[i]) >> 8);
+      // } else if((yn==0 || yn==HEIGHT-1 || xn==0) && xx<127) {
+      //   clr.r = qadd8(clr.r, (color.r * 64) >> 8);
+      //   clr.g = qadd8(clr.g, (color.g * 64) >> 8);
+      //   clr.b = qadd8(clr.b, (color.b * 64) >> 8);
+      // }
+      if (darklevel > 0) EffectMath::drawPixelXY(xn, yn, EffectMath::makeDarker(clr, darklevel));
+      else EffectMath::drawPixelXY(xn, yn, clr);
+    }
+}
+
 CRGB EffectMath::makeDarker(const CRGB &color, fract8 howMuchDarker)
 {
     CRGB newcolor = color;
@@ -108,7 +148,7 @@ CRGB EffectMath::makeDarker(const CRGB &color, fract8 howMuchDarker)
 }
 
 template <typename T>
-double EffectMath::fmap(const T x, const T in_min, const T in_max, const T out_min, const T out_max)
+T EffectMath::fmap(const T x, const T in_min, const T in_max, const T out_min, const T out_max)
 {
     return (out_max - out_min) * (x - in_min) / (in_max - in_min) + out_min;
 }

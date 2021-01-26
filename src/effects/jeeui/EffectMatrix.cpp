@@ -1,8 +1,8 @@
 #include "EffectMatrix.h"
 
-#define LIGHTERS_AM 100
-
 namespace  {
+
+const int LIGHTERS_AM = 100;
 
 int** lightersPos = nullptr;
 int8_t** lightersSpeed = nullptr;
