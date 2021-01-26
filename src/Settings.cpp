@@ -530,6 +530,8 @@ bool Settings::readEffects()
     if (root.size() == 0) {
         restoreEffectsAndReboot();
         return false;
+    } else {
+        Serial.printf_P(PSTR("Effects count: %zu\n"), root.size());
     }
 
     for (JsonObject effect : root) {
