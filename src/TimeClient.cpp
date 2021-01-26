@@ -48,7 +48,7 @@ void TimeClient::loop()
         return;
     }
 
-    if ((millis() - timer) < interval) {
+    if (timer && (millis() - timer) < interval) {
         return;
     }
 

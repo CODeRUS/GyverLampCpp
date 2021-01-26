@@ -187,7 +187,7 @@ void EffectsManager::changeEffectById(const String &id)
     }
 }
 
-void EffectsManager::activateEffect(uint8_t index)
+void EffectsManager::activateEffect(uint8_t index, bool save)
 {
     if (index >= effects.size()) {
         index = 0;
@@ -205,6 +205,9 @@ void EffectsManager::activateEffect(uint8_t index)
         mqtt->update();
     }
     lampWebServer->update();
+    if (!save) {
+        return;
+    }
     mySettings->saveLater();
 }
 

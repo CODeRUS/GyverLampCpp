@@ -18,7 +18,8 @@
 
 namespace {
 
-const size_t serializeSize = 512 * 22;
+const size_t serializeEffectsSize = 512 * 22;
+const size_t serializeSettingsSize = 512 * 2;
 
 Settings *object = nullptr;
 
@@ -126,12 +127,12 @@ void Settings::Initialize(uint32_t saveInterval)
 
 size_t Settings::jsonSerializeSize()
 {
-    return serializeSize;
+    return serializeEffectsSize;
 }
 
 void Settings::loop()
 {
-    if (settingsChanged && (millis() - settingsSaveTimer) > settingsSaveInterval) {
+    if (settingsChanged && settingsSaveTimer > 0 && (millis() - settingsSaveTimer) > settingsSaveInterval) {
         settingsChanged = false;
         settingsSaveTimer = millis();
         saveSettings();
@@ -171,7 +172,7 @@ void Settings::saveSettings()
         return;
     }
 
-    DynamicJsonDocument json(serializeSize);
+    DynamicJsonDocument json(serializeSettingsSize);
     JsonObject root = json.to<JsonObject>();
     buildSettingsJson(root);
 
@@ -200,7 +201,7 @@ void Settings::saveEffects()
         return;
     }
 
-    DynamicJsonDocument json(serializeSize);
+    DynamicJsonDocument json(serializeEffectsSize);
     JsonArray root = json.to<JsonArray>();
     buildEffectsJson(root);
 
@@ -344,7 +345,7 @@ bool Settings::readSettings()
     }
     settings.seek(0);
 
-    DynamicJsonDocument json(1024);
+    DynamicJsonDocument json(serializeSettingsSize);
     DeserializationError err = deserializeJson(json, settings);
     settings.close();
     if (err) {
@@ -516,7 +517,7 @@ bool Settings::readEffects()
     }
     effects.seek(0);
 
-    DynamicJsonDocument json(serializeSize);
+    DynamicJsonDocument json(serializeEffectsSize);
     DeserializationError err = deserializeJson(json, effects);
     effects.close();
     if (err) {

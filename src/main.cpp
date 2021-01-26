@@ -284,7 +284,7 @@ void setup() {
 //        Spectrometer::Initialize();
 //    }
         if (!setupMode) {
-            effectsManager->activateEffect(mySettings->generalSettings.activeEffect);
+            effectsManager->activateEffect(mySettings->generalSettings.activeEffect, false);
         }
         connectFinished = true;
     });

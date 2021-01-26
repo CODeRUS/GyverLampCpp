@@ -21,7 +21,7 @@ public:
     void previous();
     void changeEffectByName(const String &name);
     void changeEffectById(const String &id);
-    void activateEffect(uint8_t index);
+    void activateEffect(uint8_t index, bool save = true);
 
     void updateCurrentSettings(const JsonObject &json);
     void updateSettingsById(const String &id, const JsonObject &json);
