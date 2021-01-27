@@ -1,17 +1,18 @@
 default_target: all
 
 all:
-        platformio -f -c qtcreator run $(ARGS)
+        platformio run $(ARGS)
+        platformio run --target buildfs $(ARGS)
 
 clean:
-        platformio -f -c qtcreator run --target clean $(ARGS)
+        platformio run --target clean $(ARGS)
 
 buildfs:
-        platformio -f -c qtcreator run --target buildfs $(ARGS)
+        platformio run --target buildfs $(ARGS)
 
 upload:
-        platformio -f -c qtcreator run --target upload $(ARGS)
+        platformio run --target upload $(ARGS)
 
 uploadfs:
-        platformio -f -c qtcreator run --target uploadfs $(ARGS)
+        platformio run --target uploadfs $(ARGS)
 
