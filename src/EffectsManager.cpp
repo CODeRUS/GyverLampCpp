@@ -80,6 +80,7 @@
 #include "effects/jeeui/EffectMatrix.h"
 #include "effects/jeeui/EffectStarFall.h"
 #include "effects/jeeui/EffectLighters.h"
+#include "effects/jeeui/EffectLighterTracers.h"
 
 #include <map>
 
@@ -339,4 +340,5 @@ EffectsManager::EffectsManager()
     RegisterEffect<EffectMatrix>(F("MatrixJ"));
     RegisterEffect<EffectStarFall>(F("StarfallJ"));
     RegisterEffect<EffectLighters>(F("LightersJ"));
+    RegisterEffect<EffectLighterTracers>(F("LighterTracersJ"));
 }
