@@ -28,7 +28,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/platformio.ini') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
@@ -36,7 +36,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.platformio
-        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+        key: ${{ runner.os }}-pio-${{ hashFiles('**/platformio.ini') }}
 
     - name: Set up Python
       uses: actions/setup-python@v2
