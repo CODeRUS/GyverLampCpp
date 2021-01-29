@@ -2,12 +2,17 @@
 
 <br />
 You can download latest build with artifacts from GitHub [Releases](https://github.com/CODeRUS/GyverLampCpp/releases) page
-<br />
+
+
 # GyverLampCpp
 
 Rewrite of https://github.com/AlexGyver/GyverLamp in C++ and classes for PlatformIO: https://platformio.org/platformio-ide
 
+## Contact
+
 Discuss building, modifications, deployment, etc. in telegram group: [@GyverLampCpp](https://t.me/GyverLampCpp)
+
+## Content
 
 Contains effects ported from:
 - https://community.alexgyver.ru/threads/wifi-lampa-budilnik-obsuzhdenie-proshivki-ot-gunner47.2418/page-72#post-33652
@@ -19,14 +24,14 @@ Contains DMX core ported from:
 
 All original code is owned by it's authors
 
-Supported boards:
+## Supported boards
 - esp8266 with 4MB flash. Environment name - `nodemcu`
 - esp-01s board woth 1MB flash. Environment name - `esp01s`
 - Sonoff (Basic) board with 1MB flash. Environment name - `sonoff-r1`
 - Sonoff (Basic) board with 4MB flash. Environment name - `sonoff-r1-4m`
 - Any ESP32 board. Environment name - `esp32dev`
 
-Note: 1MB boards are not capable of OTA firmware updates
+**Note:** 1MB boards are not capable of OTA firmware updates
 
 # How to build
 
@@ -35,17 +40,17 @@ Note: 1MB boards are not capable of OTA firmware updates
 
 # Filesystem build
 
-Manual steps:
+## Easy steps:
+
+- grab `data.zip` from latest release (https://github.com/CODeRUS/GyverLampCpp/releases)
+- extract archive to project's root folder
+- build the filesystem in Platform IO
+
+## Manual steps:
 
 - build https://github.com/CODeRUS/led-lamp-webui
 - build https://github.com/CODeRUS/wifimanager-react-page
 - copy gzipped artifacts without folder structure to data folder
-- build filesystem in Platform IO
-
-Easy steps:
-
-- grab data.zip from latest release (https://github.com/CODeRUS/GyverLampCpp/releases)
-- extract to project folder
 - build filesystem in Platform IO
 
 **PLEASE!** Do not forget to build or to download and extract data artifacts from releases page! It is not present in git repository!
@@ -54,9 +59,9 @@ Then just upload built fs to module using `pio run --target uploadfs -e nodemcu`
 
 ## Configuration
 
-src/EffectsManager.cpp - comment out unused effects here. Comment out incudes at top and RegisterEffect from bottom of file.
+`src/EffectsManager.cpp` - comment out unused effects here. Comment out incudes at top and RegisterEffect from bottom of file.
 
-data/effects.json - default options for effects
+`data/effects.json` - default options for effects
 
     i - id of effect, should match one in src/EffectsManager.cpp
     n - name of eefect visible in ui and Home Assistant
@@ -64,7 +69,7 @@ data/effects.json - default options for effects
     l - effect scale
     b - effect brightness
 
-data/settings.json - main settings of firmware
+`data/settings.json` - main settings of firmware
 matrix - settings of matrix
 
     pin - GPIO number of pin used to communicate with matrix leds
@@ -110,9 +115,11 @@ If lamp is turned on while button is pressed, it will boot into safe mode. Lamp 
 
 Please do not use GPIO0, GPIO2, GPIO15 (D3, D4 and D8 on nodemcu boards) for button connection, your board may fail to boot at all if button will be pressed during startup: https://www.forward.com.au/pfod/ESP8266/GPIOpins/index.html
 
-## OTA - Over The Air updates
+## OTA - Over The Air updates 
 
-You can upload firmware.bin, fs.bin, settings.json, effects.json with OTA using web interface. Boards with 1MB flash memory don't have enough space for firmware/fs updates, but capable of json configuration updates
+You can upload `firmware.bin`, `fs.bin`, `settings.json`, `effects.json` with OTA using web interface. 
+
+**NOTE:** Boards with 1MB flash memory (see [Supported boards](#supported-boards)) don't have enough space for firmware/fs updates, but capable of json configuration updates
 
 ## Changes with original GyverLamp projects
 
@@ -146,3 +153,13 @@ You can upload firmware.bin, fs.bin, settings.json, effects.json with OTA using 
 ## Audio input wirings for Spectrometer effects
 
 Please check by link: https://gist.github.com/CODeRUS/f025fa5c12d6eaad6878576e8255913a
+
+
+# Troubleshooting
+
+If you have any issues with firmware or effects and you cannot find answers here check the closed issues on [Github Issues page](https://github.com/CODeRUS/GyverLampCpp/issues?q=is%3Aissue+is%3Aclosed) or leave message in [Telegram Group](https://t.me/GyverLampCpp)
+
+## The effect start flickering
+
+* Try to disable dithering in `settings.json` set `dither` to `false`
+* Try to upload `settings.json` file via [OTA updates](#ota---over-the-air-updates)
