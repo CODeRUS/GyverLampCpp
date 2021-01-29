@@ -82,6 +82,7 @@
 #include "effects/jeeui/EffectLighters.h"
 #include "effects/jeeui/EffectLighterTracers.h"
 #include "effects/jeeui/EffectLightBalls.h"
+#include "effects/jeeui/EffectBall.h"
 
 #include <map>
 
@@ -343,4 +344,5 @@ EffectsManager::EffectsManager()
     RegisterEffect<EffectLighters>(F("LightersJ"));
     RegisterEffect<EffectLighterTracers>(F("LighterTracersJ"));
     RegisterEffect<EffectLightBalls>(F("LightBallsJ"));
+    RegisterEffect<EffectBall>(F("BallJ"));
 }

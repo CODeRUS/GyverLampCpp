@@ -6,11 +6,11 @@ class EffectMath
 public:
     EffectMath();
 
-    static void drawPixelXY(int16_t x, int16_t y, const CRGB &color);
+    static void drawPixelXY(uint8_t x, uint8_t y, const CRGB &color);
     static void blur2d(uint8_t val);
     static void drawCircle(int x0, int y0, int radius, const CRGB &color);
     static void fader(uint8_t step);
-    static uint32_t getPixColorXY(uint16_t x, uint16_t y);
+    static uint32_t getPixColorXY(uint8_t x, uint8_t y);
     static void setLed(uint16_t idx, CRGB val);
     static float randomf(float min, float max);
     static void dimAll(uint8_t value);

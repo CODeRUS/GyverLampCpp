@@ -15,7 +15,7 @@ EffectMath::EffectMath()
 
 }
 
-void EffectMath::drawPixelXY(int16_t x, int16_t y, const CRGB &color)
+void EffectMath::drawPixelXY(uint8_t x, uint8_t y, const CRGB &color)
 {
     myMatrix->drawPixelXY(x, y, color);
 }
@@ -60,7 +60,7 @@ void EffectMath::fader(uint8_t step)
     myMatrix->fadeToBlackBy(step);
 }
 
-uint32_t EffectMath::getPixColorXY(uint16_t x, uint16_t y)
+uint32_t EffectMath::getPixColorXY(uint8_t x, uint8_t y)
 {
     return myMatrix->colorcode(myMatrix->getPixColorXY(x, y));
 }
@@ -90,7 +90,7 @@ void EffectMath::drawPixelXYF_Y(uint16_t x, float y, const CRGB &color, uint8_t 
     uint8_t wu[2] = {iy, yy};
     // multiply the intensities by the colour, and saturating-add them to the pixels
     for (int8_t i = 1; i >= 0; i--) {
-        int16_t yn = y + (i & 1);
+        uint8_t yn = y + (i & 1);
         CRGB clr = EffectMath::getPixColorXY(x, yn);
         if (yn>0 && yn<(int)myMatrix->height()-1) {
             clr.r = qadd8(clr.r, (color.r * wu[i]) >> 8);
@@ -120,23 +120,27 @@ void EffectMath::drawPixelXYF(float x, float y, const CRGB &color, uint8_t darkl
                      WU_WEIGHT(ix, yy), WU_WEIGHT(xx, yy)};
     // multiply the intensities by the colour, and saturating-add them to the pixels
     for (uint8_t i = 0; i < 4; i++) {
-      int16_t xn = x + (i & 1), yn = y + ((i >> 1) & 1);
-      CRGB clr = EffectMath::getPixColorXY(xn, yn);
-      clr.r = qadd8(clr.r, (color.r * wu[i]) >> 8);
-      clr.g = qadd8(clr.g, (color.g * wu[i]) >> 8);
-      clr.b = qadd8(clr.b, (color.b * wu[i]) >> 8);
+        uint8_t xn = x + (i & 1);
+        uint8_t yn = y + ((i >> 1) & 1);
+        CRGB clr = EffectMath::getPixColorXY(xn, yn);
+        clr.r = qadd8(clr.r, (color.r * wu[i]) >> 8);
+        clr.g = qadd8(clr.g, (color.g * wu[i]) >> 8);
+        clr.b = qadd8(clr.b, (color.b * wu[i]) >> 8);
 
-      // if(xn<(int)WIDTH-1 && yn<(int)HEIGHT-1 && yn>0 && xn>0){
-      //   clr.r = qadd8(clr.r, (color.r * wu[i]) >> 8);
-      //   clr.g = qadd8(clr.g, (color.g * wu[i]) >> 8);
-      //   clr.b = qadd8(clr.b, (color.b * wu[i]) >> 8);
-      // } else if((yn==0 || yn==HEIGHT-1 || xn==0) && xx<127) {
-      //   clr.r = qadd8(clr.r, (color.r * 64) >> 8);
-      //   clr.g = qadd8(clr.g, (color.g * 64) >> 8);
-      //   clr.b = qadd8(clr.b, (color.b * 64) >> 8);
-      // }
-      if (darklevel > 0) EffectMath::drawPixelXY(xn, yn, EffectMath::makeDarker(clr, darklevel));
-      else EffectMath::drawPixelXY(xn, yn, clr);
+        // if(xn<(int)WIDTH-1 && yn<(int)HEIGHT-1 && yn>0 && xn>0){
+        //   clr.r = qadd8(clr.r, (color.r * wu[i]) >> 8);
+        //   clr.g = qadd8(clr.g, (color.g * wu[i]) >> 8);
+        //   clr.b = qadd8(clr.b, (color.b * wu[i]) >> 8);
+        // } else if((yn==0 || yn==HEIGHT-1 || xn==0) && xx<127) {
+        //   clr.r = qadd8(clr.r, (color.r * 64) >> 8);
+        //   clr.g = qadd8(clr.g, (color.g * 64) >> 8);
+        //   clr.b = qadd8(clr.b, (color.b * 64) >> 8);
+        // }
+        if (darklevel > 0) {
+            EffectMath::drawPixelXY(xn, yn, EffectMath::makeDarker(clr, darklevel));
+        } else {
+            EffectMath::drawPixelXY(xn, yn, clr);
+        }
     }
 }
 
