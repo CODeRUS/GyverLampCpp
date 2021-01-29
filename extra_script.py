@@ -9,7 +9,7 @@ from platformio.compat import WINDOWS, hashlib_encode_data
 
 # Windows CLI has limit with command length to 8192
 # Leave 2000 chars for flags and other options
-MAX_LINE_LENGTH = 2000 if WINDOWS else 128072
+MAX_LINE_LENGTH = 2000
 
 
 def long_sources_hook(env, sources):
@@ -76,8 +76,8 @@ def generate():
         )
     env.Replace(**coms)
 
-
-generate()
+if WINDOWS:
+    generate()
 
 # Rename littlefs.bin to fs.bin
 env.Replace(ESP8266_FS_IMAGE_NAME="fs")
