@@ -1,6 +1,7 @@
 ![Github Actions CI Status](https://github.com/CODeRUS/GyverLampCpp/workflows/PlatformIO%20build/badge.svg)
 
 <br />
+
 You can download latest build with artifacts from GitHub [Releases](https://github.com/CODeRUS/GyverLampCpp/releases) page
 
 
