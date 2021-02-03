@@ -105,7 +105,7 @@ mqtt - mqtt settings
 button - button settings
 
     pin - GPIO pin number, set to 255 if you have no button connected
-    type - 0 if pin button is connected to 3v3, 0 if button connected to GND
+    type - 1 if pin button is connected to 3v3, 0 if button connected to GND
     state - set to 1 to invert button state, 0 for normal operation
 
 Please refer to https://github.com/esp8266/Arduino/blob/master/variants/nodemcu/pins_arduino.h#L40 for pin numbers if using nodemcu-like ESP8266 boards! This configuration uses numeric gpio pins, not the ones marked as D0-D10 on the board!
