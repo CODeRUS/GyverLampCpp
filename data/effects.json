@@ -381,7 +381,7 @@
     "s": 100,
     "l": 20,
     "b": 80,
-    "color": true,
+    "colored": true,
     "speed": 1,
     "scale": 26
   },
