@@ -299,6 +299,13 @@ void Settings::processCommandMqtt(const String &message)
             if (json.containsKey(F("effect"))) {
                 const String effect = json[F("effect")];
                 effectsManager->changeEffectByName(effect);
+            } else if (json.containsKey(F("switchTo"))) {
+                const String switchTo = json[F("switchTo")];
+                if (switchTo.equals(F("prev"))) {
+                    effectsManager->previous();
+                } else if (switchTo.equals(F("next"))) {
+                    effectsManager->next();
+                }
             }
             if (json.containsKey(F("color"))) {
                 effectsManager->changeEffectById(F("Color"));
