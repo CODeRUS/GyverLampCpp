@@ -46,5 +46,8 @@ void ColorEffect::initialize(const JsonObject &json)
 void ColorEffect::writeSettings(JsonObject &json)
 {
 //    json[F("useSpectrometer")] = useSpectrometer;
-    json[F("color")] = myColor;
+    JsonObject color = json.createNestedObject("color");
+    color["r"] = (uint8_t)(myColor >> 16);
+    color["g"] = (uint8_t)(myColor >> 8);
+    color["b"] = (uint8_t)(myColor);
 }

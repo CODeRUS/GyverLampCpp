@@ -43,12 +43,22 @@ void SnowEffect::initialize(const JsonObject &json)
 //        useSpectrometer = json[F("useSpectrometer")];
 //    }
     if (json.containsKey(F("color"))) {
-        myColor = json[F("color")];
+        const JsonVariant color = json[F("color")];
+        if (color.is<uint32_t>()) {
+            myColor = json[F("color")];
+        } else if (color.is<JsonObject>()) {
+            myColor = json[F("color")]["r"].as<uint8_t>() << 16 |
+                      json[F("color")]["g"].as<uint8_t>() << 8 |
+                      json[F("color")]["b"].as<uint8_t>();
+        }
     }
 }
 
 void SnowEffect::writeSettings(JsonObject &json)
 {
 //    json[F("useSpectrometer")] = useSpectrometer;
-    json[F("color")] = myColor;
+    JsonObject color = json.createNestedObject("color");
+    color["r"] = (uint8_t)(myColor >> 16);
+    color["g"] = (uint8_t)(myColor >> 8);
+    color["b"] = (uint8_t)(myColor);
 }
