@@ -30,6 +30,28 @@ bool splashes = false;
 bool clouds = false;
 bool storm = false;
 
+void readColor(const JsonObject &json, const String &key, uint32_t &myColor)
+{
+    if (json.containsKey(key)) {
+        const JsonVariant color = json[key];
+        if (color.is<uint32_t>()) {
+            myColor = json[key];
+        } else if (color.is<JsonObject>()) {
+            myColor = json[key]["r"].as<uint8_t>() << 16 |
+                      json[key]["g"].as<uint8_t>() << 8 |
+                      json[key]["b"].as<uint8_t>();
+        }
+    }
+}
+
+void writeColor(JsonObject &json, const String &key, uint32_t myColor)
+{
+    JsonObject color = json.createNestedObject(key);
+    color["r"] = (uint8_t)(myColor >> 16);
+    color["g"] = (uint8_t)(myColor >> 8);
+    color["b"] = (uint8_t)(myColor);
+}
+
 void rain()
 {
     CRGBPalette16 rain_p( CRGB::Black, CRGB(rainColor) );
@@ -199,12 +221,8 @@ void RainNeoEffect::tick()
 void RainNeoEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("rColor"))) {
-        rainColor = json[F("rColor")];
-    }
-    if (json.containsKey(F("lColor"))) {
-        lightningColor = json[F("lColor")];
-    }
+    readColor(json, F("rColor"), rainColor);
+    readColor(json, F("lColor"), lightningColor);
     if (json.containsKey(F("bDpth"))) {
         backgroundDepth = json[F("bDpth")];
     }
@@ -230,8 +248,8 @@ void RainNeoEffect::initialize(const JsonObject &json)
 
 void RainNeoEffect::writeSettings(JsonObject &json)
 {
-    json[F("rColor")] = rainColor;
-    json[F("lColor")] = lightningColor;
+    writeColor(json, F("rColor"), rainColor);
+    writeColor(json, F("lColor"), lightningColor);
     json[F("bDpth")] = backgroundDepth;
     json[F("mBri")] = maxBrightness;
     json[F("freq")] = spawnFreq;

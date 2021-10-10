@@ -14,6 +14,30 @@ String getClockTime()
     return timeClient->hours() + F(":") + timeClient->minutes();
 }
 
+void readColor16(const JsonObject &json, const String &key, uint16_t &myColor)
+{
+    if (json.containsKey(key)) {
+        const JsonVariant color = json[key];
+        if (color.is<uint16_t>()) {
+            myColor = json[key];
+        } else if (color.is<JsonObject>()) {
+            uint32_t color = json[key]["r"].as<uint8_t>() << 16 |
+                             json[key]["g"].as<uint8_t>() << 8 |
+                             json[key]["b"].as<uint8_t>();
+            myColor = myMatrix->Color24to16(color);
+        }
+    }
+}
+
+void writeColor16(JsonObject &json, const String &key, uint16_t myColor)
+{
+    uint32_t color32 = myMatrix->expandColor(myColor);
+    JsonObject color = json.createNestedObject(key);
+    color["r"] = (uint8_t)(color32 >> 16);
+    color["g"] = (uint8_t)(color32 >> 8);
+    color["b"] = (uint8_t)(color32);
+}
+
 } // namespace
 
 ClockEffect::ClockEffect(const String &id)
@@ -61,16 +85,12 @@ void ClockEffect::deactivate()
 void ClockEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
-    if (json.containsKey(F("hColor"))) {
-        hoursColor = json[F("hColor")];
-    }
-    if (json.containsKey(F("mColor"))) {
-        minutesColor = json[F("mColor")];
-    }
+    readColor16(json, F("hColor"), hoursColor);
+    readColor16(json, F("mColor"), minutesColor);
 }
 
 void ClockEffect::writeSettings(JsonObject &json)
 {
-    json[F("hColor")] = hoursColor;
-    json[F("mColor")] = minutesColor;
+    writeColor16(json, F("hColor"), hoursColor);
+    writeColor16(json, F("mColor"), minutesColor);
 }

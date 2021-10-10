@@ -13,6 +13,28 @@ bool addSpace = true;
 int8_t posx = 0;
 uint8_t indexx = 0;
 
+void readColor(const JsonObject &json, const String &key, uint32_t &myColor)
+{
+    if (json.containsKey(key)) {
+        const JsonVariant color = json[key];
+        if (color.is<uint32_t>()) {
+            myColor = json[key];
+        } else if (color.is<JsonObject>()) {
+            myColor = json[key]["r"].as<uint8_t>() << 16 |
+                      json[key]["g"].as<uint8_t>() << 8 |
+                      json[key]["b"].as<uint8_t>();
+        }
+    }
+}
+
+void writeColor(JsonObject &json, const String &key, uint32_t myColor)
+{
+    JsonObject color = json.createNestedObject(key);
+    color["r"] = (uint8_t)(myColor >> 16);
+    color["g"] = (uint8_t)(myColor >> 8);
+    color["b"] = (uint8_t)(myColor);
+}
+
 }
 
 ScrollingTextEffect::ScrollingTextEffect(const String &id)
@@ -85,12 +107,8 @@ void ScrollingTextEffect::initialize(const JsonObject &json)
     if (json.containsKey(F("text"))) {
         text = json[F("text")].as<String>();
     }
-    if (json.containsKey(F("textColor"))) {
-        textColor = json[F("textColor")];
-    }
-    if (json.containsKey(F("bgColor"))) {
-        bgColor = json[F("bgColor")];
-    }
+    readColor(json, F("textColor"), textColor);
+    readColor(json, F("bgColor"), bgColor);
     if (addSpace) {
         line = text + " ";
     } else {
@@ -104,6 +122,6 @@ void ScrollingTextEffect::initialize(const JsonObject &json)
 void ScrollingTextEffect::writeSettings(JsonObject &json)
 {
     json[F("text")] = text;
-    json[F("textColor")] = textColor;
-    json[F("bgColor")] = bgColor;
+    writeColor(json, F("textColor"), textColor);
+    writeColor(json, F("bgColor"), bgColor);
 }
