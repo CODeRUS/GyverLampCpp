@@ -244,7 +244,9 @@ void setup() {
     button->setTickMode(false);
     button->setStepTimeout(20);
 
-    myMatrix->matrixTest();
+    if (mySettings->generalSettings.working) {
+        myMatrix->matrixTest();
+    }
 
     button->tick();
     if (button->state()) {

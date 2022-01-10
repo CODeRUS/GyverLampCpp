@@ -249,6 +249,7 @@ void Settings::processConfig(const String &message)
             const bool working = doc[F("data")];
             Serial.printf_P(PSTR("working: %s\n"), working ? PSTR("true") : PSTR("false"));
             mySettings->generalSettings.working = working;
+            saveLater();
         } else if (event == F("ACTIVE_EFFECT")) {
 //            const int index = doc[F("data")];
 //            effectsManager->activateEffect(static_cast<uint8_t>(index));
@@ -486,6 +487,10 @@ bool Settings::readSettings()
 
     if (root.containsKey(F("activeEffect"))) {
         generalSettings.activeEffect = root[F("activeEffect")];
+    }
+
+    if (root.containsKey(F("working"))) {
+        generalSettings.working = root[F("working")];
     }
 
     copyFile(settingsFileNameSave, settingsFileName);
