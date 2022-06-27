@@ -106,6 +106,9 @@
 
 #pragma once
 #define FASTLED_INTERNAL
+#if __cplusplus > 199711L 
+    #define register
+#endif
 #include <FastLED.h>
 
 static uint8_t ledPin = 0;

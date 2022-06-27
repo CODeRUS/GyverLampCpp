@@ -1,8 +1,4 @@
 #if defined(ESP32)
-
-#define FASTLED_INTERNAL
-#include <FastLED.h>
-
 #include "MyLedController32.h"
 
 // -- Array of all controllers

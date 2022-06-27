@@ -7,6 +7,9 @@
 #endif
 
 #define FASTLED_INTERNAL
+#if __cplusplus > 199711L 
+    #define register
+#endif
 
 #include <Arduino.h>
 #include <FastLED.h>
