@@ -430,6 +430,10 @@ void LampWebServer::autoConnect()
 
 LampWebServer::LampWebServer(uint16_t webPort)
 {
+    if (!FLASHFS.exists(F("/index.html"))) {
+        setupMode = true;
+    }
+
     webServer = new AsyncWebServer(webPort);
 
     socket = new AsyncWebSocket(F("/ws"));
