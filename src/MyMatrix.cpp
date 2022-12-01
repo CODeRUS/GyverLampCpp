@@ -7,6 +7,15 @@
 #include "MyLedController32.h"
 #endif
 
+// MY_MATRIX_LED_RGB_ORDER need to be set to one of EOrder value
+// https://github.com/FastLED/FastLED/blob/master/src/pixeltypes.h#L939
+
+#ifdef MY_MATRIX_LED_RGB_ORDER
+#define _LED_RGB_ORDER MY_MATRIX_LED_RGB_ORDER
+#else
+#define _LED_RGB_ORDER GRB
+#endif
+
 namespace  {
 
 uint16_t numLeds = 0;
@@ -82,7 +91,7 @@ uint16_t XY(uint8_t x, uint8_t y) {
     return object->XY(x, y);
 }
 
-template <EOrder RGB_ORDER = RGB>
+template <EOrder RGB_ORDER>
 class WS2812CustomController : public ClocklessCustomController<C_NS(250), C_NS(625), C_NS(375), RGB_ORDER> {};
 
 FASTLED_NAMESPACE_END
@@ -107,7 +116,7 @@ void MyMatrix::Initialize()
 
     numLeds = sizeWidth * sizeHeight;
     leds = new CRGB[numLeds]();
-    FastLED.addLeds<WS2812CustomController, GRB>(leds, numLeds);
+    FastLED.addLeds<WS2812CustomController, _LED_RGB_ORDER>(leds, numLeds);
 
     uint8_t maxBrightness = mySettings->matrixSettings.maxBrightness;
     Serial.printf_P(PSTR("Set max brightness to: %u\n"), maxBrightness);
