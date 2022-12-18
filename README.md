@@ -78,6 +78,7 @@ matrix - settings of matrix
     values should be combined. Example: NEO_MATRIX_ZIGZAG + NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_ROWS (or NEO_MATRIX_COLUMNS) = 11 (or 15). Matrix test effect at boot: Pixels started from left bottom. Red is horizontal from left to right, Green is vertical from bottom to top.
     rotation - value from 0 to 3, each value by +90 degree.
     dither - enable or disable dithering: https://github.com/FastLED/FastLED/wiki/FastLED-Temporal-Dithering
+    order - pixel order for leds. use lowercase 3 letters: "rgb", "grb" or similar
 
 connection - connection settings
 

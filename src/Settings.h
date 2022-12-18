@@ -42,6 +42,7 @@ public:
         uint16_t currentLimit = 1000;
         uint8_t rotation = 3;
         bool dither = true;
+        String order;
     };
 
     struct ConenctionSettings {

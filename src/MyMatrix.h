@@ -39,6 +39,8 @@ public:
 
     void matrixTest();
 
+    CRGB swapChannels(CRGB color);
+
     void clear(bool shouldShow = false);
     void fill(CRGB color, bool shouldShow = false);
     void fillProgress(double progress);

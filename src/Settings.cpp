@@ -399,6 +399,9 @@ bool Settings::readSettings()
        if (matrixObject.containsKey(F("dither"))) {
            matrixSettings.dither = matrixObject[F("dither")];
        }
+       if (matrixObject.containsKey(F("order"))) {
+           matrixSettings.order = matrixObject[F("order")].as<String>();
+       }
     }
 
     if (root.containsKey(F("connection"))) {
@@ -572,6 +575,7 @@ void Settings::buildSettingsJson(JsonObject &root)
     matrixObject[F("currentLimit")] = matrixSettings.currentLimit;
     matrixObject[F("rotation")] = matrixSettings.rotation;
     matrixObject[F("dither")] = matrixSettings.dither;
+    matrixObject[F("order")] = matrixSettings.order;
 
     JsonObject connectionObject = root.createNestedObject(F("connection"));
     connectionObject[F("mdns")] = connectionSettings.mdns;
@@ -635,6 +639,8 @@ void Settings::buildJsonMqtt(JsonObject &root)
 Settings::Settings(uint32_t saveInterval)
 {
     settingsSaveInterval = saveInterval;
+
+    matrixSettings.order = F("rgb");
 
     connectionSettings.mdns = F("firelamp");
     connectionSettings.apName = F("Fire Lamp");

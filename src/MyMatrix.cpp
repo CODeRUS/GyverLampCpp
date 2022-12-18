@@ -107,7 +107,7 @@ void MyMatrix::Initialize()
 
     numLeds = sizeWidth * sizeHeight;
     leds = new CRGB[numLeds]();
-    FastLED.addLeds<WS2812CustomController, GRB>(leds, numLeds);
+    FastLED.addLeds<WS2812CustomController, RGB>(leds, numLeds);
 
     uint8_t maxBrightness = mySettings->matrixSettings.maxBrightness;
     Serial.printf_P(PSTR("Set max brightness to: %u\n"), maxBrightness);
@@ -219,9 +219,39 @@ void MyMatrix::fillProgress(double progress)
     FastLED.show();
 }
 
+CRGB MyMatrix::swapChannels(CRGB color)
+{
+    if (mySettings->matrixSettings.order.length() != 3) {
+        return color;
+    }
+    CRGB result = color;
+    if (mySettings->matrixSettings.order.charAt(0) != 'r') {
+        if (mySettings->matrixSettings.order.charAt(0) == 'g') {
+            result.r = color.g;
+        } else {
+            result.r = color.b;
+        }
+    }
+    if (mySettings->matrixSettings.order.charAt(1) != 'g') {
+        if (mySettings->matrixSettings.order.charAt(1) == 'r') {
+            result.g = color.r;
+        } else {
+            result.g = color.b;
+        }
+    }
+    if (mySettings->matrixSettings.order.charAt(2) != 'b') {
+        if (mySettings->matrixSettings.order.charAt(2) == 'r') {
+            result.b = color.r;
+        } else {
+            result.b = color.g;
+        }
+    }
+    return result;
+}
+
 void MyMatrix::setLed(uint16_t index, CRGB color)
 {
-    leds[index] = color;
+    leds[index] = swapChannels(color);
 }
 
 void MyMatrix::fadeToBlackBy(uint16_t index, uint8_t step)
@@ -324,12 +354,12 @@ uint16_t MyMatrix::getPixelNumberXY(uint8_t x, uint8_t y)
 
 void MyMatrix::drawPixelXY(uint8_t x, uint8_t y, CRGB color)
 {
-    leds[myMatrix->getPixelNumberXY(x, y)] = color;
+    leds[myMatrix->getPixelNumberXY(x, y)] = swapChannels(color);
 }
 
 void MyMatrix::drawLineXY(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, CRGB color)
 {
-    setPassThruColor(color);
+    setPassThruColor(swapChannels(color));
     drawLine(y0, x0, y1, x1, 0);
     setPassThruColor();
 }
@@ -339,7 +369,7 @@ CRGB MyMatrix::getPixColor(uint16_t number)
     if (number > numLeds - 1) {
         return 0;
     }
-    return leds[number];
+    return swapChannels(leds[number]);
 }
 
 CRGB MyMatrix::getPixColorXY(uint8_t x, uint8_t y)
@@ -349,17 +379,17 @@ CRGB MyMatrix::getPixColorXY(uint8_t x, uint8_t y)
 
 void MyMatrix::tintPixelXY(uint8_t x, uint8_t y, CRGB color)
 {
-    leds[myMatrix->getPixelNumberXY(x, y)] += color;
+    leds[myMatrix->getPixelNumberXY(x, y)] += swapChannels(color);
 }
 
 void MyMatrix::shadePixelXY(uint8_t x, uint8_t y, CRGB color)
 {
-    leds[myMatrix->getPixelNumberXY(x, y)] -= color;
+    leds[myMatrix->getPixelNumberXY(x, y)] -= swapChannels(color);
 }
 
 void MyMatrix::blendPixelXY(uint8_t x, uint8_t y, const CRGB &color, uint8_t amount)
 {
-    nblend(leds[myMatrix->getPixelNumberXY(x, y)], color, amount);
+    nblend(leds[myMatrix->getPixelNumberXY(x, y)], swapChannels(color), amount);
 }
 
 void MyMatrix::dimPixelXY(uint8_t x, uint8_t y, uint8_t value)
@@ -369,7 +399,7 @@ void MyMatrix::dimPixelXY(uint8_t x, uint8_t y, uint8_t value)
 
 void MyMatrix::fillRectXY(uint8_t x, uint8_t y, uint8_t w, uint8_t h, CRGB color)
 {
-    setPassThruColor(color);
+    setPassThruColor(swapChannels(color));
     fillRect(y, x, h, w, 0);
     setPassThruColor();
 }
