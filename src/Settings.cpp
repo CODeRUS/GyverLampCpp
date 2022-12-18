@@ -640,7 +640,7 @@ Settings::Settings(uint32_t saveInterval)
 {
     settingsSaveInterval = saveInterval;
 
-    matrixSettings.order = F("rgb");
+    matrixSettings.order = F("grb");
 
     connectionSettings.mdns = F("firelamp");
     connectionSettings.apName = F("Fire Lamp");
