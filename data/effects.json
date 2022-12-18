@@ -37,64 +37,64 @@
   {
     "i": "MadnessNoise",
     "n": "Madness 3D",
-    "s": 50,
-    "l": 100,
+    "s": 1,
+    "l": 5,
     "b": 80
   },
   {
     "i": "CloudNoise",
     "n": "Clouds 3D",
     "s": 1,
-    "l": 100,
+    "l": 5,
     "b": 80
   },
   {
     "i": "LavaNoise",
     "n": "Lava 3D",
     "s": 1,
-    "l": 100,
+    "l": 5,
     "b": 80
   },
   {
     "i": "PlasmaNoise",
     "n": "Plasma 3D",
     "s": 1,
-    "l": 100,
+    "l": 5,
     "b": 80
   },
   {
     "i": "RainbowNoise",
     "n": "Rainbow 3D",
     "s": 1,
-    "l": 52,
+    "l": 5,
     "b": 80
   },
   {
     "i": "RainbowStripeNoise",
     "n": "Rainbow stripe 3D",
     "s": 1,
-    "l": 47,
+    "l": 5,
     "b": 80
   },
   {
     "i": "ZebraNoise",
     "n": "Zebra 3D",
     "s": 1,
-    "l": 26,
+    "l": 5,
     "b": 80
   },
   {
     "i": "ForestNoise",
     "n": "Forest 3D",
     "s": 1,
-    "l": 64,
+    "l": 5,
     "b": 80
   },
   {
     "i": "OceanNoise",
     "n": "Ocean 3D",
     "s": 1,
-    "l": 24,
+    "l": 5,
     "b": 80
   },
   {

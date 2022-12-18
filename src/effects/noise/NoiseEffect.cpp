@@ -80,7 +80,7 @@ void NoiseEffect::fillNoiseLED()
             noise[i][j] = data;
         }
     }
-    z += settings.speed;
+    z += 1;
 
     // apply slow drift to X and Y, just for visual variation.
     x += settings.speed / 8;

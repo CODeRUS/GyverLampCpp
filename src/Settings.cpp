@@ -346,7 +346,7 @@ bool Settings::readSettings()
         return false;
     }
 
-    Serial.println("reading settings.json");
+    Serial.println("reading settings.json.save");
     while (settings.available()) {
         String buffer = settings.readStringUntil('\n');
         Serial.println(buffer);
