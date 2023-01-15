@@ -186,7 +186,7 @@ MyMatrix::MyMatrix(CRGB *leds, uint8_t w, uint8_t h, uint8_t matrixType)
 
 void MyMatrix::fill(CRGB color, bool shouldShow)
 {
-    fill_solid(leds, numLeds, color);
+    fill_solid(leds, numLeds, swapChannels(color));
     if (shouldShow) {
         show();
     }
