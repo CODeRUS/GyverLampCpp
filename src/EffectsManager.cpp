@@ -130,7 +130,7 @@ void EffectsManager::loop()
         return;
     }
 
-    if (effectTimer != 0 && (millis() - effectTimer) < activeEffect()->settings.speed) {
+    if (effectTimer != 0 && (millis() - effectTimer) < 255 - activeEffect()->settings.speed) {
         if (mySettings->matrixSettings.dither) {
             FastLED.show();
         }
