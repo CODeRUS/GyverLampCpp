@@ -24,6 +24,12 @@ void FractionalEffect::activate()
     }
 
     ledsbuff = new CRGB[myMatrix->getNumLeds()];
+    uint8_t matrixRotation = mySettings->matrixSettings.rotation;
+    int invertedRotation = matrixRotation - 2;
+    if (invertedRotation < 0) {
+        invertedRotation = invertedRotation + 4;
+    }
+    myMatrix->setRotation(invertedRotation);  
 }
 
 void FractionalEffect::deactivate()
@@ -43,6 +49,7 @@ void FractionalEffect::deactivate()
     delete[] noise3d;
 
     delete[] ledsbuff;
+    myMatrix->setRotation(mySettings->matrixSettings.rotation);
 }
 
 void FractionalEffect::FillNoise(int8_t layer)
