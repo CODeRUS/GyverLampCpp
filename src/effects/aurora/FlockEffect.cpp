@@ -3,6 +3,8 @@
 
 namespace {
 
+int8_t invSpeed = 0;
+
 Boid *predator = nullptr;
 PVector *wind = nullptr;
 
@@ -25,18 +27,20 @@ void FlockEffect::activate()
 {
     AuroraEffect::activate();
 
+    invSpeed = 255 - settings.speed;
+
     wind = new PVector;
 
     for (int i = 0; i < boidCount; i++) {
         boids[i] = Boid(15, 15);
-        boids[i].maxspeed = 0.380 * settings.speed / 127.0 + 0.380 / 2;
-        boids[i].maxforce = 0.015 * settings.speed / 127.0 + 0.015 / 2;
+        boids[i].maxspeed = 0.380 * invSpeed / 127.0 + 0.380 / 2;
+        boids[i].maxforce = 0.015 * invSpeed / 127.0 + 0.015 / 2;
     }
     predatorPresent = havePredator && random(0, 2) >= 1;
     if (predatorPresent) {
         predator = new Boid(31, 31);
-        predator->maxspeed = 0.385 * settings.speed / 127.0 + 0.385 / 2;
-        predator->maxforce = 0.020 * settings.speed / 127.0 + 0.020 / 2;
+        predator->maxspeed = 0.385 * invSpeed / 127.0 + 0.385 / 2;
+        predator->maxforce = 0.020 * invSpeed / 127.0 + 0.020 / 2;
         predator->neighbordist = 8.0;
         predator->desiredseparation = 0.0;
     }
@@ -54,13 +58,15 @@ void FlockEffect::deactivate()
 
 void FlockEffect::tick()
 {
+    invSpeed = 255 - settings.speed;
+
     myMatrix->applyBlur2d(15);
     myMatrix->dimAll(255 - (settings.scale % 11) * 3);
 
     bool applyWind = random(0, 255) > 240;
     if (applyWind) {
-        wind->x = Boid::randomf() * 0.015f * settings.speed / 127.0f + 0.01f / 2;
-        wind->y = Boid::randomf() * 0.015f * settings.speed / 127.0f + 0.015f / 2;
+        wind->x = Boid::randomf() * 0.015f * invSpeed / 127.0f + 0.01f / 2;
+        wind->y = Boid::randomf() * 0.015f * invSpeed / 127.0f + 0.015f / 2;
     }
 
     CRGB color = ColorFromPalette(*myMatrix->GetColorPalette(settings.scale), hue);

@@ -92,7 +92,7 @@ void SpiralEffect::activate()
 void SpiralEffect::tick()
 {
     myMatrix->applyBlur2d(20);
-    myMatrix->dimAll(255 - settings.speed / 10);
+    myMatrix->dimAll(255 - (255 - settings.speed) / 10);
 
     boolean change = false;
 

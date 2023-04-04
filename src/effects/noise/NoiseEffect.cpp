@@ -1,5 +1,12 @@
 #include "NoiseEffect.h"
 
+
+namespace {
+
+uint8_t invSpeed = 0;
+
+}
+
 NoiseEffect::NoiseEffect(const String &id)
     : Effect(id)
 {
@@ -25,6 +32,7 @@ void NoiseEffect::deactivate()
 
 void NoiseEffect::tick()
 {
+    invSpeed = 255 - settings.speed;
     fillNoiseLED();
 }
 
@@ -45,14 +53,14 @@ void NoiseEffect::fillNoise8()
             noise[i][j] = val;
         }
     }
-    z += settings.speed;
+    z += invSpeed;
 }
 
 void NoiseEffect::fillNoiseLED()
 {
     uint8_t dataSmoothing = 0;
-    if (settings.speed < 50) {
-        dataSmoothing = 200 - (settings.speed * 4);
+    if (invSpeed < 50) {
+        dataSmoothing = 200 - (invSpeed * 4);
     }
     for (uint8_t i = 0; i < maxDimension; i++) {
         uint16_t ioffset = settings.scale * i;
@@ -83,8 +91,8 @@ void NoiseEffect::fillNoiseLED()
     z += 1;
 
     // apply slow drift to X and Y, just for visual variation.
-    x += settings.speed / 8;
-    y -= settings.speed / 16;
+    x += invSpeed / 8;
+    y -= invSpeed / 16;
 
     for (uint8_t i = 0; i < mySettings->matrixSettings.width; i++) {
         if (i % 3 == 0) {

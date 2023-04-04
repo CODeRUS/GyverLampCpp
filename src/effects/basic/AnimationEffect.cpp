@@ -872,7 +872,7 @@ AnimationEffect::AnimationEffect(const String &id)
 
 void AnimationEffect::tick()
 {
-    if (settings.speed != 255)  {
+    if (settings.speed != 0)  {
         if (GIFframe > 24) {
             GIFframe = 0;
         }

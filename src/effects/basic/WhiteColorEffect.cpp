@@ -13,7 +13,7 @@ void WhiteColorEffect::tick()
     for (int16_t y = centerY; y >= 0; y--) {
         CRGB color = CHSV(
                     45,
-                    map(settings.speed, 0, 255, 0, 170),
+                    map(255 - settings.speed, 0, 255, 0, 170),
                     y == centerY
                     ? 255
                     : (settings.scale / 100.0f) > ((centerY + 1.0f) - (y + 1.0f)) / (centerY + 1.0f) ? 255 : 0);

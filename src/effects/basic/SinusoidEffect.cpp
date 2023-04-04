@@ -8,12 +8,13 @@ SinusoidEffect::SinusoidEffect(const String &id)
 
 void SinusoidEffect::tick()
 {
+    uint8_t invSpeed = 255 - settings.speed;
     const uint8_t semiHeightMajor = mySettings->matrixSettings.height / 2 + (mySettings->matrixSettings.height % 2);
     const uint8_t semiWidthMajor =  mySettings->matrixSettings.width / 2  + (mySettings->matrixSettings.width % 2) ;
-    float e_s3_speed = 0.004 * settings.speed + 0.015; // speed of the movement along the Lissajous curves
+    float e_s3_speed = 0.004 * invSpeed + 0.015; // speed of the movement along the Lissajous curves
     float e_s3_size = 3 * (float)settings.scale / 100.0 + 2;    // amplitude of the curves
 
-    float time_shift = float(millis() % (uint32_t)(30000 * (1.0 / ((float)settings.speed / 255))));
+    float time_shift = float(millis() % (uint32_t)(30000 * (1.0 / ((float)invSpeed / 255))));
 
     for (uint8_t y = 0; y < mySettings->matrixSettings.height; y++) {
         for (uint8_t x = 0; x < mySettings->matrixSettings.width; x++) {

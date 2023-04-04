@@ -73,7 +73,7 @@ void BouncingBallsEffect::tick()
 {
     float bballsHi = 0;
     float bballsTCycle = 0;
-    myMatrix->dimAll(255 - settings.speed);
+    myMatrix->dimAll(settings.speed);
     for (int i = 0 ; i < bballsNUM ; i++) {
         //leds[XY(bballsX[i], bballsPos[i])] = CRGB::Black;
 

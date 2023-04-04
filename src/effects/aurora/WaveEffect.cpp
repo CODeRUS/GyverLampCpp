@@ -51,7 +51,7 @@ void WaveEffect::activate()
     waveScale = 256 / mySettings->matrixSettings.width;
 
     waveRotation = (settings.scale - 1) / 25;
-    waveCount = settings.speed % 2;
+    waveCount = (255 - settings.speed) % 2;
 }
 
 void WaveEffect::tick()

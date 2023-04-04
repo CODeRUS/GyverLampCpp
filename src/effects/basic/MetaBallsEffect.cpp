@@ -8,7 +8,7 @@ MetaBallsEffect::MetaBallsEffect(const String &id)
 
 void MetaBallsEffect::tick()
 {
-    float speed = settings.speed / 127.0;
+    float speed = (255 - settings.speed) / 127.0;
 
     // get some 2 random moving points
     uint8_t x2 = inoise8(millis() * speed, 25355, 685 ) / mySettings->matrixSettings.width;
