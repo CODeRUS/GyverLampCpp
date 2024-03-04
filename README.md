@@ -123,6 +123,10 @@ You can upload `firmware.bin`, `fs.bin`, `settings.json`, `effects.json` with OT
 
 **NOTE:** Boards with 1MB flash memory (see [Supported boards](#supported-boards)) don't have enough space for firmware/fs updates, but capable of json configuration updates
 
+## MQTT messages
+
+Please check [MQTT.md](MQTT.md)
+
 ## Changes with original GyverLamp projects
 
 - Rewritten in C++ and classes for easier maintenance
