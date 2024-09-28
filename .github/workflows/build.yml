@@ -105,10 +105,10 @@ jobs:
         set -x
         assets=()
         for asset in artifacts/*.bin; do
-          assets+=("-a" "$asset")
+          assets+=("$asset")
         done
         for asset in artifacts/*.zip; do
-          assets+=("-a" "$asset")
+          assets+=("$asset")
         done
         RELEASE_TAG="$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
         gh release create "$RELEASE_TAG" "${assets[@]}"
