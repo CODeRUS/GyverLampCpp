@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Prepare data
       run: |
@@ -25,7 +25,7 @@ jobs:
         zip -r data.zip data
 
     - name: Cache pip
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/platformio.ini') }}
@@ -33,13 +33,13 @@ jobs:
           ${{ runner.os }}-pip-
 
     - name: Cache PlatformIO
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.platformio
         key: ${{ runner.os }}-pio-${{ hashFiles('**/platformio.ini') }}
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
 
     - name: Install PlatformIO
       run: |
@@ -94,7 +94,7 @@ jobs:
         cp .pio/build/esp01s/fs.bin artifacts/esp01s-fs.bin
       
     - name: Upload build result
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: artifacts
         path: artifacts
@@ -111,7 +111,7 @@ jobs:
           assets+=("-a" "$asset")
         done
         RELEASE_TAG="$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
-        hub release create "${assets[@]}" -m "$RELEASE_TAG" "$RELEASE_TAG"
+        gh release create "$RELEASE_TAG" "${assets[@]}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
