@@ -512,5 +512,86 @@
       "b": 0
     },
     "text": "hello world!"
+  },
+  {
+    "i": "PulseJ",
+    "n": "JeeUi Pulse",
+    "s": 55,
+    "l": 1,
+    "b": 80
+  },
+  {
+    "i": "SparclesJ",
+    "n": "JeeUi Sparkles",
+    "s": 55,
+    "l": 1,
+    "b": 80,
+    "micMode10": "1",
+    "micScale": 1,
+    "amount": 1
+  },
+  {
+    "i": "WhiteJ",
+    "n": "JeeUi White",
+    "s": 55,
+    "l": 1,
+    "b": 80
+  },
+  {
+    "i": "FallJ",
+    "n": "JeeUi Fall",
+    "s": 55,
+    "l": 1,
+    "b": 80,
+    "sparkling": 80,
+    "palette": 0
+  },
+  {
+    "i": "MatrixJ",
+    "n": "JeeUi Matrix",
+    "s": 55,
+    "l": 1,
+    "b": 80,
+    "rnd": false,
+    "color": 65280,
+    "glitch": 0
+  },
+  {
+    "i": "StarfallJ",
+    "n": "JeeUi Starfall",
+    "s": 55,
+    "l": 1,
+    "b": 80,
+    "colored": false,
+    "isNew": false
+  },
+  {
+    "i": "LightersJ",
+    "n": "JeeUi Lighters",
+    "s": 55,
+    "l": 1,
+    "b": 80,
+    "subPix": false
+  },
+  {
+    "i": "LighterTracersJ",
+    "n": "JeeUi LighterTracers",
+    "s": 55,
+    "l": 1,
+    "b": 80
+  },
+  {
+    "i": "LightBallsJ",
+    "n": "JeeUi LightBalls",
+    "s": 55,
+    "l": 1,
+    "b": 80
+  },
+  {
+    "i": "BallJ",
+    "n": "JeeUi Ball",
+    "s": 55,
+    "l": 1,
+    "b": 80
   }
 ]
