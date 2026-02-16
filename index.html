@@ -251,7 +251,6 @@
             <label for="releaseSelect">Релиз GyverLampCpp</label>
             <div class="inline">
               <select id="releaseSelect"></select>
-              <button type="button" id="downloadAssets" class="secondary">Скачать .bin</button>
             </div>
           </div>
         </div>
@@ -274,15 +273,11 @@
               <label for="spiffsOffset">Offset SPIFFS</label>
               <input id="spiffsOffset" readonly>
             </div>
-            <div class="field">
-              <label for="spiffsFile">Локальный SPIFFS .bin</label>
-              <input type="file" id="spiffsFile" accept=".bin,application/octet-stream">
-            </div>
             <div class="hint" style="align-self:center;"></div>
           </div>
         </div>
         <p class="footnote">
-          Для обязательных разделов укажите URL или локальный <code>.bin</code>. Offset редактировать не нужно.
+          Для обязательных разделов укажите URL. Offset редактировать не нужно.
         </p>
       </section>
 
@@ -308,13 +303,9 @@
           <label>Offset</label>
           <input data-role="offset" readonly>
         </div>
-        <div class="field">
-          <label>Локальный .bin (опционально)</label>
-          <input type="file" data-role="file" accept=".bin,application/octet-stream">
-        </div>
         <div class="hint" data-role="requiredHint"></div>
       </div>
-      <div class="hint">Если выбран файл, он приоритетнее URL. Адрес берётся из пресета.</div>
+      <div class="hint">Адрес берётся из пресета и кэшируется в браузере перед прошивкой.</div>
     </div>
   </template>
 
@@ -329,13 +320,13 @@
     const includeSpiffsEl = document.getElementById("includeSpiffs");
     const spiffsUrlEl = document.getElementById("spiffsUrl");
     const spiffsOffsetEl = document.getElementById("spiffsOffset");
-    const spiffsFileEl = document.getElementById("spiffsFile");
     const releaseSelectEl = document.getElementById("releaseSelect");
-    const downloadAssetsEl = document.getElementById("downloadAssets");
 
     const transientObjectUrls = new Set();
     const persistentObjectUrls = new Set();
     const PLATFORMIO_SOURCE_URL = "https://github.com/CODeRUS/GyverLampCpp/blob/master/platformio.ini";
+    const RELEASES_BASE_PATH = "releases";
+    const DEFAULT_SITE_BASE_URL = "https://coderus.github.io/GyverLampCpp/";
     const GITHUB_API_VERSION = "2022-11-28";
     const ASSET_DB_NAME = "gyverlampcpp-flasher";
     const ASSET_DB_STORE = "release-assets";
@@ -343,6 +334,8 @@
     const releasesByTag = new Map();
     const isFileProtocol = window.location.protocol === "file:";
     let assetsDbPromise = null;
+    let isPreparingInstall = false;
+    let bypassInstallPrefetchOnce = false;
     const STATIC_RELEASE_TAGS = [
       "20250331110631-748b1ec",
       "20240928064740-d54f516",
@@ -549,9 +542,7 @@
       const partNodes = [...partsList.querySelectorAll(".part")];
       partNodes.forEach((node) => {
         const urlInput = node.querySelector('[data-role="url"]');
-        const fileInput = node.querySelector('[data-role="file"]');
         urlInput.addEventListener("input", () => refreshInstaller());
-        fileInput.addEventListener("change", () => refreshInstaller());
       });
     }
 
@@ -586,20 +577,13 @@
         const node = partNodes[index];
         const urlInput = node.querySelector('[data-role="url"]');
         const offsetInput = node.querySelector('[data-role="offset"]');
-        const fileInput = node.querySelector('[data-role="file"]');
-        const file = fileInput.files && fileInput.files[0];
 
         const offset = parseOffset(offsetInput.value);
-        let path = urlInput.value.trim();
+        const path = urlInput.value.trim();
         const isRequired = node.dataset.required === "1";
 
-        if (file) {
-          path = URL.createObjectURL(file);
-          transientObjectUrls.add(path);
-        }
-
         if (!path && isRequired) {
-          throw new Error(`Для раздела #${index + 1} укажите URL или выберите файл.`);
+          throw new Error(`Для раздела #${index + 1} укажите URL.`);
         }
 
         if (path) {
@@ -611,14 +595,9 @@
         if (!selectedPreset || !selectedPreset.spiffsOffset) {
           throw new Error("Для выбранного env нет автоматически заданного адреса SPIFFS.");
         }
-        let spiffsPath = spiffsUrlEl.value.trim();
-        const spiffsFile = spiffsFileEl.files && spiffsFileEl.files[0];
-        if (spiffsFile) {
-          spiffsPath = URL.createObjectURL(spiffsFile);
-          transientObjectUrls.add(spiffsPath);
-        }
+        const spiffsPath = spiffsUrlEl.value.trim();
         if (!spiffsPath) {
-          throw new Error("Для SPIFFS укажите URL или выберите файл.");
+          throw new Error("Для SPIFFS укажите URL.");
         }
 
         parts.push({
@@ -657,6 +636,44 @@
       button.setAttribute("install-supported", "");
       button.innerHTML = "<button slot=\"activate\">Подключить и прошить</button>";
       installArea.append(button);
+
+      const activateBtn = button.querySelector("button[slot=\"activate\"]");
+      if (!activateBtn) {
+        return;
+      }
+
+      activateBtn.addEventListener("click", async (event) => {
+        if (bypassInstallPrefetchOnce) {
+          bypassInstallPrefetchOnce = false;
+          return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (isPreparingInstall) {
+          return;
+        }
+        isPreparingInstall = true;
+
+        try {
+          setStatus("Подготавливаю бинарники в локальном хранилище...");
+          await hydrateCurrentReleaseAssetsToLocalCache();
+          const preparedManifest = buildManifest();
+          updateInstallButton(preparedManifest);
+          const preparedBtn = installArea.querySelector("button[slot=\"activate\"]");
+          if (!preparedBtn) {
+            throw new Error("Кнопка прошивки не найдена после подготовки.");
+          }
+          bypassInstallPrefetchOnce = true;
+          preparedBtn.click();
+          setStatus("Бинарники подготовлены. Откройте порт и продолжайте прошивку.");
+        } catch (error) {
+          setStatus(error instanceof Error ? error.message : "Не удалось подготовить бинарники.", true);
+        } finally {
+          isPreparingInstall = false;
+        }
+      });
     }
 
     function refreshInstaller() {
@@ -775,7 +792,7 @@
       } else if (includeSpiffsEl.checked) {
         spiffsUrlEl.value = "";
         if (isFileProtocol) {
-          spiffsUrlEl.placeholder = "file:// режим: выберите локальный spiffs .bin";
+          spiffsUrlEl.placeholder = "Укажите URL SPIFFS образа";
         }
       }
     }
@@ -788,12 +805,16 @@
         "sonoff-r1.bin", "sonoff-r1-fs.bin",
         "sonoff-r1-4m.bin", "sonoff-r1-4m-fs.bin"
       ];
+      const baseForAbsolute = (window.location.protocol === "http:" || window.location.protocol === "https:")
+        ? window.location.href
+        : DEFAULT_SITE_BASE_URL;
       return {
         tag_name: tagName,
         assets: assetNames.map((name) => ({
           name,
-          browser_download_url: `releases/${tagName}/${name}`,
-          url: `releases/${tagName}/${name}`
+          // Files are served from gh-pages branch folder: /releases/<tag>/<file>.
+          browser_download_url: new URL(`${RELEASES_BASE_PATH}/${tagName}/${name}`, baseForAbsolute).href,
+          url: new URL(`${RELEASES_BASE_PATH}/${tagName}/${name}`, baseForAbsolute).href
         }))
       };
     }
@@ -824,28 +845,20 @@
       releaseSelectEl.value = STATIC_RELEASE_TAGS[0];
       cleanupReleaseObjectUrls();
       fillPartUrlsFromRelease(releasesByTag.get(releaseSelectEl.value));
-      try {
-        await hydrateCurrentReleaseAssetsToLocalCache();
-      } catch (error) {
-        // Ignore cache hydration errors and keep URL mode.
-      }
       refreshInstaller();
       setStatus(`Загружен статичный список релизов: ${STATIC_RELEASE_TAGS.length}.`);
     }
 
     includeSpiffsEl.addEventListener("change", () => {
       spiffsUrlEl.disabled = !includeSpiffsEl.checked;
-      spiffsFileEl.disabled = !includeSpiffsEl.checked;
       if (!includeSpiffsEl.checked) {
         spiffsUrlEl.value = "";
-        spiffsFileEl.value = "";
       }
       setStatus(includeSpiffsEl.checked ? "SPIFFS раздел включён." : "SPIFFS раздел отключён.");
       refreshInstaller();
     });
 
     spiffsUrlEl.addEventListener("input", () => refreshInstaller());
-    spiffsFileEl.addEventListener("change", () => refreshInstaller());
     buildNameEl.addEventListener("input", () => refreshInstaller());
 
     presetEl.addEventListener("change", () => {
@@ -854,11 +867,6 @@
         setStatus(`Пресет применён из platformio.ini (${PLATFORMIO_SOURCE_URL}). Заполните URL/файлы.`);
         attachPartInputHandlers();
         fillPartUrlsFromRelease(releasesByTag.get(releaseSelectEl.value));
-        try {
-          await hydrateCurrentReleaseAssetsToLocalCache();
-        } catch (error) {
-          // Keep URL mode if auto cache is unavailable.
-        }
         refreshInstaller();
       })();
     });
@@ -871,11 +879,6 @@
         setStatus(`Отфильтрованы пресеты для ${chipFamilyEl.value}.`);
         attachPartInputHandlers();
         fillPartUrlsFromRelease(releasesByTag.get(releaseSelectEl.value));
-        try {
-          await hydrateCurrentReleaseAssetsToLocalCache();
-        } catch (error) {
-          // Keep URL mode if auto cache is unavailable.
-        }
         refreshInstaller();
       })();
     });
@@ -884,31 +887,9 @@
       (async () => {
         cleanupReleaseObjectUrls();
         fillPartUrlsFromRelease(releasesByTag.get(releaseSelectEl.value));
-        try {
-          await hydrateCurrentReleaseAssetsToLocalCache();
-        } catch (error) {
-          // Keep URL mode if auto cache is unavailable.
-        }
         refreshInstaller();
         setStatus(`Выбран релиз ${releaseSelectEl.value}.`);
       })();
-    });
-
-    downloadAssetsEl.addEventListener("click", async () => {
-      const release = releasesByTag.get(releaseSelectEl.value);
-      const presetId = presetEl.value;
-      if (!release || !presetId) {
-        setStatus("Сначала выберите релиз и пресет.", true);
-        return;
-      }
-
-      try {
-        await hydrateCurrentReleaseAssetsToLocalCache();
-        refreshInstaller();
-        setStatus("Бинарники сохранены в локальном хранилище браузера и подключены автоматически.");
-      } catch (error) {
-        setStatus("Не удалось кэшировать бинарники в браузере. Проверьте CORS/доступ к GitHub.", true);
-      }
     });
 
     window.addEventListener("beforeunload", () => {
@@ -920,7 +901,6 @@
     setPreset(presetEl.value);
     attachPartInputHandlers();
     spiffsUrlEl.disabled = true;
-    spiffsFileEl.disabled = true;
     loadReleases();
   </script>
 </body>
