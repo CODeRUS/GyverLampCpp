@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESP Browser Flasher</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --panel: #171a22;
+      --panel-2: #1f2430;
+      --text: #e6e8ee;
+      --muted: #9ca3b5;
+      --accent: #4f8cff;
+      --accent-2: #68d391;
+      --danger: #ff6b6b;
+      --border: #2a3140;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 85% -200px, #1b2744, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, var(--panel), #141924);
+      padding: 14px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+
+    .row {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 10px;
+      grid-template-columns: repeat(12, 1fr);
+    }
+
+    .row:last-child {
+      margin-bottom: 0;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    label {
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 10px 11px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(79, 140, 255, 0.2);
+    }
+
+    button {
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+    }
+
+    button.secondary {
+      background: #1a202d;
+    }
+
+    button.danger {
+      border-color: #59343a;
+      color: #ffc2c2;
+      background: #2b1c22;
+    }
+
+    .chip {
+      grid-column: span 3;
+    }
+
+    .preset {
+      grid-column: span 5;
+    }
+
+    .name {
+      grid-column: span 3;
+    }
+
+    .release {
+      grid-column: span 4;
+    }
+
+    .parts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .part {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      background: #151b27;
+    }
+
+    .part-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1.1fr 1fr auto;
+      gap: 9px;
+      align-items: end;
+    }
+
+    .hint {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .inline {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #121825;
+      color: #d4d8e0;
+      padding: 10px;
+      min-height: 42px;
+      font-size: 0.92rem;
+      line-height: 1.35;
+    }
+
+    .status.error {
+      border-color: #613a3f;
+      color: #ffd2d2;
+      background: #26191d;
+    }
+
+    .install-area {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      min-height: 44px;
+    }
+
+    .footnote {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 860px) {
+      .chip,
+      .preset,
+      .name {
+        grid-column: span 12;
+      }
+
+      .release {
+        grid-column: span 12;
+      }
+
+      .part-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>ESP8266 / ESP32 Browser Flasher</h1>
+    <p>
+      Статичная страница для прошивки через Web Serial (Chrome/Edge). Поддерживает образы по URL и локальные файлы.
+      Семейства и пресеты ниже сгенерированы по env из GyverLampCpp platformio.ini.
+    </p>
+
+    <div class="grid">
+      <section class="card">
+        <h2>1) Конфигурация сборки</h2>
+        <div class="row">
+          <div class="field chip">
+            <label for="chipFamily">Семейство чипа</label>
+            <select id="chipFamily"></select>
+          </div>
+          <div class="field preset">
+            <label for="preset">Пресет (как в готовых web-flasher)</label>
+            <select id="preset"></select>
+          </div>
+          <div class="field name">
+            <label for="buildName">Название сборки</label>
+            <input id="buildName" value="GyverLamp Custom Build">
+          </div>
+          <div class="field release">
+            <label for="releaseSelect">Релиз GyverLampCpp</label>
+            <div class="inline">
+              <select id="releaseSelect"></select>
+              <button type="button" id="reloadReleases" class="secondary">Обновить</button>
+              <button type="button" id="downloadAssets" class="secondary">Скачать .bin</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2) Файлы прошивки</h2>
+        <div class="parts-list" id="partsList"></div>
+        <div class="part" style="margin-top: 10px;">
+          <div class="inline" style="margin-bottom: 10px;">
+            <input type="checkbox" id="includeSpiffs" style="width:auto;">
+            <label for="includeSpiffs" style="margin:0;">Добавить раздел SPIFFS/LittleFS</label>
+          </div>
+          <div class="part-grid">
+            <div class="field">
+              <label for="spiffsUrl">URL SPIFFS образа</label>
+              <input type="url" id="spiffsUrl" placeholder="https://example.com/spiffs.bin">
+            </div>
+            <div class="field">
+              <label for="spiffsOffset">Offset SPIFFS</label>
+              <input id="spiffsOffset" readonly>
+            </div>
+            <div class="field">
+              <label for="spiffsFile">Локальный SPIFFS .bin</label>
+              <input type="file" id="spiffsFile" accept=".bin,application/octet-stream">
+            </div>
+            <div class="hint" style="align-self:center;"></div>
+          </div>
+        </div>
+        <p class="footnote">
+          Для обязательных разделов укажите URL или локальный <code>.bin</code>. Offset редактировать не нужно.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>3) Прошивка</h2>
+        <div class="install-area" id="installArea"></div>
+        <div id="status" class="status">Готово. Заполните обязательные URL/файлы и нажмите «Подключить и прошить».</div>
+        <div class="footnote">
+          Если кнопка установки не отображается: откройте страницу через HTTPS или localhost и используйте Chromium-браузер.
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <template id="partTemplate">
+    <div class="part">
+      <div class="part-grid">
+        <div class="field">
+          <label data-role="label">Раздел</label>
+          <input type="url" data-role="url" placeholder="https://example.com/firmware.bin">
+        </div>
+        <div class="field">
+          <label>Offset</label>
+          <input data-role="offset" readonly>
+        </div>
+        <div class="field">
+          <label>Локальный .bin (опционально)</label>
+          <input type="file" data-role="file" accept=".bin,application/octet-stream">
+        </div>
+        <div class="hint" data-role="requiredHint"></div>
+      </div>
+      <div class="hint">Если выбран файл, он приоритетнее URL. Адрес берётся из пресета.</div>
+    </div>
+  </template>
+
+  <script>
+    const partsList = document.getElementById("partsList");
+    const partTemplate = document.getElementById("partTemplate");
+    const chipFamilyEl = document.getElementById("chipFamily");
+    const presetEl = document.getElementById("preset");
+    const buildNameEl = document.getElementById("buildName");
+    const installArea = document.getElementById("installArea");
+    const statusEl = document.getElementById("status");
+    const includeSpiffsEl = document.getElementById("includeSpiffs");
+    const spiffsUrlEl = document.getElementById("spiffsUrl");
+    const spiffsOffsetEl = document.getElementById("spiffsOffset");
+    const spiffsFileEl = document.getElementById("spiffsFile");
+    const releaseSelectEl = document.getElementById("releaseSelect");
+    const reloadReleasesEl = document.getElementById("reloadReleases");
+    const downloadAssetsEl = document.getElementById("downloadAssets");
+
+    const transientObjectUrls = new Set();
+    const persistentObjectUrls = new Set();
+    const PLATFORMIO_SOURCE_URL = "https://github.com/CODeRUS/GyverLampCpp/blob/master/platformio.ini";
+    const RELEASES_PAGE_URL = "https://github.com/CODeRUS/GyverLampCpp/releases";
+    const RELEASES_API_URL = "https://api.github.com/repos/CODeRUS/GyverLampCpp/releases?per_page=100";
+    const GITHUB_API_VERSION = "2022-11-28";
+    const ASSET_DB_NAME = "gyverlampcpp-flasher";
+    const ASSET_DB_STORE = "release-assets";
+    const PRESET_MANUAL_ID = "manual";
+    const releasesByTag = new Map();
+    const isFileProtocol = window.location.protocol === "file:";
+    let assetsDbPromise = null;
+    const PLATFORMIO_ENV_PRESETS = [
+      {
+        id: "esp01s",
+        label: "esp01s (ESP8266, 1M256, dout)",
+        chipFamily: "ESP8266",
+        parts: [{ key: "firmware", name: "Firmware", offset: "0x00000" }],
+        spiffsOffset: "0xC0000",
+        buildName: "GyverLamp esp01s"
+      },
+      {
+        id: "sonoff-r1",
+        label: "sonoff-r1 (ESP8266, 1M256, SONOFF)",
+        chipFamily: "ESP8266",
+        parts: [{ key: "firmware", name: "Firmware", offset: "0x00000" }],
+        spiffsOffset: "0xC0000",
+        buildName: "GyverLamp sonoff-r1"
+      },
+      {
+        id: "sonoff-r1-4m",
+        label: "sonoff-r1-4m (ESP8266, 4M1M, SONOFF)",
+        chipFamily: "ESP8266",
+        parts: [{ key: "firmware", name: "Firmware", offset: "0x00000" }],
+        spiffsOffset: "0x300000",
+        buildName: "GyverLamp sonoff-r1-4m"
+      },
+      {
+        id: "nodemcu",
+        label: "nodemcu (ESP8266)",
+        chipFamily: "ESP8266",
+        parts: [{ key: "firmware", name: "Firmware", offset: "0x00000" }],
+        spiffsOffset: "0x300000",
+        buildName: "GyverLamp nodemcu"
+      },
+      {
+        id: "esp32dev",
+        label: "esp32dev (ESP32)",
+        chipFamily: "ESP32",
+        parts: [
+          { key: "firmware", name: "Firmware", offset: "0x10000" }
+        ],
+        spiffsOffset: "0x290000",
+        buildName: "GyverLamp esp32dev"
+      }
+    ];
+
+    function renderPresetOptions(chipFamily, selectedPresetId = PRESET_MANUAL_ID) {
+      presetEl.innerHTML = "";
+
+      PLATFORMIO_ENV_PRESETS
+        .filter((preset) => preset.chipFamily === chipFamily)
+        .forEach((preset) => {
+          const option = document.createElement("option");
+          option.value = preset.id;
+          option.textContent = `${preset.label} [env:${preset.id}]`;
+          presetEl.append(option);
+        });
+
+      const availableIds = [...presetEl.options].map((opt) => opt.value);
+      presetEl.value = availableIds.includes(selectedPresetId)
+        ? selectedPresetId
+        : availableIds[0];
+    }
+
+    function initFamiliesAndPresets() {
+      const families = [...new Set(PLATFORMIO_ENV_PRESETS.map((item) => item.chipFamily))];
+      chipFamilyEl.innerHTML = "";
+
+      families.forEach((family) => {
+        const option = document.createElement("option");
+        option.value = family;
+        option.textContent = family;
+        chipFamilyEl.append(option);
+      });
+
+      const defaultPreset = PLATFORMIO_ENV_PRESETS.find((item) => item.id === "esp32dev") || PLATFORMIO_ENV_PRESETS[0];
+      if (defaultPreset) {
+        chipFamilyEl.value = defaultPreset.chipFamily;
+        renderPresetOptions(defaultPreset.chipFamily, defaultPreset.id);
+      } else {
+        chipFamilyEl.value = families[0] || "ESP32";
+        renderPresetOptions(chipFamilyEl.value, PRESET_MANUAL_ID);
+      }
+    }
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message;
+      statusEl.classList.toggle("error", isError);
+    }
+
+    function cleanupTransientObjectUrls() {
+      transientObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+      transientObjectUrls.clear();
+    }
+
+    function cleanupReleaseObjectUrls() {
+      persistentObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+      persistentObjectUrls.clear();
+    }
+
+    function openAssetsDb() {
+      if (assetsDbPromise) {
+        return assetsDbPromise;
+      }
+      assetsDbPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(ASSET_DB_NAME, 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(ASSET_DB_STORE)) {
+            db.createObjectStore(ASSET_DB_STORE);
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error("IndexedDB open failed"));
+      });
+      return assetsDbPromise;
+    }
+
+    async function assetsDbGet(key) {
+      const db = await openAssetsDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(ASSET_DB_STORE, "readonly");
+        const store = tx.objectStore(ASSET_DB_STORE);
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error || new Error("IndexedDB get failed"));
+      });
+    }
+
+    async function assetsDbSet(key, value) {
+      const db = await openAssetsDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(ASSET_DB_STORE, "readwrite");
+        const store = tx.objectStore(ASSET_DB_STORE);
+        const req = store.put(value, key);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error || new Error("IndexedDB put failed"));
+      });
+    }
+
+    function addPart(partConfig) {
+      const fragment = partTemplate.content.cloneNode(true);
+      const host = fragment.querySelector(".part");
+      const labelEl = fragment.querySelector('[data-role="label"]');
+      const urlInput = fragment.querySelector('[data-role="url"]');
+      const offsetInput = fragment.querySelector('[data-role="offset"]');
+      const requiredHint = fragment.querySelector('[data-role="requiredHint"]');
+
+      labelEl.textContent = `${partConfig.name} URL`;
+      urlInput.value = partConfig.url || "";
+      urlInput.placeholder = partConfig.placeholder || "https://example.com/firmware.bin";
+      offsetInput.value = partConfig.offset;
+      host.dataset.partKey = partConfig.key;
+      host.dataset.required = partConfig.required ? "1" : "0";
+      requiredHint.textContent = "";
+
+      partsList.append(fragment);
+    }
+
+    function setPreset(presetName) {
+      cleanupTransientObjectUrls();
+      partsList.innerHTML = "";
+
+      const preset = PLATFORMIO_ENV_PRESETS.find((item) => item.id === presetName);
+      if (!preset) {
+        spiffsOffsetEl.value = "";
+        return;
+      }
+
+      buildNameEl.value = preset.buildName;
+      preset.parts.forEach((part) => addPart({
+        key: part.key,
+        name: part.name,
+        offset: part.offset,
+        url: part.url || "",
+        required: true
+      }));
+
+      spiffsOffsetEl.value = preset.spiffsOffset || "";
+    }
+
+    function attachPartInputHandlers() {
+      const partNodes = [...partsList.querySelectorAll(".part")];
+      partNodes.forEach((node) => {
+        const urlInput = node.querySelector('[data-role="url"]');
+        const fileInput = node.querySelector('[data-role="file"]');
+        urlInput.addEventListener("input", () => refreshInstaller());
+        fileInput.addEventListener("change", () => refreshInstaller());
+      });
+    }
+
+    function parseOffset(value) {
+      const source = value.trim().toLowerCase();
+      if (!source) {
+        throw new Error("Offset не может быть пустым.");
+      }
+
+      const parsed = source.startsWith("0x")
+        ? Number.parseInt(source, 16)
+        : Number.parseInt(source, 10);
+
+      if (!Number.isFinite(parsed) || Number.isNaN(parsed) || parsed < 0) {
+        throw new Error("Offset должен быть числом (например 0x10000 или 65536).");
+      }
+
+      return parsed;
+    }
+
+    function buildManifest() {
+      cleanupTransientObjectUrls();
+      const parts = [];
+      const partNodes = [...partsList.querySelectorAll(".part")];
+      const selectedPreset = PLATFORMIO_ENV_PRESETS.find((item) => item.id === presetEl.value);
+
+      if (partNodes.length === 0) {
+        throw new Error("Добавьте хотя бы один раздел прошивки.");
+      }
+
+      for (let index = 0; index < partNodes.length; index += 1) {
+        const node = partNodes[index];
+        const urlInput = node.querySelector('[data-role="url"]');
+        const offsetInput = node.querySelector('[data-role="offset"]');
+        const fileInput = node.querySelector('[data-role="file"]');
+        const file = fileInput.files && fileInput.files[0];
+
+        const offset = parseOffset(offsetInput.value);
+        let path = urlInput.value.trim();
+        const isRequired = node.dataset.required === "1";
+
+        if (file) {
+          path = URL.createObjectURL(file);
+          transientObjectUrls.add(path);
+        }
+
+        if (!path && isRequired) {
+          throw new Error(`Для раздела #${index + 1} укажите URL или выберите файл.`);
+        }
+
+        if (path) {
+          parts.push({ path, offset });
+        }
+      }
+
+      if (includeSpiffsEl.checked) {
+        if (!selectedPreset || !selectedPreset.spiffsOffset) {
+          throw new Error("Для выбранного env нет автоматически заданного адреса SPIFFS.");
+        }
+        let spiffsPath = spiffsUrlEl.value.trim();
+        const spiffsFile = spiffsFileEl.files && spiffsFileEl.files[0];
+        if (spiffsFile) {
+          spiffsPath = URL.createObjectURL(spiffsFile);
+          transientObjectUrls.add(spiffsPath);
+        }
+        if (!spiffsPath) {
+          throw new Error("Для SPIFFS укажите URL или выберите файл.");
+        }
+
+        parts.push({
+          path: spiffsPath,
+          offset: parseOffset(selectedPreset.spiffsOffset)
+        });
+      }
+
+      const chipFamily = chipFamilyEl.value;
+      const buildName = (buildNameEl.value || "Custom Build").trim();
+      const selectedReleaseTag = releaseSelectEl.value && releaseSelectEl.value.trim()
+        ? releaseSelectEl.value.trim()
+        : "local";
+
+      return {
+        name: "GyverLampCpp",
+        version: selectedReleaseTag,
+        builds: [
+          {
+            name: buildName,
+            chipFamily,
+            parts
+          }
+        ]
+      };
+    }
+
+    function updateInstallButton(manifestData) {
+      const blob = new Blob([JSON.stringify(manifestData, null, 2)], { type: "application/json" });
+      const manifestUrl = URL.createObjectURL(blob);
+      transientObjectUrls.add(manifestUrl);
+
+      installArea.innerHTML = "";
+      const button = document.createElement("esp-web-install-button");
+      button.setAttribute("manifest", manifestUrl);
+      button.setAttribute("install-supported", "");
+      button.innerHTML = "<button slot=\"activate\">Подключить и прошить</button>";
+      installArea.append(button);
+    }
+
+    function refreshInstaller() {
+      try {
+        const manifestData = buildManifest();
+        updateInstallButton(manifestData);
+        setStatus("Конфигурация готова. Нажмите «Подключить и прошить».");
+      } catch (error) {
+        installArea.innerHTML = "";
+        setStatus(error instanceof Error ? error.message : "Не удалось подготовить конфигурацию прошивки.", true);
+      }
+    }
+
+    function getReleaseAssetUrl(release, assetName) {
+      const assets = Array.isArray(release.assets) ? release.assets : [];
+      const asset = assets.find((item) => item.name === assetName);
+      if (!asset) {
+        return "";
+      }
+
+      const directUrl = asset.browser_download_url || "";
+      if (!directUrl) {
+        return "";
+      }
+      return directUrl;
+    }
+
+    async function getReleaseAssetBlobUrl(release, assetName) {
+      const assets = Array.isArray(release.assets) ? release.assets : [];
+      const asset = assets.find((item) => item.name === assetName);
+      if (!asset) {
+        return "";
+      }
+
+      const cacheKey = `${release.tag_name}:${assetName}`;
+      const cached = await assetsDbGet(cacheKey);
+      if (cached instanceof Blob) {
+        const cachedUrl = URL.createObjectURL(cached);
+        persistentObjectUrls.add(cachedUrl);
+        return cachedUrl;
+      }
+
+      const response = await fetch(asset.url, {
+        headers: {
+          Accept: "application/octet-stream",
+          "X-GitHub-Api-Version": GITHUB_API_VERSION
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Asset download failed (${assetName}, ${response.status}).`);
+      }
+
+      const blob = await response.blob();
+      await assetsDbSet(cacheKey, blob);
+      const blobUrl = URL.createObjectURL(blob);
+      persistentObjectUrls.add(blobUrl);
+      return blobUrl;
+    }
+
+    async function hydrateCurrentReleaseAssetsToLocalCache() {
+      const release = releasesByTag.get(releaseSelectEl.value);
+      const presetId = presetEl.value;
+      if (!release || !presetId) {
+        return;
+      }
+
+      const firstPartNode = partsList.querySelector(".part");
+      if (!firstPartNode) {
+        return;
+      }
+
+      const firmwareName = `${presetId}.bin`;
+      try {
+        const firmwareBlobUrl = await getReleaseAssetBlobUrl(release, firmwareName);
+        if (firmwareBlobUrl) {
+          firstPartNode.querySelector('[data-role="url"]').value = firmwareBlobUrl;
+        }
+      } catch (error) {
+        firstPartNode.querySelector('[data-role="url"]').value = getReleaseAssetUrl(release, firmwareName);
+      }
+
+      if (includeSpiffsEl.checked) {
+        const spiffsName = `${presetId}-fs.bin`;
+        try {
+          const spiffsBlobUrl = await getReleaseAssetBlobUrl(release, spiffsName);
+          spiffsUrlEl.value = spiffsBlobUrl || getReleaseAssetUrl(release, spiffsName);
+        } catch (error) {
+          spiffsUrlEl.value = getReleaseAssetUrl(release, spiffsName);
+        }
+      }
+    }
+
+    function fillPartUrlsFromRelease(release) {
+      const presetId = presetEl.value;
+      if (!release || !presetId) {
+        return;
+      }
+
+      const firmwareAssetName = `${presetId}.bin`;
+      const spiffsAssetName = `${presetId}-fs.bin`;
+      const firmwareUrl = getReleaseAssetUrl(release, firmwareAssetName);
+      const spiffsUrl = getReleaseAssetUrl(release, spiffsAssetName);
+
+      const firstPartNode = partsList.querySelector(".part");
+      if (firstPartNode && firmwareUrl) {
+        const firmwareUrlInput = firstPartNode.querySelector('[data-role="url"]');
+        firmwareUrlInput.value = firmwareUrl;
+      } else if (firstPartNode && isFileProtocol) {
+        const firmwareUrlInput = firstPartNode.querySelector('[data-role="url"]');
+        firmwareUrlInput.value = "";
+        firmwareUrlInput.placeholder = "file:// режим: выберите локальный firmware .bin";
+      }
+
+      if (spiffsUrl) {
+        spiffsUrlEl.value = spiffsUrl;
+      } else if (includeSpiffsEl.checked) {
+        spiffsUrlEl.value = "";
+        if (isFileProtocol) {
+          spiffsUrlEl.placeholder = "file:// режим: выберите локальный spiffs .bin";
+        }
+      }
+    }
+
+    async function loadReleases() {
+      try {
+        setStatus(`Загрузка релизов из ${RELEASES_PAGE_URL}...`);
+        const response = await fetch(RELEASES_API_URL, {
+          headers: { Accept: "application/vnd.github+json" }
+        });
+        if (!response.ok) {
+          throw new Error(`GitHub API error: ${response.status}`);
+        }
+        const releases = await response.json();
+        const filtered = Array.isArray(releases)
+          ? releases.filter((item) => !item.draft)
+          : [];
+
+        releasesByTag.clear();
+        releaseSelectEl.innerHTML = "";
+        filtered.forEach((release, index) => {
+          releasesByTag.set(release.tag_name, release);
+          const option = document.createElement("option");
+          option.value = release.tag_name;
+          option.textContent = `${index === 0 ? "Latest: " : ""}${release.tag_name}`;
+          releaseSelectEl.append(option);
+        });
+
+        if (!filtered.length) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "Релизы не найдены";
+          releaseSelectEl.append(option);
+          setStatus("Не удалось найти релизы.", true);
+          refreshInstaller();
+          return;
+        }
+
+        releaseSelectEl.value = filtered[0].tag_name;
+        cleanupReleaseObjectUrls();
+        fillPartUrlsFromRelease(filtered[0]);
+        try {
+          await hydrateCurrentReleaseAssetsToLocalCache();
+        } catch (error) {
+          // Ignore cache hydration errors and keep URL mode.
+        }
+        refreshInstaller();
+        setStatus(`Загружено релизов: ${filtered.length}. ${isFileProtocol ? "Пробуем авто-кэш бинарников в браузере (без выбора файла)." : "URL файлов подставлены автоматически."}`);
+      } catch (error) {
+        releaseSelectEl.innerHTML = "";
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Ошибка загрузки релизов";
+        releaseSelectEl.append(option);
+        setStatus("Ошибка загрузки релизов GitHub API (возможен лимит запросов).", true);
+      }
+    }
+
+    includeSpiffsEl.addEventListener("change", () => {
+      spiffsUrlEl.disabled = !includeSpiffsEl.checked;
+      spiffsFileEl.disabled = !includeSpiffsEl.checked;
+      if (!includeSpiffsEl.checked) {
+        spiffsUrlEl.value = "";
+        spiffsFileEl.value = "";
+      }
+      setStatus(includeSpiffsEl.checked ? "SPIFFS раздел включён." : "SPIFFS раздел отключён.");
+      refreshInstaller();
+    });
+
+    spiffsUrlEl.addEventListener("input", () => refreshInstaller());
+    spiffsFileEl.addEventListener("change", () => refreshInstaller());
+    buildNameEl.addEventListener("input", () => refreshInstaller());
+
+    presetEl.addEventListener("change", () => {
+      (async () => {
+        setPreset(presetEl.value);
+        setStatus(`Пресет применён из platformio.ini (${PLATFORMIO_SOURCE_URL}). Заполните URL/файлы.`);
+        attachPartInputHandlers();
+        fillPartUrlsFromRelease(releasesByTag.get(releaseSelectEl.value));
+        try {
+          await hydrateCurrentReleaseAssetsToLocalCache();
+        } catch (error) {
+          // Keep URL mode if auto cache is unavailable.
+        }
+        refreshInstaller();
+      })();
+    });
+
+    chipFamilyEl.addEventListener("change", () => {
+      (async () => {
+        const firstPresetForFamily = PLATFORMIO_ENV_PRESETS.find((item) => item.chipFamily === chipFamilyEl.value);
+        renderPresetOptions(chipFamilyEl.value, firstPresetForFamily ? firstPresetForFamily.id : PRESET_MANUAL_ID);
+        setPreset(presetEl.value);
+        setStatus(`Отфильтрованы пресеты для ${chipFamilyEl.value}.`);
+        attachPartInputHandlers();
+        fillPartUrlsFromRelease(releasesByTag.get(releaseSelectEl.value));
+        try {
+          await hydrateCurrentReleaseAssetsToLocalCache();
+        } catch (error) {
+          // Keep URL mode if auto cache is unavailable.
+        }
+        refreshInstaller();
+      })();
+    });
+
+    releaseSelectEl.addEventListener("change", () => {
+      (async () => {
+        cleanupReleaseObjectUrls();
+        fillPartUrlsFromRelease(releasesByTag.get(releaseSelectEl.value));
+        try {
+          await hydrateCurrentReleaseAssetsToLocalCache();
+        } catch (error) {
+          // Keep URL mode if auto cache is unavailable.
+        }
+        refreshInstaller();
+        setStatus(`Выбран релиз ${releaseSelectEl.value}.`);
+      })();
+    });
+
+    reloadReleasesEl.addEventListener("click", async () => {
+      await loadReleases();
+    });
+
+    downloadAssetsEl.addEventListener("click", async () => {
+      const release = releasesByTag.get(releaseSelectEl.value);
+      const presetId = presetEl.value;
+      if (!release || !presetId) {
+        setStatus("Сначала выберите релиз и пресет.", true);
+        return;
+      }
+
+      try {
+        await hydrateCurrentReleaseAssetsToLocalCache();
+        refreshInstaller();
+        setStatus("Бинарники сохранены в локальном хранилище браузера и подключены автоматически.");
+      } catch (error) {
+        setStatus("Не удалось кэшировать бинарники в браузере. Проверьте CORS/доступ к GitHub.", true);
+      }
+    });
+
+    window.addEventListener("beforeunload", () => {
+      cleanupTransientObjectUrls();
+      cleanupReleaseObjectUrls();
+    });
+
+    initFamiliesAndPresets();
+    setPreset(presetEl.value);
+    attachPartInputHandlers();
+    spiffsUrlEl.disabled = true;
+    spiffsFileEl.disabled = true;
+    loadReleases();
+  </script>
+</body>
+</html>
