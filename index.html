@@ -251,7 +251,6 @@
             <label for="releaseSelect">Релиз GyverLampCpp</label>
             <div class="inline">
               <select id="releaseSelect"></select>
-              <button type="button" id="reloadReleases" class="secondary">Обновить</button>
               <button type="button" id="downloadAssets" class="secondary">Скачать .bin</button>
             </div>
           </div>
@@ -332,14 +331,11 @@
     const spiffsOffsetEl = document.getElementById("spiffsOffset");
     const spiffsFileEl = document.getElementById("spiffsFile");
     const releaseSelectEl = document.getElementById("releaseSelect");
-    const reloadReleasesEl = document.getElementById("reloadReleases");
     const downloadAssetsEl = document.getElementById("downloadAssets");
 
     const transientObjectUrls = new Set();
     const persistentObjectUrls = new Set();
     const PLATFORMIO_SOURCE_URL = "https://github.com/CODeRUS/GyverLampCpp/blob/master/platformio.ini";
-    const RELEASES_PAGE_URL = "https://github.com/CODeRUS/GyverLampCpp/releases";
-    const RELEASES_API_URL = "https://api.github.com/repos/CODeRUS/GyverLampCpp/releases?per_page=100";
     const GITHUB_API_VERSION = "2022-11-28";
     const ASSET_DB_NAME = "gyverlampcpp-flasher";
     const ASSET_DB_STORE = "release-assets";
@@ -347,6 +343,28 @@
     const releasesByTag = new Map();
     const isFileProtocol = window.location.protocol === "file:";
     let assetsDbPromise = null;
+    const STATIC_RELEASE_TAGS = [
+      "20250331110631-748b1ec",
+      "20240928064740-d54f516",
+      "20230404213149-26f398e",
+      "20230404201736-0fe0f83",
+      "20230404200808-1751282",
+      "20230115143033-ec2a554",
+      "20221218191050-7179118",
+      "20221218185147-87153a0",
+      "20221218175745-b03352e",
+      "20220830174004-e3516bb",
+      "20220627221125-1bf7704",
+      "20220110172542-38dda82",
+      "20211025111346-bd64e45",
+      "20211011160010-1b74542",
+      "20210926122908-ada7784",
+      "20210210133426-bc4c295",
+      "20210203170046-9b28455",
+      "20210202230720-a092d24",
+      "20210129011510-296b983",
+      "20210129011419-0355a7c"
+    ];
     const PLATFORMIO_ENV_PRESETS = [
       {
         id: "esp01s",
@@ -762,58 +780,57 @@
       }
     }
 
+    function buildStaticRelease(tagName) {
+      const assetNames = [
+        "esp01s.bin", "esp01s-fs.bin",
+        "esp32dev.bin", "esp32dev-fs.bin",
+        "nodemcu.bin", "nodemcu-fs.bin",
+        "sonoff-r1.bin", "sonoff-r1-fs.bin",
+        "sonoff-r1-4m.bin", "sonoff-r1-4m-fs.bin"
+      ];
+      return {
+        tag_name: tagName,
+        assets: assetNames.map((name) => ({
+          name,
+          browser_download_url: `releases/${tagName}/${name}`,
+          url: `releases/${tagName}/${name}`
+        }))
+      };
+    }
+
     async function loadReleases() {
-      try {
-        setStatus(`Загрузка релизов из ${RELEASES_PAGE_URL}...`);
-        const response = await fetch(RELEASES_API_URL, {
-          headers: { Accept: "application/vnd.github+json" }
-        });
-        if (!response.ok) {
-          throw new Error(`GitHub API error: ${response.status}`);
-        }
-        const releases = await response.json();
-        const filtered = Array.isArray(releases)
-          ? releases.filter((item) => !item.draft)
-          : [];
+      releasesByTag.clear();
+      releaseSelectEl.innerHTML = "";
 
-        releasesByTag.clear();
-        releaseSelectEl.innerHTML = "";
-        filtered.forEach((release, index) => {
-          releasesByTag.set(release.tag_name, release);
-          const option = document.createElement("option");
-          option.value = release.tag_name;
-          option.textContent = `${index === 0 ? "Latest: " : ""}${release.tag_name}`;
-          releaseSelectEl.append(option);
-        });
+      STATIC_RELEASE_TAGS.forEach((tag, index) => {
+        const release = buildStaticRelease(tag);
+        releasesByTag.set(tag, release);
+        const option = document.createElement("option");
+        option.value = tag;
+        option.textContent = `${index === 0 ? "Latest: " : ""}${tag}`;
+        releaseSelectEl.append(option);
+      });
 
-        if (!filtered.length) {
-          const option = document.createElement("option");
-          option.value = "";
-          option.textContent = "Релизы не найдены";
-          releaseSelectEl.append(option);
-          setStatus("Не удалось найти релизы.", true);
-          refreshInstaller();
-          return;
-        }
-
-        releaseSelectEl.value = filtered[0].tag_name;
-        cleanupReleaseObjectUrls();
-        fillPartUrlsFromRelease(filtered[0]);
-        try {
-          await hydrateCurrentReleaseAssetsToLocalCache();
-        } catch (error) {
-          // Ignore cache hydration errors and keep URL mode.
-        }
-        refreshInstaller();
-        setStatus(`Загружено релизов: ${filtered.length}. ${isFileProtocol ? "Пробуем авто-кэш бинарников в браузере (без выбора файла)." : "URL файлов подставлены автоматически."}`);
-      } catch (error) {
-        releaseSelectEl.innerHTML = "";
+      if (!STATIC_RELEASE_TAGS.length) {
         const option = document.createElement("option");
         option.value = "";
-        option.textContent = "Ошибка загрузки релизов";
+        option.textContent = "Релизы не найдены";
         releaseSelectEl.append(option);
-        setStatus("Ошибка загрузки релизов GitHub API (возможен лимит запросов).", true);
+        setStatus("Статичный список релизов пуст.", true);
+        refreshInstaller();
+        return;
       }
+
+      releaseSelectEl.value = STATIC_RELEASE_TAGS[0];
+      cleanupReleaseObjectUrls();
+      fillPartUrlsFromRelease(releasesByTag.get(releaseSelectEl.value));
+      try {
+        await hydrateCurrentReleaseAssetsToLocalCache();
+      } catch (error) {
+        // Ignore cache hydration errors and keep URL mode.
+      }
+      refreshInstaller();
+      setStatus(`Загружен статичный список релизов: ${STATIC_RELEASE_TAGS.length}.`);
     }
 
     includeSpiffsEl.addEventListener("change", () => {
@@ -875,10 +892,6 @@
         refreshInstaller();
         setStatus(`Выбран релиз ${releaseSelectEl.value}.`);
       })();
-    });
-
-    reloadReleasesEl.addEventListener("click", async () => {
-      await loadReleases();
     });
 
     downloadAssetsEl.addEventListener("click", async () => {
