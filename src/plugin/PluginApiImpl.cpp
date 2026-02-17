@@ -1,5 +1,3 @@
-#if defined(ESP32)
-
 #include "PluginApiImpl.h"
 #include "MyMatrix.h"
 #include "Settings.h"
@@ -171,5 +169,3 @@ void plugin_api_init(plugin_api_t *api) {
     api->log_val       = api_log_val;
     api->log_val2      = api_log_val2;
 }
-
-#endif

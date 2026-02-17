@@ -6,11 +6,33 @@
 #include <SPIFFS.h>
 #define FLASHFS SPIFFS
 
-#include <esp_heap_caps.h>
+#include <esp_attr.h>
 
 namespace {
 
 PluginLoader *object = nullptr;
+
+// Simple bump allocator in IRAM for plugin executable code.
+// Plugins are loaded once at boot and never freed.
+#define IRAM_POOL_SIZE 32768
+
+IRAM_ATTR __attribute__((aligned(4)))
+static uint8_t iram_pool[IRAM_POOL_SIZE];
+
+static size_t iram_offset = 0;
+
+void* iram_alloc(size_t size)
+{
+    size = (size + 3) & ~3;  // 4-byte align
+
+    if (iram_offset + size > IRAM_POOL_SIZE) {
+        return nullptr;
+    }
+
+    void *ptr = &iram_pool[iram_offset];
+    iram_offset += size;
+    return ptr;
+}
 
 } // namespace
 
@@ -124,10 +146,10 @@ bool PluginLoader::loadPlugin(const String &path)
         return false;
     }
 
-    uint8_t *codeBase = static_cast<uint8_t*>(
-        heap_caps_malloc(fileSize, MALLOC_CAP_EXEC | MALLOC_CAP_32BIT));
+    uint8_t *codeBase = static_cast<uint8_t*>(iram_alloc(fileSize));
     if (!codeBase) {
-        Serial.printf_P(PSTR("Failed to allocate IRAM for plugin: %s (%u bytes)\n"), path.c_str(), fileSize);
+        Serial.printf_P(PSTR("Failed to allocate IRAM for plugin: %s (%u bytes, %u/%u used)\n"),
+                        path.c_str(), fileSize, iram_offset, IRAM_POOL_SIZE);
         file.close();
         return false;
     }
@@ -135,7 +157,6 @@ bool PluginLoader::loadPlugin(const String &path)
     file.seek(0);
     if (file.read(codeBase, fileSize) != fileSize) {
         Serial.printf_P(PSTR("Failed to read plugin binary: %s\n"), path.c_str());
-        heap_caps_free(codeBase);
         file.close();
         return false;
     }

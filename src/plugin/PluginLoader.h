@@ -1,5 +1,4 @@
 #pragma once
-#if defined(ESP32)
 
 #include <Arduino.h>
 #include <vector>
@@ -38,5 +37,3 @@ private:
     std::vector<LoadedPlugin*> plugins;
     plugin_api_t api;
 };
-
-#endif
