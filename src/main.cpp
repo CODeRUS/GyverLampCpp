@@ -65,8 +65,6 @@ uint8_t improvProvisionCommand = 0x01;
 uint32_t improvProvisionStartedAt = 0;
 String improvPendingSsid;
 String improvPendingPassword;
-constexpr const char *IMPROV_LOG_FILE = "/improv.log";
-String improvLogPreFsBuffer;
 constexpr bool IMPROV_DEBUG_FIXED_SCAN_RESPONSE = false;
 
 constexpr uint8_t IMPROV_HEADER_SIZE = 6;
@@ -143,96 +141,16 @@ uint8_t calcChecksumWithoutHeader(const uint8_t *data, size_t dataLength)
     return static_cast<uint8_t>(sum & 0xFF);
 }
 
-String toHexByte(uint8_t value)
-{
-    const char *hex = "0123456789ABCDEF";
-    String out;
-    out += hex[(value >> 4) & 0x0F];
-    out += hex[value & 0x0F];
-    return out;
-}
-
-String packetTypeName(uint8_t type)
-{
-    switch (type) {
-    case IMPROV_TYPE_CURRENT_STATE:
-        return String(F("CURRENT_STATE"));
-    case IMPROV_TYPE_ERROR_STATE:
-        return String(F("ERROR_STATE"));
-    case IMPROV_TYPE_RPC:
-        return String(F("RPC"));
-    case IMPROV_TYPE_RPC_RESPONSE:
-        return String(F("RPC_RESPONSE"));
-    default:
-        return String(F("UNKNOWN"));
-    }
-}
-
-void appendImprovLog(const String &line)
-{
-    if (!flashFsReadyForLogs) {
-        if (improvLogPreFsBuffer.length() < 4096) {
-            improvLogPreFsBuffer += line;
-            improvLogPreFsBuffer += '\n';
-        }
-        return;
-    }
-    File file = FLASHFS.open(IMPROV_LOG_FILE, "a");
-    if (!file) {
-        return;
-    }
-    file.println(line);
-    file.close();
-}
-
 void flushImprovPreFsLogBuffer()
 {
-    if (!flashFsReadyForLogs || improvLogPreFsBuffer.isEmpty()) {
-        return;
-    }
-    File file = FLASHFS.open(IMPROV_LOG_FILE, "a");
-    if (!file) {
-        return;
-    }
-    file.print(improvLogPreFsBuffer);
-    file.close();
-    improvLogPreFsBuffer = String();
 }
 
 void dumpImprovLogIfExists()
 {
-    if (!flashFsReadyForLogs || !FLASHFS.exists(IMPROV_LOG_FILE)) {
-        return;
-    }
-    File file = FLASHFS.open(IMPROV_LOG_FILE, "r");
-    if (!file) {
-        return;
-    }
-    Serial.println(F("\n===== improv.log ====="));
-    while (file.available()) {
-        const String line = file.readStringUntil('\n');
-        Serial.println(line);
-    }
-    Serial.println(F("===== end improv.log =====\n"));
-    file.close();
 }
 
 void resetImprovLogIfTooLarge()
 {
-    if (!flashFsReadyForLogs || !FLASHFS.exists(IMPROV_LOG_FILE)) {
-        return;
-    }
-    File file = FLASHFS.open(IMPROV_LOG_FILE, "r");
-    if (!file) {
-        return;
-    }
-    const size_t size = file.size();
-    file.close();
-    if (size <= 8192) {
-        return;
-    }
-    FLASHFS.remove(IMPROV_LOG_FILE);
-    appendImprovLog(F("[IMPROV] log rotated"));
 }
 
 void sendImprovPacket(uint8_t type, const uint8_t *payload, uint8_t payloadLength)
@@ -252,28 +170,6 @@ void sendImprovPacket(uint8_t type, const uint8_t *payload, uint8_t payloadLengt
     const uint8_t bodyStart = IMPROV_HEADER_SIZE;
     const size_t bodyLength = static_cast<size_t>(3 + payloadLength);
     frame[idx] = calcChecksumWithHeader(frame + bodyStart, bodyLength);
-
-    String payloadHex;
-    payloadHex.reserve(static_cast<size_t>(payloadLength) * 3);
-    for (uint8_t i = 0; i < payloadLength; i++) {
-        payloadHex += toHexByte(payload[i]);
-        if (i + 1 < payloadLength) {
-            payloadHex += ' ';
-        }
-    }
-    String txLine = String(F("[IMPROV] tx pkt type="))
-        + packetTypeName(type)
-        + String(F(" (0x"))
-        + toHexByte(type)
-        + String(F(") payload_len="))
-        + String(payloadLength)
-        + String(F(" checksum=0x"))
-        + toHexByte(frame[idx])
-        + String(F(" payload=["))
-        + payloadHex
-        + String(F("]"));
-    Serial.println(txLine);
-    appendImprovLog(txLine);
 
     Serial.write(frame, idx + 1);
 }
@@ -310,33 +206,16 @@ void sendImprovRpcResponse(uint8_t command, const String values[], uint8_t value
     uint8_t payloadLength = 0;
     uint8_t dataBlock[252] = {0};
     uint8_t dataBlockLength = 0;
-    uint8_t encodedCount = 0;
-    bool truncated = false;
     for (uint8_t i = 0; i < valuesCount; i++) {
         if (!appendImprovString(dataBlock, dataBlockLength, sizeof(dataBlock), values[i])) {
-            truncated = true;
             break;
         }
-        encodedCount++;
     }
     payload[payloadLength++] = static_cast<uint8_t>(command);
     payload[payloadLength++] = dataBlockLength;
     for (uint8_t i = 0; i < dataBlockLength; i++) {
         payload[payloadLength++] = dataBlock[i];
     }
-    char logLine[160] = {0};
-    snprintf(
-        logLine,
-        sizeof(logLine),
-        "[IMPROV] tx rpc cmd=0x%02X req_values=%u enc_values=%u data_len=%u truncated=%u",
-        command,
-        valuesCount,
-        encodedCount,
-        dataBlockLength,
-        truncated ? 1 : 0
-    );
-    Serial.println(logLine);
-    appendImprovLog(String(logLine));
     sendImprovPacket(IMPROV_TYPE_RPC_RESPONSE, payload, payloadLength);
 }
 
@@ -425,7 +304,6 @@ void sendImprovScanResults(uint8_t responseCommand)
         const String values[] = {String(F("TestNet")), String(F("-50")), String(F("NO"))};
         sendImprovRpcResponse(responseCommand, values, 3);
         sendImprovRpcResponse(responseCommand, nullptr, 0);
-        appendImprovLog(F("[IMPROV] scan debug fixed response sent"));
         return;
     }
 
@@ -501,11 +379,6 @@ void sendImprovScanResults(uint8_t responseCommand)
     // End-of-list marker expected by clients (notably esp-web-tools/WLED flow).
     sendImprovRpcResponse(responseCommand, nullptr, 0);
 
-    char scanLine[96] = {0};
-    snprintf(scanLine, sizeof(scanLine), "[IMPROV] scan sent=%u cmd=0x%02X", sent, responseCommand);
-    Serial.println(scanLine);
-    appendImprovLog(String(scanLine));
-
 #if defined(ESP8266)
     WiFi.scanDelete();
 #endif
@@ -533,18 +406,6 @@ void sendImprovDeviceInfoForCommand(uint8_t rawCommand)
 void handleImprovRpc(const uint8_t *payload, uint8_t payloadLength)
 {
     const ImprovRpcData rpc = parseImprovRpc(payload, payloadLength);
-    char rxLogLine[120] = {0};
-    snprintf(
-        rxLogLine,
-        sizeof(rxLogLine),
-        "[IMPROV] rx rpc raw=0x%02X enum=0x%02X len=%u valid=%u",
-        rpc.rawCommand,
-        static_cast<uint8_t>(rpc.command),
-        payloadLength,
-        rpc.valid ? 1 : 0
-    );
-    Serial.println(rxLogLine);
-    appendImprovLog(String(rxLogLine));
     if (!rpc.valid) {
         sendImprovError(IMPROV_ERROR_INVALID_RPC);
         return;
@@ -553,22 +414,18 @@ void handleImprovRpc(const uint8_t *payload, uint8_t payloadLength)
     // Compatibility path for esp-web-tools variants that use 0x02/0x03/0x04 sequence.
     if (payloadLength <= 2) {
         if (rpc.rawCommand == 0x02) {
-            appendImprovLog(F("[IMPROV] cmd02 treated as current_state"));
             sendImprovState(improvState);
             return;
         }
         if (rpc.rawCommand == 0x03) {
-            appendImprovLog(F("[IMPROV] cmd03 treated as device_info"));
             sendImprovDeviceInfoForCommand(rpc.rawCommand);
             return;
         }
         if (rpc.rawCommand == 0x04) {
-            appendImprovLog(F("[IMPROV] cmd04 treated as scan"));
             sendImprovScanResults(rpc.rawCommand);
             return;
         }
         if (rpc.rawCommand == 0x05) {
-            appendImprovLog(F("[IMPROV] cmd05 treated as scan"));
             sendImprovScanResults(rpc.rawCommand);
             return;
         }
@@ -615,8 +472,6 @@ void handleImprovRpc(const uint8_t *payload, uint8_t payloadLength)
         mySettings->connectionSettings.bssid = String();
         mySettings->saveSettings();
         improvProvisionSettingsSaved = true;
-    } else {
-        appendImprovLog(F("[IMPROV] wifi settings received before settings init, deferring save"));
     }
     improvProvisionPending = true;
     improvProvisionCommand = rpc.rawCommand;
@@ -989,7 +844,6 @@ void loop() {
             mySettings->connectionSettings.bssid = String();
             mySettings->saveSettings();
             improvProvisionSettingsSaved = true;
-            appendImprovLog(F("[IMPROV] deferred wifi settings saved"));
         }
         if (WiFi.status() == WL_CONNECTED) {
             const String values[] = {getProvisionedUrl()};
@@ -998,13 +852,11 @@ void loop() {
             improvProvisionPending = false;
             improvPendingSsid = String();
             improvPendingPassword = String();
-            appendImprovLog(F("[IMPROV] provisioning complete, sent URL"));
         } else if (millis() - improvProvisionStartedAt > 30000) {
             sendImprovError(IMPROV_ERROR_UNABLE_TO_CONNECT);
             improvProvisionPending = false;
             improvPendingSsid = String();
             improvPendingPassword = String();
-            appendImprovLog(F("[IMPROV] provisioning timeout"));
         }
     }
     if (serialWifiRestartTimer > 0 && millis() > serialWifiRestartTimer) {
