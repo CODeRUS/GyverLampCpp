@@ -52,6 +52,22 @@ uint32_t restartTimer = 0;
 
 Ticker updateTimer;
 
+String buildWsStatePayload()
+{
+    String buffer;
+    Serial.println(F("Sending state to ws clients"));
+
+    DynamicJsonDocument json(512);
+    JsonObject root = json.to<JsonObject>();
+    root[F("activeEffect")] = effectsManager->activeEffectIndex();
+    root[F("working")] = mySettings->generalSettings.working;
+    serializeJson(json, buffer);
+
+    serializeJsonPretty(json, Serial);
+    Serial.println();
+    return buffer;
+}
+
 void staticUpdate()
 {
     if (!lampWebServer) {
@@ -95,7 +111,10 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
         Serial.printf_P(PSTR("ws[%s][%u] connect\n"), server->url(), client->id());
         //        client->printf("Hello Client %u :)", client->id());
         client->ping();
-        lampWebServer->sendConfig();
+        const String payload = buildWsStatePayload();
+        if (payload.length() != 0) {
+            client->text(payload);
+        }
     } else if (type == WS_EVT_DISCONNECT) {
         Serial.printf_P(PSTR("ws[%s][%u] disconnect\n"), server->url(), client->id());
     } else if (type == WS_EVT_ERROR) {
@@ -494,19 +513,7 @@ void LampWebServer::sendConfig()
         return;
     }
 
-    String buffer;
-    {
-        Serial.println(F("Sending state to ws clients"));
-
-        DynamicJsonDocument json(512);
-        JsonObject root = json.to<JsonObject>();
-        root[F("activeEffect")] = effectsManager->activeEffectIndex();
-        root[F("working")] = mySettings->generalSettings.working;
-        serializeJson(json, buffer);
-
-        serializeJsonPretty(json, Serial);
-        Serial.println();
-    }
+    const String buffer = buildWsStatePayload();
     if (buffer.length() == 0) {
         return;
     }
