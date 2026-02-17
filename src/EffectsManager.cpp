@@ -127,6 +127,23 @@ void EffectsManager::processAllEffects()
     }
 }
 
+void EffectsManager::appendUnregisteredEffects()
+{
+    for (auto &effectPair : effectsMap) {
+        bool found = false;
+        for (auto *e : effects) {
+            if (e == effectPair.second) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            effects.push_back(effectPair.second);
+            Serial.printf_P(PSTR("Auto-added effect: %s\n"), effectPair.second->settings.name.c_str());
+        }
+    }
+}
+
 void EffectsManager::loop()
 {
     if (activeIndex >= effects.size()) {

@@ -61,6 +61,47 @@ Effect categories in `src/effects/`: `basic/`, `noise/`, `fractional/`, `aurora/
 - `override` keyword on virtual methods
 - Anonymous namespaces for file-scoped globals
 
+## Plugins
+
+Runtime-loadable effects written in position-independent C. Plugin binaries (`.bin`) are loaded from SPIFFS (ESP32) or littleFS (ESP8266) `/plugins/` at boot and registered alongside built-in effects. Works on all platforms (ESP32 gets 32KB IRAM pool, ESP8266 gets 2KB).
+
+### Plugin source files
+
+- `src/plugin/plugin_api.h` — shared C header (API table, header struct, types)
+- `src/plugin/PluginApiImpl.cpp` — firmware-side bridge wrappers
+- `src/plugin/PluginLoader.cpp` — SPIFFS scanning, binary loading, IRAM allocation
+- `src/plugin/PluginEffect.cpp` — `Effect` adapter delegating to plugin functions
+
+### Building plugins
+
+Requires the Xtensa toolchain (installed by PlatformIO).
+
+```bash
+# ESP32 plugins
+cd plugins
+make TOOLCHAIN_PREFIX=$HOME/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-
+
+# ESP8266 plugins
+cd plugins
+make TOOLCHAIN_PREFIX=$HOME/.platformio/packages/toolchain-xtensa/bin/xtensa-lx106-elf-
+
+# Validate (no relocations, no undefined symbols)
+make validate TOOLCHAIN_PREFIX=$HOME/.platformio/packages/toolchain-xtensa/bin/xtensa-lx106-elf-
+
+# Clean
+make clean
+```
+
+Plugin binaries are output to `data/plugins/` for SPIFFS upload. ESP32 and ESP8266 binaries are **not interchangeable** (different ISAs).
+
+### Writing plugins
+
+See `plugins/sparkles_plugin.c` and `plugins/color_plugin.c` for examples. Rules:
+- No globals, no static data, no string literals, no external calls
+- All services through the `api->` function table
+- State via `void*` + `api->alloc`/`api->free`
+- Header struct in `.plugin_header` section with unique UUID
+
 ## CI
 
 GitHub Actions: `.github/workflows/build.yml` — builds all 5 environments, downloads UI assets, creates releases.
