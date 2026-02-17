@@ -927,6 +927,22 @@
       cleanupReleaseObjectUrls();
     });
 
+    // Intercept esploader object to increase baud rate for ESP32.
+    // esp-web-tools assigns esploader to window before calling main().
+    // main() calls changeBaud() when baudrate !== romBaudrate.
+    let _esploader;
+    Object.defineProperty(window, "esploader", {
+      configurable: true,
+      enumerable: true,
+      get() { return _esploader; },
+      set(loader) {
+        if (loader && chipFamilyEl.value === "ESP32") {
+          loader.baudrate = 921600;
+        }
+        _esploader = loader;
+      }
+    });
+
     initFamiliesAndPresets();
     setPreset(presetEl.value);
     attachPartInputHandlers();
