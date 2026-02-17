@@ -19,7 +19,6 @@ public:
     bool isUpdating();
     void onConnected(void (*func)(bool));
     void update();
-    String scanWifiNetworksJson();
 
 protected:
     LampWebServer(uint16_t webPort);

@@ -59,6 +59,7 @@ uint32_t serialWifiRestartTimer = 0;
 uint32_t improvStateBroadcastTimer = 0;
 bool settingsReadyForImprov = false;
 bool flashFsReadyForLogs = false;
+bool improvEnabled = false;
 bool improvProvisionPending = false;
 bool improvProvisionSettingsSaved = false;
 uint8_t improvProvisionCommand = 0x01;
@@ -151,6 +152,21 @@ void dumpImprovLogIfExists()
 
 void resetImprovLogIfTooLarge()
 {
+}
+
+bool isFlashFsEmpty()
+{
+#if defined(ESP32)
+    File root = FLASHFS.open("/");
+    if (!root || !root.isDirectory()) {
+        return true;
+    }
+    File entry = root.openNextFile();
+    return !entry;
+#else
+    Dir dir = FLASHFS.openDir("/");
+    return !dir.next();
+#endif
 }
 
 void sendImprovPacket(uint8_t type, const uint8_t *payload, uint8_t payloadLength)
@@ -550,6 +566,9 @@ void processSerialProvisioning()
 
 void serviceImprov()
 {
+    if (!improvEnabled) {
+        return;
+    }
     processSerialProvisioning();
 }
 
@@ -717,15 +736,7 @@ void setup() {
     ESP.wdtEnable(0);
 #endif
 
-    // Keep boot responsive for esp-web-tools Improv detection after flashing.
-    delay(250);
-
     setupSerial();
-    sendImprovState(IMPROV_STATE_AUTHORIZED);
-    improvStateBroadcastTimer = millis();
-    // Give esp-web-tools enough time to detect Improv before heavy startup.
-    runImprovBootstrapWindow(12000);
-    serviceImprov();
 
     bool flashFsMounted = FLASHFS.begin();
 #if defined(ESP32)
@@ -742,6 +753,16 @@ void setup() {
         resetImprovLogIfTooLarge();
         flushImprovPreFsLogBuffer();
         dumpImprovLogIfExists();
+    }
+
+    improvEnabled = flashFsMounted && isFlashFsEmpty();
+    if (improvEnabled) {
+        // Keep boot responsive for esp-web-tools Improv detection after flashing.
+        delay(250);
+        sendImprovState(IMPROV_STATE_AUTHORIZED);
+        improvStateBroadcastTimer = millis();
+        // Give esp-web-tools enough time to detect Improv before heavy startup.
+        runImprovBootstrapWindow(12000);
     }
     serviceImprov();
 
