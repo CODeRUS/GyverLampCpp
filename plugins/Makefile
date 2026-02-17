@@ -14,7 +14,7 @@ CFLAGS = -Os -ffreestanding -fno-builtin -nostdlib -nostartfiles \
          -fno-exceptions -ffunction-sections -fdata-sections \
          -mtext-section-literals -I$(PLUGIN_API_DIR)
 
-LDFLAGS = -nostdlib -nostartfiles -T plugin.ld -Wl,--gc-sections
+LDFLAGS = -nostdlib -nostartfiles -T plugin.ld
 
 BUILDDIR = build
 OUTDIR   = ../data/plugins
@@ -42,7 +42,7 @@ $(BUILDDIR)/%.elf: $(BUILDDIR)/%.o | $(BUILDDIR)
 # Convert .elf -> .bin, then patch header
 $(BUILDDIR)/%.bin: $(BUILDDIR)/%.elf | $(BUILDDIR)
 	$(OBJCOPY) -O binary $< $@
-	python3 patch_header.py $< $@
+	python3 patch_header.py $< $@ $(TOOLCHAIN_PREFIX)
 
 # Copy to data/plugins/
 $(OUTDIR)/%.bin: $(BUILDDIR)/%.bin | $(OUTDIR)

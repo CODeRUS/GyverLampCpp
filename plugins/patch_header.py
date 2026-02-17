@@ -6,7 +6,7 @@ Reads an ELF file to find *_activate, *_tick, *_deactivate symbol addresses,
 then patches those as little-endian uint32 offsets into the corresponding
 fields of the plugin_header_t at the start of the .bin file.
 
-Usage: python3 patch_header.py <elf_file> <bin_file>
+Usage: python3 patch_header.py <elf_file> <bin_file> [toolchain_prefix]
 """
 
 import struct
@@ -15,10 +15,13 @@ import sys
 import os
 
 
+NM = "xtensa-esp32-elf-nm"
+
+
 def get_symbol_address(elf_path, suffix):
     """Find a symbol ending with the given suffix using nm."""
     result = subprocess.run(
-        ["xtensa-esp32-elf-nm", elf_path],
+        [NM, elf_path],
         capture_output=True, text=True, check=True
     )
     for line in result.stdout.splitlines():
@@ -31,12 +34,15 @@ def get_symbol_address(elf_path, suffix):
 
 
 def main():
-    if len(sys.argv) != 3:
-        print(f"Usage: {sys.argv[0]} <elf_file> <bin_file>")
+    global NM
+    if len(sys.argv) < 3 or len(sys.argv) > 4:
+        print(f"Usage: {sys.argv[0]} <elf_file> <bin_file> [toolchain_prefix]")
         sys.exit(1)
 
     elf_path = sys.argv[1]
     bin_path = sys.argv[2]
+    if len(sys.argv) == 4:
+        NM = sys.argv[3] + "nm"
 
     activate_addr = get_symbol_address(elf_path, "_activate")
     tick_addr = get_symbol_address(elf_path, "_tick")
