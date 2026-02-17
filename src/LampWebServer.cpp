@@ -527,3 +527,43 @@ void LampWebServer::update()
 {
     updateTimer.once(2, staticUpdate);
 }
+
+String LampWebServer::scanWifiNetworksJson()
+{
+    DynamicJsonDocument doc(3072);
+    JsonObject root = doc.to<JsonObject>();
+    root[F("ok")] = false;
+    JsonArray networks = root.createNestedArray(F("networks"));
+
+    if (!wifiManager) {
+        root[F("error")] = F("wifi_manager_unavailable");
+        String out;
+        serializeJson(doc, out);
+        return out;
+    }
+
+    if (!wifiManager->scan()) {
+        root[F("error")] = F("scan_failed");
+        String out;
+        serializeJson(doc, out);
+        return out;
+    }
+
+    const auto results = wifiManager->results();
+    for (const auto &result : results) {
+        if (result.ssid.length() == 0) {
+            continue;
+        }
+        JsonObject net = networks.createNestedObject();
+        net[F("ssid")] = result.ssid;
+        net[F("rssi")] = result.rssi;
+        net[F("quality")] = result.quality;
+        net[F("secure")] = result.encryptionType != 0;
+    }
+    root[F("ok")] = true;
+    root[F("count")] = networks.size();
+
+    String out;
+    serializeJson(doc, out);
+    return out;
+}

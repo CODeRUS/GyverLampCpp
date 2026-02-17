@@ -108,6 +108,30 @@ void restoreEffectsAndReboot()
     delay(5000);
 }
 
+void printFlashFsContent()
+{
+    Serial.println(F("FLASHFS content:"));
+#if defined(ESP32)
+    File root = FLASHFS.open("/");
+    if (!root) {
+        Serial.println(F("  unable to open root directory"));
+        return;
+    }
+    File file = root.openNextFile();
+    while (file) {
+        Serial.printf_P(PSTR("  %s (%zu bytes)\n"), file.name(), file.size());
+        file = root.openNextFile();
+    }
+#else
+    Dir dir = FLASHFS.openDir("/");
+    while (dir.next()) {
+        File file = dir.openFile("r");
+        Serial.printf_P(PSTR("  %s (%zu bytes)\n"), dir.fileName().c_str(), file.size());
+        file.close();
+    }
+#endif
+}
+
 } // namespace
 
 Settings *Settings::instance()
@@ -324,6 +348,8 @@ void Settings::processCommandMqtt(const String &message)
 
 bool Settings::readSettings()
 {
+    printFlashFsContent();
+
     bool settingsExists = FLASHFS.exists(settingsFileName);
     Serial.printf_P(PSTR("FLASHFS Settings file exists: %s\n"), settingsExists ? PSTR("true") : PSTR("false"));
     if (!settingsExists) {
@@ -346,12 +372,7 @@ bool Settings::readSettings()
         return false;
     }
 
-    Serial.println("reading settings.json.save");
-    while (settings.available()) {
-        String buffer = settings.readStringUntil('\n');
-        Serial.println(buffer);
-    }
-    settings.seek(0);
+    Serial.println(F("Reading settings.json.save"));
 
     DynamicJsonDocument json(serializeSettingsSize);
     DeserializationError err = deserializeJson(json, settings);
@@ -525,12 +546,7 @@ bool Settings::readEffects()
         return false;
     }
 
-    Serial.println("reading effects.json");
-    while (effects.available()) {
-        String buffer = effects.readStringUntil('\n');
-        Serial.println(buffer);
-    }
-    effects.seek(0);
+    Serial.println(F("Reading effects.json"));
 
     DynamicJsonDocument json(serializeEffectsSize);
     DeserializationError err = deserializeJson(json, effects);
