@@ -570,6 +570,8 @@ bool Settings::readEffects()
         effectsManager->processEffectSettings(effect);
     }
 
+    effectsManager->appendUnregisteredEffects();
+
     copyFile(effectsFileNameSave, effectsFileName);
 
     return true;
