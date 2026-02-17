@@ -154,19 +154,24 @@ void resetImprovLogIfTooLarge()
 {
 }
 
-bool isFlashFsEmpty()
+bool isFirstBootAfterFlash()
 {
-#if defined(ESP32)
-    File root = FLASHFS.open("/");
-    if (!root || !root.isDirectory()) {
+    File f = FLASHFS.open("/.improv_bid", "r");
+    if (!f) {
         return true;
     }
-    File entry = root.openNextFile();
-    return !entry;
-#else
-    Dir dir = FLASHFS.openDir("/");
-    return !dir.next();
-#endif
+    String stored = f.readString();
+    f.close();
+    return stored != String(__DATE__ " " __TIME__);
+}
+
+void markImprovBootCompleted()
+{
+    File f = FLASHFS.open("/.improv_bid", "w");
+    if (f) {
+        f.print(__DATE__ " " __TIME__);
+        f.close();
+    }
 }
 
 void sendImprovPacket(uint8_t type, const uint8_t *payload, uint8_t payloadLength)
@@ -755,8 +760,9 @@ void setup() {
         dumpImprovLogIfExists();
     }
 
-    improvEnabled = flashFsMounted && isFlashFsEmpty();
+    improvEnabled = isFirstBootAfterFlash();
     if (improvEnabled) {
+        markImprovBootCompleted();
         // Keep boot responsive for esp-web-tools Improv detection after flashing.
         delay(250);
         sendImprovState(IMPROV_STATE_AUTHORIZED);
