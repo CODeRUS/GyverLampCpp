@@ -121,7 +121,7 @@ void sendDiscovery()
         doc[F("schema")] = F("json");
         doc[F("brightness")] = true;
         doc[F("effect")] = true;
-        doc[F("rgb")] = true;
+        doc[F("supported_color_modes")] = F("rgb");
         doc[F("json_attr_t")] =F("~/state");
 
         JsonObject dev = doc.createNestedObject(F("dev"));
@@ -214,7 +214,7 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
         Serial.println(F("ESP8266_NOT_ENOUGH_SPACE"));
         break;
     default:
-        Serial.printf_P(PSTR("unknown %d\n"), reason);
+        Serial.printf_P(PSTR("unknown %d\n"), static_cast<int>(reason));
     }
     mqttReconnectTimer.once(10, connectToMqtt);
 }
