@@ -73,10 +73,8 @@
 
 #include "effects/basic/ScrollingTextEffect.h"
 
-#if defined(ESP32)
 #include "plugin/PluginLoader.h"
 #include "plugin/PluginEffect.h"
-#endif
 
 #include <map>
 
@@ -329,7 +327,6 @@ EffectsManager::EffectsManager()
     RegisterEffect<DMXEffect>(F("DMX"));
     RegisterEffect<ScrollingTextEffect>(F("Text"));
 
-#if defined(ESP32)
     PluginLoader::Initialize();
     pluginLoader->discoverAndLoad();
     for (auto *lp : pluginLoader->getPlugins()) {
@@ -343,5 +340,4 @@ EffectsManager::EffectsManager()
             Serial.printf_P(PSTR("Registered plugin: %s [%s]\n"), lp->header.name, lp->header.uuid);
         }
     }
-#endif
 }

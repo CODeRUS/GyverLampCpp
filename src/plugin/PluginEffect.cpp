@@ -1,5 +1,3 @@
-#if defined(ESP32)
-
 #include "PluginEffect.h"
 #include "PluginLoader.h"
 
@@ -51,5 +49,3 @@ void PluginEffect::tick()
 
     plugin->tick(pluginLoader->getApi(), &ps, pluginState);
 }
-
-#endif

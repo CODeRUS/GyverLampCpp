@@ -65,10 +65,24 @@ typedef struct plugin_api {
     plugin_rgb_t (*color_from_palette)(uint8_t palette_id, uint8_t index, uint8_t brightness);
     uint8_t  (*inoise8_3d)(uint16_t x, uint16_t y, uint16_t z);
 
-    /* Math helpers */
+    /* Math helpers (integer, from FastLED) */
     uint8_t  (*scale8)(uint8_t val, uint8_t scale);
     uint8_t  (*qadd8)(uint8_t a, uint8_t b);
     uint8_t  (*qsub8)(uint8_t a, uint8_t b);
+    uint8_t  (*isin8)(uint8_t theta);
+    uint8_t  (*icos8)(uint8_t theta);
+    int16_t  (*isin16)(uint16_t theta);
+    int16_t  (*icos16)(uint16_t theta);
+    uint8_t  (*ibeatsin8)(uint8_t bpm, uint8_t lo, uint8_t hi, uint32_t timebase, uint8_t phase_offset);
+    uint16_t (*ibeatsin16)(uint16_t bpm, uint16_t lo, uint16_t hi, uint32_t timebase, uint16_t phase_offset);
+
+    /* Math helpers (floating point) */
+    float    (*fsinf)(float x);
+    float    (*fcosf)(float x);
+    float    (*fsqrtf)(float x);
+    float    (*fatan2f)(float y, float x);
+    float    (*ffabsf)(float x);
+    float    (*ffmodf)(float x, float y);
 
     /* Debug logging (numeric only — no string literals in plugins) */
     void     (*log_val)(uint32_t code);

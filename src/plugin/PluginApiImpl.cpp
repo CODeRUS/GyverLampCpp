@@ -4,6 +4,7 @@
 
 #include <Arduino.h>
 #include <FastLED.h>
+#include <math.h>
 
 extern "C" {
 
@@ -119,6 +120,54 @@ static uint8_t api_qsub8(uint8_t a, uint8_t b) {
     return qsub8(a, b);
 }
 
+static uint8_t api_sin8(uint8_t theta) {
+    return sin8(theta);
+}
+
+static uint8_t api_cos8(uint8_t theta) {
+    return cos8(theta);
+}
+
+static int16_t api_sin16(uint16_t theta) {
+    return sin16(theta);
+}
+
+static int16_t api_cos16(uint16_t theta) {
+    return cos16(theta);
+}
+
+static uint8_t api_beatsin8(uint8_t bpm, uint8_t lo, uint8_t hi, uint32_t timebase, uint8_t phase_offset) {
+    return beatsin8(bpm, lo, hi, timebase, phase_offset);
+}
+
+static uint16_t api_beatsin16(uint16_t bpm, uint16_t lo, uint16_t hi, uint32_t timebase, uint16_t phase_offset) {
+    return beatsin16(bpm, lo, hi, timebase, phase_offset);
+}
+
+static float api_sinf(float x) {
+    return sinf(x);
+}
+
+static float api_cosf(float x) {
+    return cosf(x);
+}
+
+static float api_sqrtf(float x) {
+    return sqrtf(x);
+}
+
+static float api_atan2f(float y, float x) {
+    return atan2f(y, x);
+}
+
+static float api_fabsf(float x) {
+    return fabsf(x);
+}
+
+static float api_fmodf(float x, float y) {
+    return fmodf(x, y);
+}
+
 static void api_log_val(uint32_t code) {
     Serial.printf_P(PSTR("[plugin] %u\n"), code);
 }
@@ -165,6 +214,19 @@ void plugin_api_init(plugin_api_t *api) {
     api->scale8        = api_scale8;
     api->qadd8         = api_qadd8;
     api->qsub8         = api_qsub8;
+    api->isin8         = api_sin8;
+    api->icos8         = api_cos8;
+    api->isin16        = api_sin16;
+    api->icos16        = api_cos16;
+    api->ibeatsin8     = api_beatsin8;
+    api->ibeatsin16    = api_beatsin16;
+
+    api->fsinf         = api_sinf;
+    api->fcosf         = api_cosf;
+    api->fsqrtf        = api_sqrtf;
+    api->fatan2f       = api_atan2f;
+    api->ffabsf        = api_fabsf;
+    api->ffmodf        = api_fmodf;
 
     api->log_val       = api_log_val;
     api->log_val2      = api_log_val2;

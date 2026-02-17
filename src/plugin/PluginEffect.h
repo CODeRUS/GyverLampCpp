@@ -1,5 +1,4 @@
 #pragma once
-#if defined(ESP32)
 
 #include "effects/Effect.h"
 
@@ -18,5 +17,3 @@ private:
     LoadedPlugin *plugin;
     void *pluginState = nullptr;
 };
-
-#endif

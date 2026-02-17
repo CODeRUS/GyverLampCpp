@@ -1,12 +1,13 @@
-#if defined(ESP32)
-
 #include "PluginLoader.h"
 #include "PluginApiImpl.h"
 
+#if defined(ESP32)
 #include <SPIFFS.h>
 #define FLASHFS SPIFFS
-
-#include <esp_attr.h>
+#else
+#include <LittleFS.h>
+#define FLASHFS LittleFS
+#endif
 
 namespace {
 
@@ -14,7 +15,11 @@ PluginLoader *object = nullptr;
 
 // Simple bump allocator in IRAM for plugin executable code.
 // Plugins are loaded once at boot and never freed.
+#if defined(ESP32)
 #define IRAM_POOL_SIZE 32768
+#else
+#define IRAM_POOL_SIZE 2048
+#endif
 
 IRAM_ATTR __attribute__((aligned(4)))
 static uint8_t iram_pool[IRAM_POOL_SIZE];
@@ -57,9 +62,10 @@ PluginLoader::PluginLoader()
 
 void PluginLoader::discoverAndLoad()
 {
+#if defined(ESP32)
     File root = FLASHFS.open("/plugins");
     if (!root || !root.isDirectory()) {
-        Serial.println(F("No /plugins directory on SPIFFS"));
+        Serial.println(F("No /plugins directory on filesystem"));
         return;
     }
 
@@ -75,6 +81,18 @@ void PluginLoader::discoverAndLoad()
         }
         file = root.openNextFile();
     }
+#else
+    Dir dir = FLASHFS.openDir("/plugins");
+    while (dir.next()) {
+        String path = dir.fileName();
+        if (!path.startsWith("/plugins/")) {
+            path = String("/plugins/") + path;
+        }
+        if (path.endsWith(".bin")) {
+            loadPlugin(path);
+        }
+    }
+#endif
 
     Serial.printf_P(PSTR("Loaded %u plugin(s)\n"), plugins.size());
 }
@@ -189,5 +207,3 @@ const plugin_api_t* PluginLoader::getApi() const
 {
     return &api;
 }
-
-#endif
