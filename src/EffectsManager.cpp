@@ -73,6 +73,11 @@
 
 #include "effects/basic/ScrollingTextEffect.h"
 
+#if defined(ESP32)
+#include "plugin/PluginLoader.h"
+#include "plugin/PluginEffect.h"
+#endif
+
 #include <map>
 
 namespace  {
@@ -323,4 +328,20 @@ EffectsManager::EffectsManager()
 //    RegisterEffect<SoundStereoEffect>(F("Stereo"));
     RegisterEffect<DMXEffect>(F("DMX"));
     RegisterEffect<ScrollingTextEffect>(F("Text"));
+
+#if defined(ESP32)
+    PluginLoader::Initialize();
+    pluginLoader->discoverAndLoad();
+    for (auto *lp : pluginLoader->getPlugins()) {
+        if (lp->valid) {
+            String uuid(lp->header.uuid);
+            if (effectsMap.count(uuid) > 0) {
+                Serial.printf_P(PSTR("Plugin UUID collision, skipping: %s\n"), lp->header.uuid);
+                continue;
+            }
+            effectsMap[uuid] = new PluginEffect(uuid, lp);
+            Serial.printf_P(PSTR("Registered plugin: %s [%s]\n"), lp->header.name, lp->header.uuid);
+        }
+    }
+#endif
 }
