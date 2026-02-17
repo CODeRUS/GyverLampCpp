@@ -227,7 +227,7 @@
   <div class="wrap">
     <h1>ESP8266 / ESP32 Browser Flasher</h1>
     <p>
-      Статичная страница для прошивки через Web Serial (Chrome/Edge). Поддерживает образы по URL и локальные файлы.
+      Статичная страница для прошивки через Web Serial (Chrome/Edge). Поддерживает образы по URL.
       Семейства и пресеты ниже сгенерированы по env из GyverLampCpp platformio.ini.
     </p>
 
@@ -289,6 +289,7 @@
           Если кнопка установки не отображается: откройте страницу через HTTPS или localhost и используйте Chromium-браузер.
         </div>
       </section>
+
     </div>
   </div>
 
@@ -327,6 +328,10 @@
     const PLATFORMIO_SOURCE_URL = "https://github.com/CODeRUS/GyverLampCpp/blob/master/platformio.ini";
     const RELEASES_BASE_PATH = "releases";
     const DEFAULT_SITE_BASE_URL = "https://coderus.github.io/GyverLampCpp/";
+    const ESP32_STATIC_BASE_PATH = "esp32";
+    const ESP32_BOOTLOADER_PATH = `${ESP32_STATIC_BASE_PATH}/bootloader_dio_40m.bin`;
+    const ESP32_PARTITIONS_PATH = `${ESP32_STATIC_BASE_PATH}/partitions.bin`;
+    const ESP32_BOOT_APP0_PATH = `${ESP32_STATIC_BASE_PATH}/boot_app0.bin`;
     const GITHUB_API_VERSION = "2022-11-28";
     const ASSET_DB_NAME = "gyverlampcpp-flasher";
     const ASSET_DB_STORE = "release-assets";
@@ -337,6 +342,7 @@
     let isPreparingInstall = false;
     let bypassInstallPrefetchOnce = false;
     const STATIC_RELEASE_TAGS = [
+      "20260217150146-04c8b49",
       "20250331110631-748b1ec",
       "20240928064740-d54f516",
       "20230404213149-26f398e",
@@ -447,6 +453,21 @@
       statusEl.classList.toggle("error", isError);
     }
 
+    function resolveProjectStaticUrl(relativePath) {
+      const baseForAbsolute = (window.location.protocol === "http:" || window.location.protocol === "https:")
+        ? window.location.href
+        : DEFAULT_SITE_BASE_URL;
+      return new URL(relativePath, baseForAbsolute).href;
+    }
+
+    function getEsp32StaticParts() {
+      return [
+        { path: resolveProjectStaticUrl(ESP32_BOOTLOADER_PATH), offset: parseOffset("0x01000") },
+        { path: resolveProjectStaticUrl(ESP32_PARTITIONS_PATH), offset: parseOffset("0x08000") },
+        { path: resolveProjectStaticUrl(ESP32_BOOT_APP0_PATH), offset: parseOffset("0x0E000") }
+      ];
+    }
+
     function cleanupTransientObjectUrls() {
       transientObjectUrls.forEach((url) => URL.revokeObjectURL(url));
       transientObjectUrls.clear();
@@ -455,6 +476,10 @@
     function cleanupReleaseObjectUrls() {
       persistentObjectUrls.forEach((url) => URL.revokeObjectURL(url));
       persistentObjectUrls.clear();
+    }
+
+    function openUrl(url) {
+      window.open(url, "_blank", "noopener,noreferrer");
     }
 
     function openAssetsDb() {
@@ -516,6 +541,10 @@
       partsList.append(fragment);
     }
 
+    function getPartNodeByKey(key) {
+      return partsList.querySelector(`.part[data-part-key="${key}"]`);
+    }
+
     function setPreset(presetName) {
       cleanupTransientObjectUrls();
       partsList.innerHTML = "";
@@ -531,7 +560,7 @@
         key: part.key,
         name: part.name,
         offset: part.offset,
-        url: part.url || "",
+        url: part.url ? resolveProjectStaticUrl(part.url) : "",
         required: true
       }));
 
@@ -607,6 +636,9 @@
       }
 
       const chipFamily = chipFamilyEl.value;
+      if (chipFamily === "ESP32") {
+        parts.unshift(...getEsp32StaticParts());
+      }
       const buildName = (buildNameEl.value || "Custom Build").trim();
       const selectedReleaseTag = releaseSelectEl.value && releaseSelectEl.value.trim()
         ? releaseSelectEl.value.trim()
@@ -626,6 +658,7 @@
     }
 
     function updateInstallButton(manifestData) {
+      console.log("[GyverLampCppFlasher] Manifest JSON:", JSON.stringify(manifestData, null, 2));
       const blob = new Blob([JSON.stringify(manifestData, null, 2)], { type: "application/json" });
       const manifestUrl = URL.createObjectURL(blob);
       transientObjectUrls.add(manifestUrl);
@@ -634,6 +667,7 @@
       const button = document.createElement("esp-web-install-button");
       button.setAttribute("manifest", manifestUrl);
       button.setAttribute("install-supported", "");
+      button.setAttribute("improv-wifi-serial", "");
       button.innerHTML = "<button slot=\"activate\">Подключить и прошить</button>";
       installArea.append(button);
 
@@ -740,8 +774,8 @@
         return;
       }
 
-      const firstPartNode = partsList.querySelector(".part");
-      if (!firstPartNode) {
+      const firmwarePartNode = getPartNodeByKey("firmware");
+      if (!firmwarePartNode) {
         return;
       }
 
@@ -749,10 +783,10 @@
       try {
         const firmwareBlobUrl = await getReleaseAssetBlobUrl(release, firmwareName);
         if (firmwareBlobUrl) {
-          firstPartNode.querySelector('[data-role="url"]').value = firmwareBlobUrl;
+          firmwarePartNode.querySelector('[data-role="url"]').value = firmwareBlobUrl;
         }
       } catch (error) {
-        firstPartNode.querySelector('[data-role="url"]').value = getReleaseAssetUrl(release, firmwareName);
+        firmwarePartNode.querySelector('[data-role="url"]').value = getReleaseAssetUrl(release, firmwareName);
       }
 
       if (includeSpiffsEl.checked) {
@@ -777,14 +811,10 @@
       const firmwareUrl = getReleaseAssetUrl(release, firmwareAssetName);
       const spiffsUrl = getReleaseAssetUrl(release, spiffsAssetName);
 
-      const firstPartNode = partsList.querySelector(".part");
-      if (firstPartNode && firmwareUrl) {
-        const firmwareUrlInput = firstPartNode.querySelector('[data-role="url"]');
+      const firmwarePartNode = getPartNodeByKey("firmware");
+      if (firmwarePartNode && firmwareUrl) {
+        const firmwareUrlInput = firmwarePartNode.querySelector('[data-role="url"]');
         firmwareUrlInput.value = firmwareUrl;
-      } else if (firstPartNode && isFileProtocol) {
-        const firmwareUrlInput = firstPartNode.querySelector('[data-role="url"]');
-        firmwareUrlInput.value = "";
-        firmwareUrlInput.placeholder = "file:// режим: выберите локальный firmware .bin";
       }
 
       if (spiffsUrl) {
