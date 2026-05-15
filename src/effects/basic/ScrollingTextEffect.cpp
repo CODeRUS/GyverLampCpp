@@ -10,8 +10,8 @@ uint32_t textColor = CRGB(40, 40, 40);
 uint32_t bgColor = CRGB(0, 0, 0);
 bool addSpace = true;
 
-int8_t posx = 0;
-uint8_t indexx = 0;
+int16_t posx = 0;
+uint16_t indexx = 0;
 
 void readColor(const JsonObject &json, const String &key, uint32_t &myColor)
 {
@@ -45,6 +45,17 @@ ScrollingTextEffect::ScrollingTextEffect(const String &id)
 
 void ScrollingTextEffect::tick()
 {
+    const String currentLine = line;
+    const uint16_t lineLength = currentLine.length();
+    if (lineLength == 0) {
+        return;
+    }
+
+    if (indexx >= lineLength) {
+        indexx = 0;
+        posx = 0;
+    }
+
     myMatrix->fill(bgColor);
     delay(1);
 
@@ -52,19 +63,22 @@ void ScrollingTextEffect::tick()
     int16_t y1 = 0;
     uint16_t w = 0;
     uint16_t h = 0;
-    myMatrix->getCharBounds(line.charAt(indexx), &x1, &y1, &w, &h);
+    myMatrix->getCharBounds(currentLine.charAt(indexx), &x1, &y1, &w, &h);
+    if (w == 0) {
+        w = 1;
+    }
     auto posy = (mySettings->matrixSettings.height - h) / 2;
 
-    if (--posx == -w) {
+    if (--posx <= -static_cast<int16_t>(w)) {
         posx = 0;
-        if (++indexx == line.length()) {
+        if (++indexx >= lineLength) {
             indexx = 0;
         }
     }
 
-    String output = line.substring(indexx);
+    String output = currentLine.substring(indexx);
     if (indexx > 0) {
-        output += line.substring(0, indexx);
+        output += currentLine.substring(0, indexx);
     }
 
     myMatrix->setPassThruColor(textColor);
@@ -104,19 +118,23 @@ void ScrollingTextEffect::deactivate()
 void ScrollingTextEffect::initialize(const JsonObject &json)
 {
     Effect::initialize(json);
+    String nextText = text;
     if (json.containsKey(F("text"))) {
-        text = json[F("text")].as<String>();
+        nextText = json[F("text")].as<String>();
     }
     readColor(json, F("textColor"), textColor);
     readColor(json, F("bgColor"), bgColor);
+    text = nextText;
     if (addSpace) {
-        line = text + " ";
+        line = nextText + " ";
     } else {
-        line = text;
+        line = nextText;
+    }
+    if (line.length() == 0) {
+        line = " ";
     }
     posx = 0;
     indexx = 0;
-    delay(50);
 }
 
 void ScrollingTextEffect::writeSettings(JsonObject &json)
