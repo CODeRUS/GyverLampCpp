@@ -364,6 +364,11 @@ void MyMatrix::drawLineXY(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, CRGB c
     setPassThruColor();
 }
 
+void MyMatrix::adjustPixelXY(uint8_t x, uint8_t y, CRGB color)
+{
+    leds[myMatrix->getPixelNumberXY(x, y)] += color;
+}
+
 CRGB MyMatrix::getPixColor(uint16_t number)
 {
     if (number > numLeds - 1) {

@@ -73,6 +73,17 @@
 
 #include "effects/basic/ScrollingTextEffect.h"
 
+#include "effects/jeeui/EffectPulse.h"
+#include "effects/jeeui/EffectSparcles.h"
+#include "effects/jeeui/EffectWhiteColorStripe.h"
+#include "effects/jeeui/EffectEverythingFall.h"
+#include "effects/jeeui/EffectMatrix.h"
+#include "effects/jeeui/EffectStarFall.h"
+#include "effects/jeeui/EffectLighters.h"
+#include "effects/jeeui/EffectLighterTracers.h"
+#include "effects/jeeui/EffectLightBalls.h"
+#include "effects/jeeui/EffectBall.h"
+
 #include <map>
 
 namespace  {
@@ -323,4 +334,15 @@ EffectsManager::EffectsManager()
 //    RegisterEffect<SoundStereoEffect>(F("Stereo"));
     RegisterEffect<DMXEffect>(F("DMX"));
     RegisterEffect<ScrollingTextEffect>(F("Text"));
+
+    RegisterEffect<EffectPulse>(F("PulseJ"));
+    RegisterEffect<EffectSparcles>(F("SparclesJ"));
+    RegisterEffect<EffectWhiteColorStripe>(F("WhiteJ"));
+    RegisterEffect<EffectEverythingFall>(F("FallJ"));
+    RegisterEffect<EffectMatrix>(F("MatrixJ"));
+    RegisterEffect<EffectStarFall>(F("StarfallJ"));
+    RegisterEffect<EffectLighters>(F("LightersJ"));
+    RegisterEffect<EffectLighterTracers>(F("LighterTracersJ"));
+    RegisterEffect<EffectLightBalls>(F("LightBallsJ"));
+    RegisterEffect<EffectBall>(F("BallJ"));
 }

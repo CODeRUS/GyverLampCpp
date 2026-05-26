@@ -62,6 +62,8 @@ public:
     void drawPixelXY(uint8_t x, uint8_t y, CRGB color);
     void drawLineXY(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, CRGB color);
 
+    void adjustPixelXY(uint8_t x, uint8_t y, CRGB color);
+
     CRGB getPixColor(uint16_t number);
     CRGB getPixColorXY(uint8_t x, uint8_t y);
 
