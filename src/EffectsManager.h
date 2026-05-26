@@ -16,6 +16,7 @@ public:
 
     void processEffectSettings(const JsonObject &json);
     void processAllEffects();
+    void appendUnregisteredEffects();
 
     void next();
     void previous();
